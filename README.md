@@ -1,28 +1,25 @@
-# Create T3 App
+# OFMI Website 2.0
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+## Prerequisitos
+- Tener Node Instalado (https://nodejs.org/en/)
+- Tener Docker Desktop (preferiblemente) o Docker instalado (https://www.docker.com/products/docker-desktop/)
 
-## What's next? How do I make an app with this?
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+## Setup
+- Clonar el respositorio con `git clone <url>`
+- Copia el archivo `.env.example` y renombralo a `.env`
+- Ejecuta `npm install` para instalar las dependencias
+- Ejectuta `npm run setup` para iniciar la base de datos (necesario cada vez que quieras desarrollar)
+- Ejectura `npm run dev` para iniciar el servidor de desarrollo
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## Comandos utiles 
+- `npx prisma studio` para visualizar la base de datos
+- `docker exec -it ofmi_db bash` para entrar al contenedor de la base de datos con bash y luego `psql -U ofmi` para entrar a la base de datos con psql
+  
+## PgAdmin
+- Util si necesitas mas control sobre la base de datos
+- Ir a `localhost:5051`, iniciar sesion con `admin@ofmi.com` y `admin`
+- La primera vez que entres, te pedirá la contraseña de la base de datos, la cual es `ofmi`
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
-
-## Learn More
-
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
-
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
-
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
-
-## How do I deploy this?
-
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+## Todo
+- Agregar datos iniciales a la base de datos
