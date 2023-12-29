@@ -14,22 +14,15 @@ Next-Prisma-Starter is a boilerplate project designed to help you quickly set up
 
 To get started with Next-Prisma-Starter, follow these steps:
 
-1. **Clone the Repository**: Clone this repository to your local machine using Git.
+1. **Add the .env.local fila**:
 
-   ```bash
-   git clone https://github.com/ManishPJha/next-prisma-starter.git
-   ```
+```sh
+DATABASE_URL="postgresql://ofmi:ofmi@localhost:5050/ofmi"
+```
 
-2. **Install Dependencies**: Navigate to the project directory and install the required dependencies.
+2. **Set Up the Database**: Configure your database connection in the `prisma/schema.prisma` file. You can use PostgreSQL, MySQL, SQLite, or another supported database.
 
-   ```bash
-   cd next-prisma-starter
-   npm install
-   ```
-
-3. **Set Up the Database**: Configure your database connection in the `prisma/schema.prisma` file. You can use PostgreSQL, MySQL, SQLite, or another supported database.
-
-4. **Run Migrations**: Apply database migrations to create the database schema.
+3. **Run Migrations**: Apply database migrations to create the database schema.
 
    ```bash
    npx prisma migrate dev --name your_migration_name
@@ -41,7 +34,7 @@ To get started with Next-Prisma-Starter, follow these steps:
    npm run push
    ```
 
-5. **Seed Database**: To seed your database with dummy data.
+4. **Seed Database**: To seed your database with dummy data.
 
    ```bash
    npm run seed
@@ -49,13 +42,13 @@ To get started with Next-Prisma-Starter, follow these steps:
 
    also you can set limit of dummy data you need from the `config` file located at `src/config/default.ts`
 
-6. **Start the Development Server**: Start the Next.js development server.
+5. **Start the Development Server**: Start the Next.js development server.
 
    ```bash
    npm run dev
    ```
 
-7. **Open Your App**: Your application should now be running at [http://localhost:3000](http://localhost:3000). You can start building your project by modifying the source code located in the `src` directory.
+6. **Open Your App**: Your application should now be running at [http://localhost:3000](http://localhost:3000). You can start building your project by modifying the source code located in the `src` directory.
 
 ## Folder Structure
 
