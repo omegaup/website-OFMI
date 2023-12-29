@@ -1,0 +1,16 @@
+{
+    "configurations": [
+        {
+            "name": "Attach",
+            "port": 9229,
+            "request": "attach",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "restart": {
+                "maxAttempts": 10
+            },
+            "type": "node"
+        }
+    ]
+}
