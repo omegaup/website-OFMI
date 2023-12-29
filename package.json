@@ -11,7 +11,6 @@
     "migrate:dev": "./node_modules/.bin/dotenv -e .env.local npx prisma migrate dev --preview-feature",
     "push": "npx prisma db push",
     "studio": "npx prisma studio",
-    "seed": "ts-node --transpile-only prisma/seed.ts --preview-feature",
     "format": "npx prisma format && prettier . --write"
   },
   "dependencies": {
