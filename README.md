@@ -14,21 +14,34 @@ Next-Prisma-Starter is a boilerplate project designed to help you quickly set up
 
 To get started with Next-Prisma-Starter, follow these steps:
 
-1. **Add the .env.local fila**:
+1. **Add the .env.local file**:
 
-```sh
+```bash
 DATABASE_URL="postgresql://ofmi:ofmi@localhost:5050/ofmi"
 ```
 
-2. **Set Up the Database**: Configure your database connection in the `prisma/schema.prisma` file. You can use PostgreSQL, MySQL, SQLite, or another supported database.
+2. Run postgres locally. In the root of the project run:
 
-3. **Run Migrations**: Apply database migrations to create the database schema.
+```bash
+docker compose up
+```
+
+This is the current DB design
+
+[![](https://mermaid.ink/img/pako:eNqdVm1vmzAQ_ivIn7MqtGkS-LatqjRV06pW-zJFQg5cgjW_sLPZSqr89xnIC8FOSssnuLvHd3783JlXkqoMSEwA7xhdIxULGdjnpwbUwWv7UT_fpAlYFjw-HE3PBplcByAo4451xVCbRFIBjotTx3NHDQRLhiZPMvvqQNbqL6AUIE3CMsdbIKwAETJ_vgKVVKXUjkPnNmOi2QbOuUzFO75TNupt29CEZhmC1raw4H7HznYh25fvbcznNgQGMqoNAhiX6BdjSaA8kaVYAjp-Ji_7N6xI6tP25PNxnlrODFaOXQJb50uFuVKZH-TBeM8lVxJ6hD2ndlk-kKfjqgf8j5Vgb6FrUwUUe9AnxeHjiR8pGpayghqmpLvK6Xdpu6url71d2ep9drSl9e3Dz-6oRts_Ci9WWnSdvlLOBhyyfFVWh7Ysad6X6fFh5GTTjRx8dew8dmJ5BC0go7yXjtO0E_jFgoOM6T8l5WzFwFWyErCmZZHUZ-WV7z6goFr_U5j1BYFqyUE8gS656W6-B7f5qXb0qVOFcGpKD7wmB-6aeegewT3jMEzJKxvp3V3tSErk763hRISH4FSJenj7s5iqcNq4JWcnpXez5-sj7yRq7p3jjbNtp3z3CrQjKjAq2ACqQGHz6Qz1OMip9oAElVVvMHRC21E1KLQdTYNCfT1-CSia-L3-P4bWvhHoIe7cZIgbqVC2v6LPxXUr2V8Una2_AdtX0sCbDrl4GD0JDs_TEnXS_Q2YjIgAtH8Nmf3dahS9ICYHK0cS29eM4u8FWcitjaOlUc-VTEm8olzDiJRFLdLdH9rBanuPxK_khcTXYXR1E41n45somk0m19F0RCoSf5pMrqa38-t5OIui28k0DLcjslHKLhFejW9uo_k4moaz8TychLNmvV-N02AJ2_-YjTC4?type=png)](https://mermaid.live/edit#pako:eNqdVm1vmzAQ_ivIn7MqtGkS-LatqjRV06pW-zJFQg5cgjW_sLPZSqr89xnIC8FOSssnuLvHd3783JlXkqoMSEwA7xhdIxULGdjnpwbUwWv7UT_fpAlYFjw-HE3PBplcByAo4451xVCbRFIBjotTx3NHDQRLhiZPMvvqQNbqL6AUIE3CMsdbIKwAETJ_vgKVVKXUjkPnNmOi2QbOuUzFO75TNupt29CEZhmC1raw4H7HznYh25fvbcznNgQGMqoNAhiX6BdjSaA8kaVYAjp-Ji_7N6xI6tP25PNxnlrODFaOXQJb50uFuVKZH-TBeM8lVxJ6hD2ndlk-kKfjqgf8j5Vgb6FrUwUUe9AnxeHjiR8pGpayghqmpLvK6Xdpu6url71d2ep9drSl9e3Dz-6oRts_Ci9WWnSdvlLOBhyyfFVWh7Ysad6X6fFh5GTTjRx8dew8dmJ5BC0go7yXjtO0E_jFgoOM6T8l5WzFwFWyErCmZZHUZ-WV7z6goFr_U5j1BYFqyUE8gS656W6-B7f5qXb0qVOFcGpKD7wmB-6aeegewT3jMEzJKxvp3V3tSErk763hRISH4FSJenj7s5iqcNq4JWcnpXez5-sj7yRq7p3jjbNtp3z3CrQjKjAq2ACqQGHz6Qz1OMip9oAElVVvMHRC21E1KLQdTYNCfT1-CSia-L3-P4bWvhHoIe7cZIgbqVC2v6LPxXUr2V8Una2_AdtX0sCbDrl4GD0JDs_TEnXS_Q2YjIgAtH8Nmf3dahS9ICYHK0cS29eM4u8FWcitjaOlUc-VTEm8olzDiJRFLdLdH9rBanuPxK_khcTXYXR1E41n45somk0m19F0RCoSf5pMrqa38-t5OIui28k0DLcjslHKLhFejW9uo_k4moaz8TychLNmvV-N02AJ2_-YjTC4)
+
+
+3. **Modify the DB** If you need to change the DB (add a new table), modify the `prisma/schema.prisma` file and then run 
+   ```bash
+   npm run migrate:dev
+   ```
+4. **Run Migrations**: Apply database migrations to create the database schema.
 
    ```bash
-   npx prisma migrate dev --name your_migration_name
+   npm run migrate:dev
    ```
 
-   For existing schema you can update your schema changes without creating an migration folder with following command:
+   For an existing schema you can update it without creating a migration folder with following command:
 
    ```bash
    npm run push
