@@ -8,9 +8,9 @@ import config from '../src/config/default'
  * @param length dummy data length
  * @returns created/failed response
  */
-const feedSomeData = async (length: number) => {
+const feedSomeData = async (length: number): Promise<void> => {
   try {
-    const createRandomUsers = () => {
+    const createRandomUsers = (): any => {
       return {
         name: faker.person.fullName(),
         email: faker.internet.email(),
@@ -34,7 +34,7 @@ const feedSomeData = async (length: number) => {
       }
     })
 
-    const getRandomUserId = () => {
+    const getRandomUserId = (): string => {
       const index = Math.floor(Math.random() * 11)
 
       if (users.at(index) !== undefined) {
@@ -44,7 +44,7 @@ const feedSomeData = async (length: number) => {
       return ''
     }
 
-    const createRandomPosts = () => {
+    const createRandomPosts = (): Object => {
       return {
         name: faker.lorem.slug(),
         image: faker.image.url(),

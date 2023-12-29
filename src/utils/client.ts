@@ -10,11 +10,11 @@ declare global {
 
 export const prisma = global.prisma || new PrismaClient()
 
-const connectDatabase = async () => {
+const connectDatabase = async (): Promise<void> => {
   try {
     await prisma.$connect()
     console.log('🚀 ~ database connected.')
-  } catch (error) {
+  } catch (error: any) {
     console.log(
       '🚀 ~ file: client.ts:14 ~ connectDatabase ~ error:',
       isProduction ? error.message : error.stack

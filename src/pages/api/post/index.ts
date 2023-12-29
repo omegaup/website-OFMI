@@ -11,7 +11,7 @@ const postApiHandler: NextApiHandler = async (req, res) => {
         }
       })
 
-      if (!posts || posts.length === 0) {
+      if (posts !== undefined || posts.length === 0) {
         return res.status(404).json({
           success: false,
           message: 'posts not found'
@@ -20,7 +20,7 @@ const postApiHandler: NextApiHandler = async (req, res) => {
 
       return res.status(200).json({
         success: true,
-        message: `Total ${posts.length} posts found`,
+        message: `Total ${String(posts.length)} posts found`,
         data: posts
       })
     }
