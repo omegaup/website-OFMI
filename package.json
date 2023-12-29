@@ -16,6 +16,8 @@
   },
   "dependencies": {
     "@faker-js/faker": "^8.0.2",
+    "@headlessui/react": "^1.7.17",
+    "@heroicons/react": "^2.1.1",
     "@prisma/client": "^5.7.1",
     "@reduxjs/toolkit": "^1.9.5",
     "@types/node": "20.5.8",
