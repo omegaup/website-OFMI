@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:14.1-alpine
+    container_name: ofmi_db
+    restart: always
+    environment:
+      - POSTGRES_USER=ofmi
+      - POSTGRES_PASSWORD=ofmi
+      - POSTGRES_DB=ofmi
+    ports:
+      - '5050:5432'
+    volumes: 
+      - db:/var/lib/postgresql/data
+  pgadmin:
+      image: dpage/pgadmin4
+      container_name: ofmi_pgadmin
+      restart: always
+      ports:
+        - "5051:80"
+      environment:
+        PGADMIN_DEFAULT_EMAIL: admin@ofmi.com
+        PGADMIN_DEFAULT_PASSWORD: admin
+      volumes:
+        - pgadmin-data:/var/lib/pgadmin
+        - ./pgadmin-servers.json:/pgadmin4/servers.json
+
+volumes:
+  db:
+    driver: local
+  pgadmin-data:
