@@ -9,7 +9,7 @@ router.use(express.urlencoded({ extended: true }));
 
 // TODO: Add routes here
 router.get("/test", (_req, res) => {
-    res.json({ msg: "Hello World" });
+  res.json({ msg: "Hello World" });
 });
 
 router.use(errorHandlingMiddleware());
