@@ -8,6 +8,6 @@ const vStackStyle: Tailwindest = {
   flexShrink: 'shrink-0'
 }
 
-export const VStack = ({ twCss, ...props }: ContainerProps) => {
+export const VStack = ({ twCss, ...props }: ContainerProps): JSX.Element => {
   return <Container twCss={twCompose(vStackStyle, twCss)} {...props} />
 }

@@ -1,18 +1,18 @@
-import React from "react";
-import { Tailwindest } from "tailwindest";
-import { TwProps, twClassName, twCompose } from "./twcss";
+import React from 'react'
+import { Tailwindest } from 'tailwindest'
+import { TwProps, twClassName, twCompose } from './twcss'
 
 export interface LinkProps
   extends React.AnchorHTMLAttributes<HTMLAnchorElement>,
-    TwProps {}
+  TwProps {}
 
 const defaultStyle: Tailwindest = {
-};
+}
 
 export const Link = React.forwardRef<
-  HTMLAnchorElement,
-  React.PropsWithChildren<LinkProps>
->(function Link(
+HTMLAnchorElement,
+React.PropsWithChildren<LinkProps>
+>(function Link (
   { twCss, children, className, ...props }: LinkProps,
   ref: React.Ref<HTMLAnchorElement>
 ) {
@@ -24,5 +24,5 @@ export const Link = React.forwardRef<
     >
       {children}
     </a>
-  );
-});
+  )
+})

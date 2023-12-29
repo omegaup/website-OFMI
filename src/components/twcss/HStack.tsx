@@ -7,6 +7,6 @@ const hStackStyle: Tailwindest = {
   flexDirection: 'flex-row'
 }
 
-export const HStack = ({ twCss, ...props }: ContainerProps) => {
+export const HStack = ({ twCss, ...props }: ContainerProps): JSX.Element => {
   return <Container twCss={twCompose(hStackStyle, twCss)} {...props} />
 }

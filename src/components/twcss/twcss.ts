@@ -9,7 +9,7 @@ export interface TwProps {
 
 export interface WidgetProps<T extends HTMLElement> extends React.HTMLAttributes<T>, TwProps {}
 
-export function twCompose (tw1?: Tailwindest, tw2?: Tailwindest) {
+export function twCompose (tw1?: Tailwindest, tw2?: Tailwindest): Tailwindest | undefined {
   if (tw1 == null) {
     return tw2
   }
@@ -20,7 +20,7 @@ export function twCompose (tw1?: Tailwindest, tw2?: Tailwindest) {
 }
 
 // Class name takes preference over style
-export function twClassName (style?: Tailwindest, className?: string) {
+export function twClassName (style?: Tailwindest, className?: string): string | undefined {
   if (style == null) {
     return className
   }

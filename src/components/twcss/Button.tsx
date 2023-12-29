@@ -9,7 +9,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 
 const defaultStyle: Tailwindest = {}
 
-export function Button ({ twCss, className, ...props }: ButtonProps) {
+export function Button ({ twCss, className, ...props }: ButtonProps): JSX.Element {
   return (
     <button className={twClassName(twCompose(defaultStyle, twCss), className)} {...props}>
       <Text>{props.body}</Text>

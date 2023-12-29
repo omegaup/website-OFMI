@@ -1,6 +1,6 @@
 import React from 'react'
 
-const User = () => {
+const User = (): JSX.Element => {
   return <div>user</div>
 }
 

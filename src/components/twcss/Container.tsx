@@ -9,6 +9,6 @@ const defaultStyle: Tailwindest = {
   position: 'relative'
 }
 
-export function Container ({ twCss, className, ...props }: ContainerProps) {
+export function Container ({ twCss, className, ...props }: ContainerProps): JSX.Element {
   return <div className={twClassName(twCompose(defaultStyle, twCss), className)} {...props} />
 }
