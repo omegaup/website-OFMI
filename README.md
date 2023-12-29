@@ -14,7 +14,7 @@ Next-Prisma-Starter is a boilerplate project designed to help you quickly set up
 
 To get started with Next-Prisma-Starter, follow these steps:
 
-1. **Add the .env.local fila**:
+1. **Add the .env.local file**:
 
 ```sh
 DATABASE_URL="postgresql://ofmi:ofmi@localhost:5050/ofmi"
@@ -25,7 +25,7 @@ DATABASE_URL="postgresql://ofmi:ofmi@localhost:5050/ofmi"
 3. **Run Migrations**: Apply database migrations to create the database schema.
 
    ```bash
-   npx prisma migrate dev --name your_migration_name
+   npm run migrate:dev --name your_migration_name
    ```
 
    For existing schema you can update your schema changes without creating an migration folder with following command:
