@@ -101,3 +101,9 @@ This project is licensed under the MIT License. Feel free to use, modify, and di
 Contributions are welcome! If you have suggestions, bug reports, or want to contribute to this project, please open an issue or create a pull request.
 
 Happy coding with Next-Prisma-Starter! 🚀
+
+## StandardJS
+
+Install the [StandardJS](https://marketplace.visualstudio.com/items?itemName=standard.vscode-standard) extension.
+
+Activate Auto Fix On Save in the VSCode settings.
