@@ -2,6 +2,7 @@ import { BadRequestError } from "@/types/badRequestError.schema";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
+import { Alert } from "../alert";
 
 export default function Login(): JSX.Element {
   const router = useRouter();
@@ -108,6 +109,7 @@ export default function Login(): JSX.Element {
               </button>
             </div>
           </form>
+          {error != null && <Alert text={error.message} />}
         </div>
       </div>
     </>
