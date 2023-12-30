@@ -8,6 +8,8 @@ declare global {
   const prisma: PrismaClient | undefined
 }
 
+export {}
+
 export const prisma = global.prisma || new PrismaClient()
 
 const connectDatabase = async (): Promise<void> => {
