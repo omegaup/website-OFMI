@@ -1,12 +1,11 @@
 import { userAuthAtom } from "@/atoms/userAuth";
 import { BadRequestError } from "@/types/badRequestError.schema";
-import { useAtom, useSetAtom } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { sendSignUpAtom } from "./client";
 import { useState } from "react";
 import { Alert } from "../alert";
 
 export default function SignUp() {
-  const [userAuth, setUserAuth] = useAtom(userAuthAtom);
   const [error, setError] = useState<BadRequestError | null>(null);
   const sendSignUp = useSetAtom(sendSignUpAtom);
 
@@ -25,17 +24,12 @@ export default function SignUp() {
         setError({ message: "Las contraseñas no coinciden" });
         return;
     };
-    if (userAuth) {
-        setError({ message: "Ya has iniciado sesión" });
-        return;
-    }
 
     setError(null);
-    await sendSignUp({ email, password });
-  }
-
-  if (userAuth) {
-    // TODO: Redirect to home page
+    const response = await sendSignUp({ email, password });
+    if (!response.success) {
+        setError(response.error);
+    }
   }
 
   return (
