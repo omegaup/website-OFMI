@@ -1,7 +1,7 @@
-import { userAuthAtom } from '@/atoms/userAuth'
-import { CreateUserRequest, CreateUserResponse } from '@/types/auth.schema'
-import { BadRequestError } from '@/types/badRequestError.schema'
-import { atom } from 'jotai'
+import { userAuthAtom } from "@/atoms/userAuth";
+import { CreateUserRequest, CreateUserResponse } from "@/types/auth.schema";
+import { BadRequestError } from "@/types/badRequestError.schema";
+import { atom } from "jotai";
 
 export const sendSignUpAtom = atom(
   null,
@@ -10,48 +10,48 @@ export const sendSignUpAtom = atom(
     set,
     {
       email,
-      password
+      password,
     }: {
-      email: string
-      password: string
-    }
+      email: string;
+      password: string;
+    },
   ): Promise<
-  | {
-    success: false
-    error: BadRequestError
-  }
-  | {
-    success: true
-    data: CreateUserResponse
-  }
+    | {
+        success: false;
+        error: BadRequestError;
+      }
+    | {
+        success: true;
+        data: CreateUserResponse;
+      }
   > => {
     const payload: CreateUserRequest = {
       email,
-      password
-    }
+      password,
+    };
 
-    const response = await fetch('/api/user/create', {
-      method: 'POST',
+    const response = await fetch("/api/user/create", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload)
-    })
+      body: JSON.stringify(payload),
+    });
 
     if (!response.ok) {
-      const data: CreateUserResponse = await response.json()
-      set(userAuthAtom, data.user)
+      const data: CreateUserResponse = await response.json();
+      set(userAuthAtom, data.user);
       return {
         success: true,
-        data
-      }
+        data,
+      };
     }
 
-    const data: CreateUserResponse = await response.json()
-    set(userAuthAtom, data.user)
+    const data: CreateUserResponse = await response.json();
+    set(userAuthAtom, data.user);
     return {
       success: true,
-      data
-    }
-  }
-)
+      data,
+    };
+  },
+);

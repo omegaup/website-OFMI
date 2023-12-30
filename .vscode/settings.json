@@ -1,4 +1,6 @@
 {
-  "standard.autoFixOnSave": true,
-  "standard.engine": "ts-standard"
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true,
+    "source.fixAll": true
+  }
 }

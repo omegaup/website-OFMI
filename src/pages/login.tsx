@@ -1,5 +1,5 @@
-import Login from '@/components/login'
+import Login from "@/components/login";
 
-export default function LoginPage (): JSX.Element {
-  return <Login />
+export default function LoginPage(): JSX.Element {
+  return <Login />;
 }

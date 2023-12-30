@@ -1,3 +1,3 @@
 export interface BadRequestError {
-  message: string
+  message: string;
 }
