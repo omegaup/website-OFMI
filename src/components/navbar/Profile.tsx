@@ -1,6 +1,7 @@
 import { classNames } from "./styles";
 
 import { Menu, Transition } from "@headlessui/react";
+import { signOut } from "next-auth/react";
 import { Fragment } from "react";
 
 export const ProfileDropdown = (): JSX.Element => {
@@ -62,6 +63,7 @@ export const ProfileDropdown = (): JSX.Element => {
                     active ? "bg-gray-100" : "",
                     "block px-4 py-2 text-sm text-gray-700",
                   )}
+                  onClick={() => signOut()}
                 >
                   Sign out
                 </a>
