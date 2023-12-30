@@ -4,11 +4,7 @@
     "node": true,
     "es2021": true
   },
-  "extends": [
-    "plugin:react/recommended",
-    "prettier",
-    "eslint:recommended"
-  ],
+  "extends": ["plugin:react/recommended", "prettier", "eslint:recommended"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaFeatures": {
@@ -17,11 +13,7 @@
     "ecmaVersion": 12,
     "sourceType": "module"
   },
-  "plugins": [
-    "react",
-    "@typescript-eslint",
-    "react-hooks"
-  ],
+  "plugins": ["react", "@typescript-eslint", "react-hooks"],
   "rules": {
     "no-use-before-define": "off",
     "no-unused-vars": "off",
@@ -34,10 +26,7 @@
   "overrides": [
     {
       // https://typescript-eslint.io/linting/troubleshooting/#i-get-errors-from-the-no-undef-rule-about-global-variables-not-being-defined-even-though-there-are-no-typescript-errors
-      "files": [
-        "*.ts",
-        "*.tsx"
-      ],
+      "files": ["*.ts", "*.tsx"],
       "rules": {
         "no-undef": "off",
         "@typescript-eslint/strict-boolean-expressions": 0
