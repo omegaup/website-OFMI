@@ -1,4 +1,3 @@
-import { Navbar } from "@/components/navbar";
 import "@/styles/globals.css";
 import { Provider } from "jotai";
 import { SessionProvider } from "next-auth/react";

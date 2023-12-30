@@ -23,7 +23,7 @@ export const Navbar = ({
 }): JSX.Element => {
   const [session, setSession] = useState<Session>();
   useEffect(() => {
-    async function getSessionAsync() {
+    async function getSessionAsync(): Promise<void> {
       const s = (await getServerSession(authOptions)) ?? undefined;
       setSession(s);
     }
