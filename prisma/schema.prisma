@@ -17,6 +17,9 @@ model UserAuth {
   email    String @unique
   password String
   role     Role   @default(user)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  emailVerified DateTime?
 }
 
 enum Role {
