@@ -1,5 +1,4 @@
 import { type FC, type ReactElement, isValidElement } from 'react';
-const isAlphabetic = /^[a-zA-Z]+$/;
 
 interface Option {
     value: string;
