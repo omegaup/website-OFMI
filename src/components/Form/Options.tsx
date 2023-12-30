@@ -1,8 +1,10 @@
-import { type FC, type ReactElement, isValidElement } from 'react';
+import Image from 'next/image';
+import { type ReactElement, isValidElement, ComponentProps } from 'react';
 
 interface Option {
     value: string;
     label?: string;
+    image?: ComponentProps<typeof Image>;
 };
 
 interface Props {
@@ -17,9 +19,10 @@ export default function({ type, name, label, options }: Props) {
         <fieldset>
             {isValidElement(label) ? label : <legend>{label}</legend>}
             <ul>
-                {options.map(({ value, label }) => {
+                {options.map(({ value, label, image }) => {
                     return (
                         <li key={value}>
+                            {image && <Image src={image.src} alt={image.alt} />}
                             <input type={type} name={name} id={value} value={value} />
                             <label htmlFor={value}>{label ? label : value}</label>
                         </li>
