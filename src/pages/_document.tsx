@@ -5,7 +5,6 @@ export default function Document(): JSX.Element {
   return (
     <Html lang="en">
       <Head>
-        <title>OFMI</title>
         <link rel="icon" href="logo.svg" />
         <Navbar />
       </Head>
