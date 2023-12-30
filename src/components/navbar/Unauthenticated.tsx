@@ -1,6 +1,5 @@
 import { Button } from "../button";
-import { classNames } from "./styles";
-import { navbarStyle } from "./styles";
+import { classNames, navbarStyle } from "./styles";
 
 const buttonStyleClassNames = "p-2 rounded-lg w-32 m-1";
 

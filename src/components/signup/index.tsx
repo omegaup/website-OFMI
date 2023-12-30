@@ -9,7 +9,6 @@ export default function SignUp() {
   const [error, setError] = useState<BadRequestError | null>(null);
   const sendSignUp = useSetAtom(sendSignUpAtom);
 
-
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -17,18 +16,18 @@ export default function SignUp() {
     const password = data.get("password")?.toString();
     const confirmPassword = data.get("confirmPassword")?.toString();
     if (!email || !password || !confirmPassword) {
-        setError({ message: "Todos los campos son requeridos" });
-        return;
-    };
+      setError({ message: "Todos los campos son requeridos" });
+      return;
+    }
     if (password !== confirmPassword) {
-        setError({ message: "Las contraseñas no coinciden" });
-        return;
-    };
+      setError({ message: "Las contraseñas no coinciden" });
+      return;
+    }
 
     setError(null);
     const response = await sendSignUp({ email, password });
     if (!response.success) {
-        setError(response.error);
+      setError(response.error);
     }
   }
 
@@ -119,7 +118,7 @@ export default function SignUp() {
               </button>
             </div>
           </form>
-          {error && <Alert text={error.message}/>}
+          {error != null && <Alert text={error.message} />}
         </div>
       </div>
     </>

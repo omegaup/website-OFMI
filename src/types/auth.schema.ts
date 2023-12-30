@@ -9,6 +9,6 @@ export const CreateUserRequestSchema = Type.Object({
   password: Type.String({ minLength: 1 }),
 });
 
-export type CreateUserResponse = {
+export interface CreateUserResponse {
   user: UserAuth;
-};
+}

@@ -1,3 +1,3 @@
-export type BadRequestError = {
-    message: string;
-};
+export interface BadRequestError {
+  message: string;
+}

@@ -2,17 +2,17 @@ import { PrismaClient } from "@prisma/client";
 
 import client from "../config/default";
 
-const { isProduction } = client
+const { isProduction } = client;
 
 const prismaClientSingleton = () => {
-  return new PrismaClient()
-}
+  return new PrismaClient();
+};
 
 declare global {
-  var prisma: undefined | ReturnType<typeof prismaClientSingleton>
+  var prisma: undefined | ReturnType<typeof prismaClientSingleton>;
 }
 
-export const prisma = globalThis.prisma ?? prismaClientSingleton()
+export const prisma = globalThis.prisma ?? prismaClientSingleton();
 
 const connectDatabase = async (): Promise<void> => {
   try {

@@ -64,7 +64,7 @@ export const Navbar = ({
                 </div>
               </div>
               {/* Profile */}
-              {userAuth ? <ProfileDropdown /> : <Unauthenticated />}
+              {userAuth != null ? <ProfileDropdown /> : <Unauthenticated />}
             </div>
           </div>
 
