@@ -13,10 +13,10 @@ datasource db {
 // Your models goes here ...
 
 model UserAuth {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  role      Role     @default(user)
+  id       String @id @default(uuid())
+  email    String @unique
+  password String
+  role     Role   @default(user)
 }
 
 enum Role {

@@ -1,7 +1,7 @@
-import { faker } from '@faker-js/faker'
+import { faker } from "@faker-js/faker";
 
-import { prisma } from '../src/utils/client'
-import config from '../src/config/default'
+import { prisma } from "../src/utils/client";
+import config from "../src/config/default";
 
 /**
  *
@@ -15,53 +15,53 @@ const feedSomeData = async (length: number): Promise<void> => {
         name: faker.person.fullName(),
         email: faker.internet.email(),
         avatar: faker.internet.avatar(),
-        role: 'user'
-      } as unknown as any
-    }
+        role: "user",
+      } as unknown as any;
+    };
 
     // create users
     await prisma.user.createMany({
       data: faker.helpers.multiple(createRandomUsers, { count: length }),
-      skipDuplicates: true
-    })
+      skipDuplicates: true,
+    });
 
     const users = await prisma.user.findMany({
       where: {
-        role: 'user'
+        role: "user",
       },
       select: {
-        id: true
-      }
-    })
+        id: true,
+      },
+    });
 
     const getRandomUserId = (): string => {
-      const index = Math.floor(Math.random() * 11)
+      const index = Math.floor(Math.random() * 11);
 
       if (users.at(index) !== undefined) {
-        return users[index].id
+        return users[index].id;
       }
 
-      return ''
-    }
+      return "";
+    };
 
     const createRandomPosts = (): Object => {
       return {
         name: faker.lorem.slug(),
         image: faker.image.url(),
-        user_id: getRandomUserId()
-      }
-    }
+        user_id: getRandomUserId(),
+      };
+    };
 
     // create posts
     await prisma.post.createMany({
       data: faker.helpers.multiple(createRandomPosts, { count: length }),
-      skipDuplicates: true
-    })
+      skipDuplicates: true,
+    });
 
-    console.log('🚀 ~ file: seed.ts:45 ~ data feeded successfully.')
+    console.log("🚀 ~ file: seed.ts:45 ~ data feeded successfully.");
   } catch (error) {
-    console.log('🚀 ~ file: seed.ts:44 ~ feedSomeData ~ error:', error)
+    console.log("🚀 ~ file: seed.ts:44 ~ feedSomeData ~ error:", error);
   }
-}
+};
 
-feedSomeData(config.dummyDataLength)
+feedSomeData(config.dummyDataLength);

@@ -15,6 +15,7 @@
     "format": "npx prisma format && prettier . --write"
   },
   "dependencies": {
+    "@babel/core": "^7.23.7",
     "@faker-js/faker": "^8.0.2",
     "@headlessui/react": "^1.7.17",
     "@heroicons/react": "^2.1.1",
@@ -26,6 +27,7 @@
     "autoprefixer": "10.4.15",
     "eslint": "8.48.0",
     "eslint-config-next": "13.4.19",
+    "jotai": "^2.6.1",
     "next": "13.4.19",
     "postcss": "8.4.29",
     "react": "18.2.0",
@@ -39,6 +41,7 @@
     "@typescript-eslint/eslint-plugin": "^6.16.0",
     "dotenv-cli": "^7.3.0",
     "prettier": "^3.0.3",
+    "prettier-plugin-tailwindcss": "^0.5.10",
     "prisma": "^5.7.1",
     "ts-node": "^10.9.1",
     "ts-standard": "^12.0.2"
