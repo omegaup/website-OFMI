@@ -7,10 +7,10 @@ import { Unauthenticated } from "./Unauthenticated";
 import { classNames } from "./styles";
 
 const navigation = {
-  Inicio: "#",
-  Material: "#",
-  Convocatoria: "#",
-  FAQ: "#",
+  Inicio: ".",
+  Material: "material",
+  Convocatoria: "convocatoria",
+  FAQ: "faq",
 };
 
 export type NavigationItem = keyof typeof navigation;
