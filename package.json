@@ -12,7 +12,8 @@
     "studio": "./node_modules/.bin/dotenv -e .env.local npx prisma studio",
     "test": "vitest",
     "format": "./node_modules/.bin/dotenv -e .env.local npx prisma format && prettier . --write && eslint --fix .",
-    "format-ci": "prettier . --check && eslint --report-unused-disable-directives ."
+    "format-ci": "prettier . --check && eslint --report-unused-disable-directives .",
+    "deploy": "npx prisma generate && npx prisma migrate deploy && next build"
   },
   "prisma": {
     "seed": "./node_modules/.bin/dotenv -e .env.local ts-node prisma/seed.ts"
