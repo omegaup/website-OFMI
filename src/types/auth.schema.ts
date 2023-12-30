@@ -1,14 +1,14 @@
-import { Type, Static } from "@sinclair/typebox";
-import { UserAuth } from "@prisma/client";
+import { Type, Static } from '@sinclair/typebox'
+import { UserAuth } from '@prisma/client'
 
-export type CreateUserRequest = Static<typeof CreateUserRequestSchema>;
+export type CreateUserRequest = Static<typeof CreateUserRequestSchema>
 export const CreateUserRequestSchema = Type.Object({
   // Username of user (must be unique)
   email: Type.String({ minLength: 1 }),
   // Password of user
-  password: Type.String({ minLength: 1 }),
-});
+  password: Type.String({ minLength: 1 })
+})
 
 export interface CreateUserResponse {
-  user: UserAuth;
+  user: UserAuth
 }

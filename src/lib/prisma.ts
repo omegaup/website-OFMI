@@ -1,5 +1,5 @@
-import { PrismaClient, UserAuth } from "@prisma/client";
-const prisma = new PrismaClient();
+import { PrismaClient, UserAuth } from '@prisma/client'
+const prisma = new PrismaClient()
 
-export { prisma };
-export type { UserAuth };
+export { prisma }
+export type { UserAuth }

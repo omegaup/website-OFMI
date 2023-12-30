@@ -1,18 +1,18 @@
-import { Size } from "@/types/components.types";
-import classNames from "classnames";
-import { Text } from "@/components/text";
-import s from "./style.module.css";
+import { Size } from '@/types/components.types'
+import classNames from 'classnames'
+import { Text } from '@/components/text'
+import s from './style.module.css'
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  styleType?: "primary" | "secondary";
-  size?: Size;
+  styleType?: 'primary' | 'secondary'
+  size?: Size
 }
 
 export const Button = ({
   className,
-  styleType = "primary",
-  size = "base",
+  styleType = 'primary',
+  size = 'base',
   children,
   ...rest
 }: ButtonProps): JSX.Element => {
@@ -22,12 +22,12 @@ export const Button = ({
       {...rest}
     >
       <Text
-        color="inherit"
-        fontWeight={styleType === "primary" ? "bold" : "semibold"}
+        color='inherit'
+        fontWeight={styleType === 'primary' ? 'bold' : 'semibold'}
         size={size}
       >
         {children}
       </Text>
     </button>
-  );
-};
+  )
+}

@@ -1,6 +1,6 @@
-import { Navbar } from "@/components/navbar";
+import { Navbar } from '@/components/navbar'
 
-export default function Home(): JSX.Element {
+export default function Home (): JSX.Element {
   return (
     <>
       <Navbar />
@@ -8,5 +8,5 @@ export default function Home(): JSX.Element {
         <p>Helo</p>
       </div>
     </>
-  );
+  )
 }
