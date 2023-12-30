@@ -14,7 +14,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
   }
 }
 // We hash the user entered password using crypto.js
-export const hashPassword = (string: string) => {
+export const hashPassword = (string: string) : string => {
   return sha256(string).toString();
 };
 // function to create user in our database
