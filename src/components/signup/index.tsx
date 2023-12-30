@@ -4,6 +4,7 @@ import { sendSignUpAtom } from "./client";
 import { useState } from "react";
 import { Alert } from "../alert";
 import { useRouter } from "next/router";
+import { Button } from "../button";
 
 export default function SignUp(): JSX.Element {
   const [error, setError] = useState<BadRequestError | null>(null);
@@ -118,12 +119,9 @@ export default function SignUp(): JSX.Element {
             </div>
 
             <div>
-              <button
-                type="submit"
-                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >
+              <Button type="submit" styleType="primary" className="w-full">
                 Crear cuenta
-              </button>
+              </Button>
             </div>
 
             <div className="text-sm">
@@ -131,7 +129,7 @@ export default function SignUp(): JSX.Element {
                 ¿Ya tienes una cuenta?{" "}
                 <a
                   href="/login"
-                  className="text-primary-600 font-medium hover:underline"
+                  className="font-medium text-blue-500 hover:text-blue-700 hover:underline"
                 >
                   Inicia sesión
                 </a>

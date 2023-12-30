@@ -3,6 +3,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
 import { Alert } from "../alert";
+import { Button } from "../button";
 
 export default function Login(): JSX.Element {
   const router = useRouter();
@@ -99,19 +100,16 @@ export default function Login(): JSX.Element {
             <div className="text-right text-sm">
               <a
                 href="#"
-                className="font-semibold text-indigo-600 hover:text-indigo-500"
+                className="font-semibold text-blue-500 hover:text-blue-700"
               >
                 ¿Olvidaste tu contraseña?
               </a>
             </div>
 
             <div>
-              <button
-                type="submit"
-                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >
+              <Button type="submit" styleType="primary" className="w-full">
                 Iniciar sesión
-              </button>
+              </Button>
             </div>
 
             <div className="text-sm">
@@ -119,7 +117,7 @@ export default function Login(): JSX.Element {
                 ¿Aun no tienes una cuenta?{" "}
                 <a
                   href="/signup"
-                  className="text-primary-600 font-medium hover:underline"
+                  className="font-medium text-blue-500 hover:text-blue-700 hover:underline"
                 >
                   Regístrate
                 </a>
