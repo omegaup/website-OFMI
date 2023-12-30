@@ -11,8 +11,8 @@
     "push": "./node_modules/.bin/dotenv -e .env.local npx prisma db push",
     "studio": "./node_modules/.bin/dotenv -e .env.local npx prisma studio",
     "test": "vitest",
-    "format": "./node_modules/.bin/dotenv -e .env.local npx prisma format && prettier . --write",
-    "format-ci": "prettier . --check"
+    "format": "./node_modules/.bin/dotenv -e .env.local npx prisma format && prettier . --write && eslint --fix .",
+    "format-ci": "prettier . --check && eslint --report-unused-disable-directives ."
   },
   "prisma": {
     "seed": "./node_modules/.bin/dotenv -e .env.local ts-node prisma/seed.ts"
@@ -54,6 +54,7 @@
     "@vitejs/plugin-react": "^4.2.1",
     "dotenv-cli": "^7.3.0",
     "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.2",
     "jsdom": "^23.0.1",
     "prettier": "^3.1.1",
     "prettier-plugin-tailwindcss": "^0.5.10",
