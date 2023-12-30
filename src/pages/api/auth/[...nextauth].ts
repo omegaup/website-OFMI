@@ -1,9 +1,11 @@
 import NextAuth, { type AuthOptions } from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { prisma } from "@/lib/prisma";
 import type { NextApiHandler } from "next/types";
 import { LoginUserRequest, LoginUserResponse } from "@/types/auth.schema";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -34,12 +36,22 @@ export const authOptions: AuthOptions = {
             },
           },
         );
-        if (!res.ok || res.status !== 200) {
+
+        if (res.status !== 200) {
+          const response = await res.json();
+
+          if ("message" in response) {
+            throw new Error(response.message);
+          }
+
+          return null;
+        }
+
+        if (!res.ok) {
           return null;
         }
 
         const response: LoginUserResponse = await res.json();
-
         return response.user;
       },
     }),
