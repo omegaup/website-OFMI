@@ -41,10 +41,6 @@ export default function() {
         country: '',
         state: '',
     });
-    const changeHandler = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setLocation((prevState) => ({ ...prevState, [name]: value }));
-    };
     return (
         <>
             <p>
@@ -69,7 +65,6 @@ export default function() {
                     <Text
                         name='state'
                         label='Estado'
-                        errMsg='Estado incorrecto'
                     />
                 )}
             </p>

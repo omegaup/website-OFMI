@@ -4,14 +4,14 @@ interface Text {
     type?: string;
     name: string;
     label: string;
-    errMsg: string;
 };
 
-export default function({ type, name, label, errMsg }: Text) {
+const isAlphabetic = /^[a-zA-Z]+$/;
+
+export default function({ type, name, label }: Text) {
     const [ error, setError ] = useState<boolean>(false);
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-        const { value } = e.target;
-        setError(!/^[a-zA-Z]+$/.test(value));
+        setError(!isAlphabetic.test(e.target.value));
     };
     return (
         <>
@@ -22,7 +22,7 @@ export default function({ type, name, label, errMsg }: Text) {
                 onBlur={handleBlur}
                 type={type ? type : 'text'}
             />
-            {error && <em>{errMsg}</em>}
+            {error && <em>{`${name} debe ser alfabetico`}</em>}
         </>
     );
 };
