@@ -42,8 +42,8 @@ export default function SignUp(): JSX.Element {
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <img
-            className="mx-auto mt-8 h-28 w-auto"
-            src="/logo.svg"
+            className="mx-auto my-8 h-28 w-auto"
+            src="/lightLogo.svg"
             alt="OFMI"
           />
           <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">

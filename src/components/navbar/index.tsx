@@ -40,7 +40,7 @@ export const Navbar = ({
               </div>
               <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                 <div className="flex flex-shrink-0 items-center">
-                  <img className="h-9" src="/darkLogo.svg" alt="OFMI" />
+                  <img className="h-9" src="/lightLogo.svg" alt="OFMI" />
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
                   <div className="flex space-x-4">
