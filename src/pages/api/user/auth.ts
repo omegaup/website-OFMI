@@ -1,12 +1,15 @@
 import { SHA256 as sha256 } from "crypto-js";
 // import prisma client
 import { prisma } from "../../../lib/prisma";
-import { hashPassword } from "./create";
+import { hashPassword } from "./create";;
 import { NextApiRequest, NextApiResponse } from "next";
 import { UserAuth } from "@prisma/client";
 export default async function handle(
+  
   req: NextApiRequest,
+ 
   res: NextApiResponse,
+,
 ) {
   if (req.method === "POST") {
     /* eslint-disable-next-line @typescript-eslint/no-use-before-define */
@@ -21,7 +24,7 @@ async function loginUserHandler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(400).json({ message: "invalid inputs" });
   }
   const user = await prisma.userAuth.findUnique({
-    where: { email },
+    where: { email },,
   });
   if (user != null && user.password === hashPassword(password)) {
     // exclude password from json response

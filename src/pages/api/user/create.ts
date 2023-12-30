@@ -10,8 +10,11 @@ import { Value } from "@sinclair/typebox/value";
 import { BadRequestError } from "@/types/badRequestError.schema";
 
 export default async function handle(
+  
   req: NextApiRequest,
-  res: NextApiResponse<CreateUserResponse | BadRequestError>,
+ 
+  res: NextApiResponse,
+<CreateUserResponse | BadRequestError>,
 ) {
   if (req.method === "POST") {
     // create user
