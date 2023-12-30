@@ -1,7 +1,7 @@
 import { BadRequestError } from "@/types/badRequestError.schema";
 import { useSetAtom } from "jotai";
 import { sendSignUpAtom } from "./client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert } from "../alert";
 import { useRouter } from "next/router";
 import { Button } from "../button";
@@ -10,6 +10,10 @@ export default function SignUp(): JSX.Element {
   const [error, setError] = useState<BadRequestError | null>(null);
   const sendSignUp = useSetAtom(sendSignUpAtom);
   const router = useRouter();
+
+  useEffect(() => {
+    console.log(error);
+  }, [error]);
 
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>,
