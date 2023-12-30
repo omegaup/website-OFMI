@@ -15,6 +15,7 @@ export default async function handle(
 ) {
   if (req.method === "POST") {
     // create user
+    /* eslint-disable-next-line @typescript-eslint/no-use-before-define */
     await createUserHandler(req, res);
   } else {
     return res.status(405).json({ message: "Method Not allowed" });
@@ -22,7 +23,7 @@ export default async function handle(
 }
 
 // We hash the user entered password using crypto.js
-export const hashPassword = (string: string) => {
+export const hashPassword = (string: string) : string => {
   return sha256(string).toString();
 };
 
