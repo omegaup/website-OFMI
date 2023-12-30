@@ -1,3 +1,4 @@
+import { Navbar } from "@/components/navbar";
 import "@/styles/globals.css";
 import { Provider } from "jotai";
 import { SessionProvider } from "next-auth/react";
@@ -11,7 +12,7 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
         <title>OFMI</title>
       </Head>
       <Provider>
-        <Component {...pageProps} />;
+        <Component {...pageProps} />
       </Provider>
     </SessionProvider>
   );

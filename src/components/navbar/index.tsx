@@ -3,7 +3,10 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { ProfileDropdown } from "./Profile";
 import { Unauthenticated } from "./Unauthenticated";
 import { classNames } from "./styles";
-import { useSession } from "next-auth/react";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { useEffect, useState } from "react";
+import { Session } from "next-auth";
 
 const navigation = {
   Material: "material",
@@ -18,7 +21,14 @@ export const Navbar = ({
 }: {
   activeItem?: NavigationItem;
 }): JSX.Element => {
-  const { status } = useSession();
+  const [session, setSession] = useState<Session>();
+  useEffect(() => {
+    async function getSessionAsync() {
+      const s = (await getServerSession(authOptions)) ?? undefined;
+      setSession(s);
+    }
+    getSessionAsync();
+  }, []);
   return (
     <Disclosure as="nav" className="bg-gray-800">
       {({ open }: { open: boolean }) => (
@@ -63,15 +73,10 @@ export const Navbar = ({
                   </div>
                 </div>
               </div>
-              {/* Profile */}
-              {status === "loading" ? null : (
-                <>
-                  {status === "authenticated" ? (
-                    <ProfileDropdown />
-                  ) : (
-                    <Unauthenticated />
-                  )}
-                </>
+              {session?.user != null ? (
+                <ProfileDropdown />
+              ) : (
+                <Unauthenticated />
               )}
             </div>
           </div>
