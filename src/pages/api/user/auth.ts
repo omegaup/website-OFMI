@@ -26,7 +26,10 @@ async function loginUserHandler(
       .json({ message: "Usuario o contraseña incorrectos." });
   }
   if (user.emailVerified === null) {
-    return res.status(401).json({ message: "Para poder iniciar sesión es necesario que verifiques tu email." });
+    return res.status(401).json({
+      message:
+        "Para poder iniciar sesión es necesario que verifiques tu email.",
+    });
   }
 
   return res.status(200).json({ user });
