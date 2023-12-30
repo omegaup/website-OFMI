@@ -1,10 +1,9 @@
-import { useAtomValue } from "jotai";
 import { Disclosure } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { ProfileDropdown } from "./Profile";
-import { userAuthAtom } from "@/atoms/userAuth";
 import { Unauthenticated } from "./Unauthenticated";
 import { classNames } from "./styles";
+import { useSession } from "next-auth/react";
 
 const navigation = {
   Inicio: "#",
@@ -20,7 +19,7 @@ export const Navbar = ({
 }: {
   activeItem?: NavigationItem;
 }): JSX.Element => {
-  const userAuth = useAtomValue(userAuthAtom);
+  const { status } = useSession();
   return (
     <Disclosure as="nav" className="bg-gray-800">
       {({ open }: { open: boolean }) => (
@@ -64,7 +63,15 @@ export const Navbar = ({
                 </div>
               </div>
               {/* Profile */}
-              {userAuth != null ? <ProfileDropdown /> : <Unauthenticated />}
+              {status === "loading" ? null : (
+                <>
+                  {status === "authenticated" ? (
+                    <ProfileDropdown />
+                  ) : (
+                    <Unauthenticated />
+                  )}
+                </>
+              )}
             </div>
           </div>
 

@@ -1,36 +1,46 @@
-import NextAuth from "next-auth";
+import NextAuth, { type AuthOptions } from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
-import prisma from "./lib/prisma";
+import { prisma } from "@/lib/prisma";
+import type { NextApiHandler } from "next/types";
+import { LoginUserRequest, LoginUserResponse } from "@/types/auth.schema";
 
-const options = {
+export const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       id: "credentials",
       name: "Credentials",
-      async authorize(credentials, req) {
-        const userCredentials = {
+      credentials: {
+        email: { label: "Email", type: "email", placeholder: "jsmith" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials) {
+          return null;
+        }
+
+        const userCredentials: LoginUserRequest = {
           email: credentials.email,
           password: credentials.password,
         };
 
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/api/user/login`,
+          `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/api/user/auth`,
           {
             method: "POST",
             body: JSON.stringify(userCredentials),
             headers: {
               "Content-Type": "application/json",
             },
-          }
+          },
         );
-        const user = await res.json();
-
-        if (res.ok && user) {
-          return user;
-        } else {
+        if (!res.ok || res.status !== 200) {
           return null;
         }
+
+        const response: LoginUserResponse = await res.json();
+
+        return response.user;
       },
     }),
   ],
@@ -42,7 +52,6 @@ const options = {
   jwt: {
     secret: process.env.NEXTAUTH_SECRET,
     maxAge: 60 * 60 * 24 * 30,
-    encryption: true,
   },
 
   pages: {
@@ -52,18 +61,20 @@ const options = {
   },
 
   callbacks: {
-    async session(session, user, token) {
+    async session({ session, user }) {
       if (user !== null) {
-        
         session.user = user;
       }
       return await session;
     },
 
-    async jwt({ token, user }) {
-       return await token;
+    async jwt({ token }) {
+      return await token;
     },
   },
 };
 
-export default (req, res) => NextAuth(req, res, options);
+const authHandler: NextApiHandler = (req, res) =>
+  NextAuth(req, res, authOptions);
+
+export default authHandler;
