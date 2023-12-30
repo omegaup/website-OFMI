@@ -6,14 +6,14 @@ import { userAuthAtom } from "@/atoms/userAuth";
 import { Unauthenticated } from "./Unauthenticated";
 import { classNames } from "./styles";
 
-export type NavigationItem = "Dashboard" | "Team" | "Projects" | "Calendar";
+const navigation = {
+  "Inicio": "#",
+  "Material": "#",
+  "Convocatoria": "#",
+  "FAQ": "#",
+};
 
-const navigation = [
-  { name: "Dashboard", href: "#" },
-  { name: "Team", href: "#" },
-  { name: "Projects", href: "#" },
-  { name: "Calendar", href: "#" },
-];
+export type NavigationItem = keyof typeof navigation;
 
 export const Navbar = ({
   activeItem,
@@ -42,28 +42,28 @@ export const Navbar = ({
               <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                 <div className="flex flex-shrink-0 items-center">
                   <img
-                    className="h-8 w-auto"
-                    src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-                    alt="Your Company"
+                    className="h-9"
+                    src="/darkLogo.svg"
+                    alt="OFMI"
                   />
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
                   <div className="flex space-x-4">
-                    {navigation.map((item) => (
+                    {Object.entries(navigation).map(([name, href]) => (
                       <a
-                        key={item.name}
-                        href={item.href}
+                        key={name}
+                        href={href}
                         className={classNames(
-                          item.name === activeItem
+                          name === activeItem
                             ? "bg-gray-900 text-white"
                             : "text-gray-300 hover:bg-gray-700 hover:text-white",
                           "rounded-md px-3 py-2 text-sm font-medium",
                         )}
                         aria-current={
-                          item.name === activeItem ? "page" : undefined
+                          name === activeItem ? "page" : undefined
                         }
                       >
-                        {item.name}
+                        {name}
                       </a>
                     ))}
                   </div>
@@ -76,20 +76,20 @@ export const Navbar = ({
 
           <Disclosure.Panel className="sm:hidden">
             <div className="space-y-1 px-2 pb-3 pt-2">
-              {navigation.map((item) => (
+              {Object.entries(navigation).map(([name, href]) => (
                 <Disclosure.Button
-                  key={item.name}
+                  key={name}
                   as="a"
-                  href={item.href}
+                  href={href}
                   className={classNames(
-                    item.name === activeItem
+                    name === activeItem
                       ? "bg-gray-900 text-white"
                       : "text-gray-300 hover:bg-gray-700 hover:text-white",
                     "block rounded-md px-3 py-2 text-base font-medium",
                   )}
-                  aria-current={item.name === activeItem ? "page" : undefined}
+                  aria-current={name === activeItem ? "page" : undefined}
                 >
-                  {item.name}
+                  {name}
                 </Disclosure.Button>
               ))}
             </div>
