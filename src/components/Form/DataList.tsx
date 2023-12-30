@@ -11,7 +11,7 @@ interface DataList {
 
 export default function({ name, label, values, strictValidation }: DataList) {
     const [ value, setValue ] = useState<string | undefined>(undefined);
-    const [ error, setError ] = useState<string|undefined>(undefined);
+    const [ error, setError ] = useState<string | undefined>(undefined);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { value } = e.target;
