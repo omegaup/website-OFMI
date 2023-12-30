@@ -22,7 +22,7 @@ export default function({ type, name, label, options }: Props) {
                 {options.map(({ value, label, image }) => {
                     return (
                         <li key={value}>
-                            {image && <Image src={image.src} alt={image.alt} />}
+                            {image && <Image {...image} />}
                             <input type={type} name={name} id={value} value={value} />
                             <label htmlFor={value}>{label ? label : value}</label>
                         </li>
