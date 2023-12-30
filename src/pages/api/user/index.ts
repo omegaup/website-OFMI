@@ -1,7 +1,5 @@
 import { NextApiHandler } from "next";
 
-import { prisma } from "@/utils/client";
-
 const userApiHandler: NextApiHandler = async (req, res) => {
   try {
     throw Error("lol");

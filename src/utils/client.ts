@@ -4,11 +4,12 @@ import client from "../config/default";
 
 const { isProduction } = client;
 
-const prismaClientSingleton = () => {
+const prismaClientSingleton = (): PrismaClient => {
   return new PrismaClient();
 };
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   var prisma: undefined | ReturnType<typeof prismaClientSingleton>;
 }
 
