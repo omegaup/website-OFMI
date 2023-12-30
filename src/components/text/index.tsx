@@ -16,9 +16,10 @@ export const Text = ({ tag: Tag = 'span', children, fontWeight = 'normal', size 
       className={classNames(
         className,
         `text-${size}`,
-        `text-${color}`,
-        `font-${fontWeight}`
-      )} {...rest}
+        `font-${fontWeight}`,
+        `text-${color}`
+      )}
+      {...rest}
     >
       {children}
     </Tag>
