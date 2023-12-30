@@ -1,6 +1,4 @@
-import { type FC, type ReactElement, type ReactNode, createElement, isValidElement } from 'react';
-import { JsxElement } from 'typescript';
-
+import { type FC, type ReactElement, isValidElement } from 'react';
 const isAlphabetic = /^[a-zA-Z]+$/;
 
 interface Option {
@@ -11,16 +9,14 @@ interface Option {
 interface Props {
     name: string;
     options: Option[];
-    label: string | ReactNode;
+    label: string | ReactElement;
     type: 'radio' | 'checkbox';
 };
 
 export default function({ type, name, label, options }: Props) {
     return (
         <fieldset>
-            {(typeof(label) === "string") ? <legend>{label}</legend> : (
-                isValidElement(label) && label
-            )}
+            {isValidElement(label) ? label : <legend>{label}</legend>}
             <ul>
                 {options.map(({ value, label }) => {
                     return (
