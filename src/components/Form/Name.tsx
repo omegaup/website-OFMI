@@ -1,9 +1,11 @@
+import Text from "./Text";
+
 interface Input {
     name: string;
     type: 'first' | 'last' | 'full';
 };
 
-export default function({ type, name, ...others }: Input) {
+export default function({ type, name }: Input) {
     let label = 'Nombre Completo';
     if (type === 'first') {
         label = 'Nombre(s)';
@@ -11,13 +13,6 @@ export default function({ type, name, ...others }: Input) {
         label = 'Apellido(s)'
     };
     return (
-        <input 
-            type="text" 
-            name={name} 
-            id={name}
-            {...others}
-        >
-            {label}
-        </input>
+        <Text name={name} label={label} />
     );
 };

@@ -14,8 +14,7 @@ export default function({ name, label, values, strictValidation }: DataList) {
     const [ error, setError ] = useState<string | undefined>(undefined);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { value } = e.target;
-        setValue(value);
+        setValue(e.target.value);
     };
 
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -23,7 +22,7 @@ export default function({ name, label, values, strictValidation }: DataList) {
         if (strictValidation && !values.includes(value)) {
             setError(`${value} no es una opción válida`);
             return;
-        } else if (!strictValidation && isAlphabetic.test(value)) {
+        } else if (!strictValidation && !isAlphabetic.test(value)) {
             setError(`El ${name} debe ser alfabetico`);
         } else {
             setError(undefined);
