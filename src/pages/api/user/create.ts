@@ -1,10 +1,18 @@
 import { SHA256 as sha256 } from "crypto-js";
-// We impot our prisma client
-import { prisma } from "../../../lib/prisma";
-// Prisma will help handle and catch errors
+import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
-export default async function handle(req: NextApiRequest, res: NextApiResponse) {
+import {
+  CreateUserRequestSchema,
+  CreateUserResponse,
+} from "@/types/auth.schema";
+import { Value } from "@sinclair/typebox/value";
+import { BadRequestError } from "@/types/badRequestError.schema";
+
+export default async function handle(
+  req: NextApiRequest,
+  res: NextApiResponse<CreateUserResponse | BadRequestError>,
+) {
   if (req.method === "POST") {
     // create user
     await createUserHandler(req, res);
@@ -12,25 +20,30 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
     return res.status(405).json({ message: "Method Not allowed" });
   }
 }
+
 // We hash the user entered password using crypto.js
 export const hashPassword = (string: string) => {
   return sha256(string).toString();
 };
+
 // function to create user in our database
 async function createUserHandler(req: NextApiRequest, res: NextApiResponse) {
-  let errors = [];
-  const { email, password } = req.body;
-  // console.log("req", req.toString());
-  // console.log(`body ${req.body} password ${req.body.password} email ${req.body.email}`);
- 
+  const { body } = req;
+  if (!Value.Check(CreateUserRequestSchema, body)) {
+    return res.status(400).json({ message: "Invalid request body" });
+  }
+  const { password } = body;
+
   if (password.length < 8) {
-    errors.push("password length should be more than 8 characters");
-    return res.status(400).json({ errors });
+    return res
+      .status(400)
+      .json({ message: "password length should be more than 8 characters" });
   }
   try {
     const user = await prisma.userAuth.create({
-      data: { ...req.body, password: hashPassword(req.body.password) },
+      data: { ...body, password: hashPassword(body.password) },
     });
+
     return res.status(201).json({ user });
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
@@ -39,5 +52,6 @@ async function createUserHandler(req: NextApiRequest, res: NextApiResponse) {
       }
       return res.status(400).json({ message: e.message });
     }
+    return res.status(500).json({ message: "Internal server error" });
   }
 }

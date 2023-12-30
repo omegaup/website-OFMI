@@ -30,8 +30,7 @@ This is the current DB design
 
 [![](https://mermaid.ink/img/pako:eNqdVm1vmzAQ_ivIn7MqtGkS-LatqjRV06pW-zJFQg5cgjW_sLPZSqr89xnIC8FOSssnuLvHd3783JlXkqoMSEwA7xhdIxULGdjnpwbUwWv7UT_fpAlYFjw-HE3PBplcByAo4451xVCbRFIBjotTx3NHDQRLhiZPMvvqQNbqL6AUIE3CMsdbIKwAETJ_vgKVVKXUjkPnNmOi2QbOuUzFO75TNupt29CEZhmC1raw4H7HznYh25fvbcznNgQGMqoNAhiX6BdjSaA8kaVYAjp-Ji_7N6xI6tP25PNxnlrODFaOXQJb50uFuVKZH-TBeM8lVxJ6hD2ndlk-kKfjqgf8j5Vgb6FrUwUUe9AnxeHjiR8pGpayghqmpLvK6Xdpu6url71d2ep9drSl9e3Dz-6oRts_Ci9WWnSdvlLOBhyyfFVWh7Ysad6X6fFh5GTTjRx8dew8dmJ5BC0go7yXjtO0E_jFgoOM6T8l5WzFwFWyErCmZZHUZ-WV7z6goFr_U5j1BYFqyUE8gS656W6-B7f5qXb0qVOFcGpKD7wmB-6aeegewT3jMEzJKxvp3V3tSErk763hRISH4FSJenj7s5iqcNq4JWcnpXez5-sj7yRq7p3jjbNtp3z3CrQjKjAq2ACqQGHz6Qz1OMip9oAElVVvMHRC21E1KLQdTYNCfT1-CSia-L3-P4bWvhHoIe7cZIgbqVC2v6LPxXUr2V8Una2_AdtX0sCbDrl4GD0JDs_TEnXS_Q2YjIgAtH8Nmf3dahS9ICYHK0cS29eM4u8FWcitjaOlUc-VTEm8olzDiJRFLdLdH9rBanuPxK_khcTXYXR1E41n45somk0m19F0RCoSf5pMrqa38-t5OIui28k0DLcjslHKLhFejW9uo_k4moaz8TychLNmvV-N02AJ2_-YjTC4?type=png)](https://mermaid.live/edit#pako:eNqdVm1vmzAQ_ivIn7MqtGkS-LatqjRV06pW-zJFQg5cgjW_sLPZSqr89xnIC8FOSssnuLvHd3783JlXkqoMSEwA7xhdIxULGdjnpwbUwWv7UT_fpAlYFjw-HE3PBplcByAo4451xVCbRFIBjotTx3NHDQRLhiZPMvvqQNbqL6AUIE3CMsdbIKwAETJ_vgKVVKXUjkPnNmOi2QbOuUzFO75TNupt29CEZhmC1raw4H7HznYh25fvbcznNgQGMqoNAhiX6BdjSaA8kaVYAjp-Ji_7N6xI6tP25PNxnlrODFaOXQJb50uFuVKZH-TBeM8lVxJ6hD2ndlk-kKfjqgf8j5Vgb6FrUwUUe9AnxeHjiR8pGpayghqmpLvK6Xdpu6url71d2ep9drSl9e3Dz-6oRts_Ci9WWnSdvlLOBhyyfFVWh7Ysad6X6fFh5GTTjRx8dew8dmJ5BC0go7yXjtO0E_jFgoOM6T8l5WzFwFWyErCmZZHUZ-WV7z6goFr_U5j1BYFqyUE8gS656W6-B7f5qXb0qVOFcGpKD7wmB-6aeegewT3jMEzJKxvp3V3tSErk763hRISH4FSJenj7s5iqcNq4JWcnpXez5-sj7yRq7p3jjbNtp3z3CrQjKjAq2ACqQGHz6Qz1OMip9oAElVVvMHRC21E1KLQdTYNCfT1-CSia-L3-P4bWvhHoIe7cZIgbqVC2v6LPxXUr2V8Una2_AdtX0sCbDrl4GD0JDs_TEnXS_Q2YjIgAtH8Nmf3dahS9ICYHK0cS29eM4u8FWcitjaOlUc-VTEm8olzDiJRFLdLdH9rBanuPxK_khcTXYXR1E41n45somk0m19F0RCoSf5pMrqa38-t5OIui28k0DLcjslHKLhFejW9uo_k4moaz8TychLNmvV-N02AJ2_-YjTC4)
 
-
-3. **Modify the DB** If you need to change the DB (add a new table), modify the `prisma/schema.prisma` file and then run 
+3. **Modify the DB** If you need to change the DB (add a new table), modify the `prisma/schema.prisma` file and then run
    ```bash
    yarn migrate:dev
    ```
@@ -47,7 +46,7 @@ This is the current DB design
    yarn push
    ```
 
-4. **Seed Database**: To seed your database with dummy data.
+5. **Seed Database**: To seed your database with dummy data.
 
    ```bash
    yarn seed
@@ -55,13 +54,13 @@ This is the current DB design
 
    also you can set limit of dummy data you need from the `config` file located at `src/config/default.ts`
 
-5. **Start the Development Server**: Start the Next.js development server.
+6. **Start the Development Server**: Start the Next.js development server.
 
    ```bash
    yarn dev
    ```
 
-6. **Open Your App**: Your application should now be running at [http://localhost:3000](http://localhost:3000). You can start building your project by modifying the source code located in the `src` directory.
+7. **Open Your App**: Your application should now be running at [http://localhost:3000](http://localhost:3000). You can start building your project by modifying the source code located in the `src` directory.
 
 ## Folder Structure
 

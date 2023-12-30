@@ -1,1 +1,1 @@
-export type Size = 'sm' | 'base' | 'lg'
+export type Size = "sm" | "base" | "lg";

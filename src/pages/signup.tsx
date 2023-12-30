@@ -1,5 +1,10 @@
 import SignUp from "@/components/signup";
+import { Provider } from "jotai";
 
 export default function LoginPage() {
-  return <SignUp />;
+  return (
+    <Provider>
+      <SignUp />
+    </Provider>
+  );
 }

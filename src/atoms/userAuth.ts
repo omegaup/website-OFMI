@@ -1,4 +1,4 @@
-import { UserAuth } from "@/types/schema.types";
+import { UserAuth } from "@/lib/prisma";
 import { atom } from "jotai";
 
 export const userAuthAtom = atom<UserAuth | null>(null);
