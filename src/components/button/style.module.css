@@ -1,5 +1,5 @@
 .button {
-  @apply rounded border;
+  @apply rounded-lg border;
 }
 
 .primary {
