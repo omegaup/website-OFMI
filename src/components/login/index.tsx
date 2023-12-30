@@ -24,7 +24,11 @@ export default function Login(): JSX.Element {
     });
 
     if (response?.error) {
-      setError({ message: response.error });
+      const userError =
+        response.error === "CredentialsSignin"
+          ? "Usuario o contraseña incorrectos."
+          : response.error;
+      setError({ message: userError });
       return;
     } else {
       router.push(response?.url ?? "/");
@@ -79,14 +83,6 @@ export default function Login(): JSX.Element {
                 >
                   Contraseña
                 </label>
-                <div className="text-sm">
-                  <a
-                    href="#"
-                    className="font-semibold text-indigo-600 hover:text-indigo-500"
-                  >
-                    Olvidaste tu contraseña?
-                  </a>
-                </div>
               </div>
               <div className="mt-2">
                 <input
@@ -100,6 +96,15 @@ export default function Login(): JSX.Element {
               </div>
             </div>
 
+            <div className="text-right text-sm">
+              <a
+                href="#"
+                className="font-semibold text-indigo-600 hover:text-indigo-500"
+              >
+                ¿Olvidaste tu contraseña?
+              </a>
+            </div>
+
             <div>
               <button
                 type="submit"
@@ -107,6 +112,18 @@ export default function Login(): JSX.Element {
               >
                 Iniciar sesión
               </button>
+            </div>
+
+            <div className="text-sm">
+              <p className="font-light text-gray-700">
+                ¿Aun no tienes una cuenta?{" "}
+                <a
+                  href="/signup"
+                  className="text-primary-600 font-medium hover:underline"
+                >
+                  Regístrate
+                </a>
+              </p>
             </div>
           </form>
           {error != null && <Alert text={error.message} />}

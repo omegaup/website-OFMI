@@ -125,6 +125,18 @@ export default function SignUp(): JSX.Element {
                 Crear cuenta
               </button>
             </div>
+
+            <div className="text-sm">
+              <p className="font-light text-gray-700">
+                ¿Ya tienes una cuenta?{" "}
+                <a
+                  href="/login"
+                  className="text-primary-600 font-medium hover:underline"
+                >
+                  Inicia sesión
+                </a>
+              </p>
+            </div>
           </form>
           {error != null && <Alert text={error.message} />}
         </div>
