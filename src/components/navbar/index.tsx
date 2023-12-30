@@ -19,7 +19,7 @@ export const Navbar = ({
 }: {
   activeItem?: NavigationItem;
 }): JSX.Element => {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   return (
     <Disclosure as="nav" className="bg-gray-800">
       {({ open }: { open: boolean }) => (
