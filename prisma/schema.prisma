@@ -69,6 +69,8 @@ model User {
   mailing_address    MailingAddress  @relation(fields: [mailing_address_id], references: [id])
   mailing_address_id String          @unique
   Participation      Participation[]
+  auth_session Session[]
+  key          Key[]
 }
 
 model Ofmi {
@@ -138,4 +140,23 @@ model OmegaupContest {
   ofmi_id       String
   name          String
   date          DateTime
+}
+
+model Session {
+  id             String @id @unique
+  user_id        String
+  active_expires BigInt
+  idle_expires   BigInt
+  user           User   @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
+}
+
+model Key {
+  id              String  @id @unique
+  hashed_password String?
+  user_id         String
+  user            User    @relation(references: [id], fields: [user_id], onDelete: Cascade)
+
+  @@index([user_id])
 }
