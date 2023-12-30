@@ -36,7 +36,7 @@ async function loginUserHandler(
 // Function to exclude user password returned from prisma
 function exclude(user: UserAuth, keys: Array<keyof UserAuth>): UserAuth {
   for (const key of keys) {
-    delete user[key]; // eslint-disable-line @typescript-eslint/no-dynamic-delete
+    delete user[key];
   }
   return user;
 }
