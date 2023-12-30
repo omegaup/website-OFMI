@@ -16,7 +16,7 @@ export const Text = ({
   fontWeight = "normal",
   size = "base",
   className,
-  color = "black",
+  color = "inherit",
   ...rest
 }: TextProps): JSX.Element => {
   return (

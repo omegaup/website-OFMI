@@ -2,14 +2,28 @@ import { BadRequestError } from "@/types/badRequestError.schema";
 import { useSetAtom } from "jotai";
 import { sendSignUpAtom } from "./client";
 import { useState } from "react";
-import { Alert } from "../alert";
-import { useRouter } from "next/router";
+import { Alert, SuccessAlert } from "../alert";
 import { Button } from "../button";
+
+const SuccessSignUp = (): JSX.Element => {
+  return (
+    <div className="mx-auto flex min-h-full w-96 flex-1 flex-col items-center justify-center px-6 py-12 lg:px-8">
+      <SuccessAlert
+        title="Registro exitoso."
+        text="Te hemos enviado un correo electrónico de verificación para que confirmes tu cuenta y puedas hacer login."
+      />
+    </div>
+  );
+};
 
 export default function SignUp(): JSX.Element {
   const [error, setError] = useState<BadRequestError | null>(null);
+  const [successSignUp, setSuccessSignUp] = useState(false);
   const sendSignUp = useSetAtom(sendSignUpAtom);
-  const router = useRouter();
+
+  if (successSignUp) {
+    return <SuccessSignUp />;
+  }
 
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>,
@@ -34,7 +48,7 @@ export default function SignUp(): JSX.Element {
       setError(response.error);
       return;
     }
-    router.push("/login");
+    setSuccessSignUp(true);
   }
 
   return (
