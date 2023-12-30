@@ -38,12 +38,11 @@ export const sendSignUpAtom = atom(
       body: JSON.stringify(payload),
     });
 
-    if (!response.ok) {
-      const data: CreateUserResponse = await response.json();
-      set(userAuthAtom, data.user);
+    if (response.status !== 201) {
+      const data: BadRequestError = await response.json();
       return {
-        success: true,
-        data,
+        success: false,
+        error: data,
       };
     }
 

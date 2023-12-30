@@ -1,24 +1,62 @@
+import { BadRequestError } from "@/types/badRequestError.schema";
+import { useState } from "react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/router";
+import { Alert } from "../alert";
+import { Button } from "../button";
+
 export default function Login(): JSX.Element {
+  const router = useRouter();
+  const [error, setError] = useState<BadRequestError | null>(null);
+
+  async function handleSubmit(
+    event: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const email = data.get("email")?.toString();
+    const password = data.get("password")?.toString();
+
+    setError(null);
+    const response = await signIn("credentials", {
+      redirect: false,
+      email,
+      password,
+    });
+
+    if (response?.error) {
+      const userError =
+        response.error === "CredentialsSignin"
+          ? "Usuario o contraseña incorrectos."
+          : response.error;
+      setError({ message: userError });
+      return;
+    } else {
+      router.push(response?.url ?? "/");
+    }
+  }
+
   return (
     <>
-      {/*
-        This example requires updating your template:
-
-        ```
-        <html class="h-full bg-white">
-        <body class="h-full">
-        ```
-      */}
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <img className="mx-auto h-16 w-auto" src="/logo.svg" alt="OFMI" />
-          <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-            Sign in to your account
+          <img
+            className="mx-auto mt-8 h-28 w-auto"
+            src="/logo.svg"
+            alt="OFMI"
+          />
+          <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+            Iniciar sesión
           </h2>
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form className="space-y-6" action="#" method="POST">
+          <form
+            className="space-y-6"
+            action="#"
+            method="POST"
+            onSubmit={(ev) => handleSubmit(ev)}
+          >
             <div>
               <label
                 htmlFor="email"
@@ -46,14 +84,6 @@ export default function Login(): JSX.Element {
                 >
                   Contraseña
                 </label>
-                <div className="text-sm">
-                  <a
-                    href="#"
-                    className="font-semibold text-indigo-600 hover:text-indigo-500"
-                  >
-                    Olvidaste tu contraseña?
-                  </a>
-                </div>
               </div>
               <div className="mt-2">
                 <input
@@ -67,15 +97,34 @@ export default function Login(): JSX.Element {
               </div>
             </div>
 
-            <div>
-              <button
-                type="submit"
-                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            <div className="text-right text-sm">
+              <a
+                href="#"
+                className="font-semibold text-blue-500 hover:text-blue-700"
               >
-                Sign in
-              </button>
+                ¿Olvidaste tu contraseña?
+              </a>
+            </div>
+
+            <div>
+              <Button type="submit" styleType="primary" className="w-full">
+                Iniciar sesión
+              </Button>
+            </div>
+
+            <div className="text-sm">
+              <p className="font-light text-gray-700">
+                ¿Aun no tienes una cuenta?{" "}
+                <a
+                  href="/signup"
+                  className="font-medium text-blue-500 hover:text-blue-700 hover:underline"
+                >
+                  Regístrate
+                </a>
+              </p>
             </div>
           </form>
+          {error != null && <Alert text={error.message} />}
         </div>
       </div>
     </>

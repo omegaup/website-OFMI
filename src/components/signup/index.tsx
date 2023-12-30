@@ -3,10 +3,13 @@ import { useSetAtom } from "jotai";
 import { sendSignUpAtom } from "./client";
 import { useState } from "react";
 import { Alert } from "../alert";
+import { useRouter } from "next/router";
+import { Button } from "../button";
 
 export default function SignUp(): JSX.Element {
   const [error, setError] = useState<BadRequestError | null>(null);
   const sendSignUp = useSetAtom(sendSignUpAtom);
+  const router = useRouter();
 
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>,
@@ -29,15 +32,21 @@ export default function SignUp(): JSX.Element {
     const response = await sendSignUp({ email, password });
     if (!response.success) {
       setError(response.error);
+      return;
     }
+    router.push("/login");
   }
 
   return (
     <>
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <img className="mx-auto h-16 w-auto" src="/logo.svg" alt="OFMI" />
-          <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+          <img
+            className="mx-auto mt-8 h-28 w-auto"
+            src="/logo.svg"
+            alt="OFMI"
+          />
+          <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
             Crea una cuenta
           </h2>
         </div>
@@ -45,9 +54,8 @@ export default function SignUp(): JSX.Element {
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
           <form
             className="space-y-6"
-            action="#"
             method="POST"
-            onSubmit={() => handleSubmit}
+            onSubmit={(ev) => handleSubmit(ev)}
           >
             <div>
               <label
@@ -111,12 +119,21 @@ export default function SignUp(): JSX.Element {
             </div>
 
             <div>
-              <button
-                type="submit"
-                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-              >
+              <Button type="submit" styleType="primary" className="w-full">
                 Crear cuenta
-              </button>
+              </Button>
+            </div>
+
+            <div className="text-sm">
+              <p className="font-light text-gray-700">
+                ¿Ya tienes una cuenta?{" "}
+                <a
+                  href="/login"
+                  className="font-medium text-blue-500 hover:text-blue-700 hover:underline"
+                >
+                  Inicia sesión
+                </a>
+              </p>
             </div>
           </form>
           {error != null && <Alert text={error.message} />}
