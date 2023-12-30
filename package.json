@@ -7,11 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "ts-standard --fix",
-    "generate": "npx prisma generate",
+    "generate": "./node_modules/.bin/dotenv -e .env.local npx prisma generate",
     "migrate:dev": "./node_modules/.bin/dotenv -e .env.local npx prisma migrate dev --preview-feature",
-    "push": "npx prisma db push",
-    "studio": "npx prisma studio",
-    "format": "npx prisma format && prettier . --write"
+    "push": "./node_modules/.bin/dotenv -e .env.local npx prisma db push",
+    "studio": "./node_modules/.bin/dotenv -e .env.local npx prisma studio",
+    "format": "./node_modules/.bin/dotenv -e .env.local npx prisma format && prettier . --write"
   },
   "prisma": {
     "seed": "./node_modules/.bin/dotenv -e .env.local ts-node prisma/seed.ts"
@@ -20,15 +20,19 @@
     "@faker-js/faker": "^8.0.2",
     "@headlessui/react": "^1.7.17",
     "@heroicons/react": "^2.1.1",
+    "@next-auth/prisma-adapter": "^0.4.4-canary.81",
     "@prisma/client": "^5.7.1",
     "@reduxjs/toolkit": "^1.9.5",
     "@types/node": "20.5.8",
     "@types/react": "18.2.21",
     "@types/react-dom": "18.2.7",
     "autoprefixer": "10.4.15",
+    "classnames": "^2.5.1",
+    "crypto-js": "^4.2.0",
     "eslint": "8.48.0",
     "eslint-config-next": "13.4.19",
     "next": "^13.5.6",
+    "next-auth": "^4.24.5",
     "postcss": "^8.4.32",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -39,6 +43,7 @@
     "yarn": "^1.22.21"
   },
   "devDependencies": {
+    "@types/crypto-js": "^4.2.1",
     "@typescript-eslint/eslint-plugin": "^6.16.0",
     "dotenv-cli": "^7.3.0",
     "prettier": "^3.0.3",

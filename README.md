@@ -33,24 +33,24 @@ This is the current DB design
 
 3. **Modify the DB** If you need to change the DB (add a new table), modify the `prisma/schema.prisma` file and then run 
    ```bash
-   npm run migrate:dev
+   yarn migrate:dev
    ```
 4. **Run Migrations**: Apply database migrations to create the database schema.
 
    ```bash
-   npm run migrate:dev
+   yarn migrate:dev
    ```
 
    For an existing schema you can update it without creating a migration folder with following command:
 
    ```bash
-   npm run push
+   yarn push
    ```
 
 4. **Seed Database**: To seed your database with dummy data.
 
    ```bash
-   npm run seed
+   yarn seed
    ```
 
    also you can set limit of dummy data you need from the `config` file located at `src/config/default.ts`
@@ -58,7 +58,7 @@ This is the current DB design
 5. **Start the Development Server**: Start the Next.js development server.
 
    ```bash
-   npm run dev
+   yarn dev
    ```
 
 6. **Open Your App**: Your application should now be running at [http://localhost:3000](http://localhost:3000). You can start building your project by modifying the source code located in the `src` directory.
