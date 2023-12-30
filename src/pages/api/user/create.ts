@@ -7,6 +7,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 export default async function handle(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === "POST") {
     // create user
+    /* eslint-disable-next-line @typescript-eslint/no-use-before-define */
     await createUserHandler(req, res);
   } else {
     return res.status(405).json({ message: "Method Not allowed" });
@@ -22,7 +23,7 @@ async function createUserHandler(req: NextApiRequest, res: NextApiResponse) {
   const { email, password } = req.body;
   // console.log("req", req.toString());
   // console.log(`body ${req.body} password ${req.body.password} email ${req.body.email}`);
- 
+
   if (password.length < 8) {
     errors.push("password length should be more than 8 characters");
     return res.status(400).json({ errors });

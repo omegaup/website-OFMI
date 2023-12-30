@@ -43,7 +43,7 @@ model MailingAddress {
   id              String @id @default(uuid())
   street          String
   external_number String
-  internal_number String
+  internal_number String?
   zip_code        String
   state           String
   country         String
@@ -67,7 +67,7 @@ model User {
   shirt_size         String
   shirt_style        String
   mailing_address    MailingAddress  @relation(fields: [mailing_address_id], references: [id])
-  mailing_address_id String
+  mailing_address_id String @unique
   Participation      Participation[]
 }
 
