@@ -1,7 +1,4 @@
 import { Button } from '../button'
-import { classNames, navbarStyle } from './styles'
-
-const buttonStyleClassNames = 'p-2 rounded-lg w-32 m-1'
 
 export const Unauthenticated = (): JSX.Element => {
   return (
