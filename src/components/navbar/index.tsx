@@ -7,7 +7,6 @@ import { Unauthenticated } from "./Unauthenticated";
 import { classNames } from "./styles";
 
 const navigation = {
-  Inicio: ".",
   Material: "material",
   Convocatoria: "convocatoria",
   FAQ: "faq",
@@ -41,7 +40,9 @@ export const Navbar = ({
               </div>
               <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                 <div className="flex flex-shrink-0 items-center">
-                  <img className="h-9" src="/darkLogo.svg" alt="OFMI" />
+                  <a key="index-icon" href="/">
+                    <img className="h-9" src="/darkLogo.svg" alt="Inicio" />
+                  </a>
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
                   <div className="flex space-x-4">
