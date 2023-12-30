@@ -12,7 +12,8 @@
     "push": "./node_modules/.bin/dotenv -e .env.local npx prisma db push",
     "studio": "./node_modules/.bin/dotenv -e .env.local npx prisma studio",
     "test": "vitest",
-    "format": "./node_modules/.bin/dotenv -e .env.local npx prisma format && prettier . --write"
+    "format": "./node_modules/.bin/dotenv -e .env.local npx prisma format && prettier . --write",
+    "format-ci": "prettier . --check"
   },
   "prisma": {
     "seed": "./node_modules/.bin/dotenv -e .env.local ts-node prisma/seed.ts"
