@@ -65,13 +65,11 @@ export const Navbar = ({
               {/* Profile */}
               {status === "loading" ? null : (
                 <>
-                  (
                   {status === "authenticated" ? (
                     <ProfileDropdown />
                   ) : (
                     <Unauthenticated />
                   )}
-                  )
                 </>
               )}
             </div>
