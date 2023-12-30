@@ -1,7 +1,7 @@
-import React from 'react'
+import React from "react";
 
 const Login = (): JSX.Element => {
-  return <div>login</div>
-}
+  return <div>login</div>;
+};
 
-export default Login
+export default Login;

@@ -4,7 +4,10 @@ import { prisma } from "../../../lib/prisma";
 // Prisma will help handle and catch errors
 import { Prisma } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
-export default async function handle(req: NextApiRequest, res: NextApiResponse) {
+export default async function handle(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
   if (req.method === "POST") {
     // create user
     /* eslint-disable-next-line @typescript-eslint/no-use-before-define */
@@ -14,7 +17,7 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse) 
   }
 }
 // We hash the user entered password using crypto.js
-export const hashPassword = (string: string) : string => {
+export const hashPassword = (string: string): string => {
   return sha256(string).toString();
 };
 // function to create user in our database
