@@ -11,6 +11,7 @@
     "migrate:dev": "./node_modules/.bin/dotenv -e .env.local npx prisma migrate dev --preview-feature",
     "push": "./node_modules/.bin/dotenv -e .env.local npx prisma db push",
     "studio": "./node_modules/.bin/dotenv -e .env.local npx prisma studio",
+    "test": "vitest",
     "format": "./node_modules/.bin/dotenv -e .env.local npx prisma format && prettier . --write"
   },
   "prisma": {
@@ -43,12 +44,16 @@
     "yarn": "^1.22.21"
   },
   "devDependencies": {
+    "@testing-library/react": "^14.1.2",
     "@types/crypto-js": "^4.2.1",
     "@typescript-eslint/eslint-plugin": "^6.16.0",
+    "@vitejs/plugin-react": "^4.2.1",
     "dotenv-cli": "^7.3.0",
+    "jsdom": "^23.0.1",
     "prettier": "^3.0.3",
     "prisma": "^5.7.1",
     "ts-node": "^10.9.1",
-    "ts-standard": "^12.0.2"
+    "ts-standard": "^12.0.2",
+    "vitest": "^1.1.0"
   }
 }
