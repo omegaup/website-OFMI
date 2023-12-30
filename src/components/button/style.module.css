@@ -1,0 +1,19 @@
+.button {
+  @apply rounded border;
+}
+
+.primary {
+  @apply bg-blue-500 hover:bg-blue-700 border-blue-700;
+}
+
+.secondary {
+  @apply bg-transparent hover:bg-blue-500 hover:text-white border-blue-500 hover:border-transparent;
+}
+
+.sm {
+  @apply py-1 px-2;
+}
+
+.base {
+  @apply py-2 px-4;
+}
