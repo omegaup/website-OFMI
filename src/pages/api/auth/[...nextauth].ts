@@ -25,7 +25,7 @@ export const authOptions: AuthOptions = {
         };
 
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/api/user/login`,
+          `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/api/user/auth`,
           {
             method: "POST",
             body: JSON.stringify(userCredentials),
@@ -34,13 +34,13 @@ export const authOptions: AuthOptions = {
             },
           },
         );
-        const response: LoginUserResponse = await res.json();
-
-        if (res.ok) {
-          return response.user;
-        } else {
+        if (!res.ok || res.status !== 200) {
           return null;
         }
+
+        const response: LoginUserResponse = await res.json();
+
+        return response.user;
       },
     }),
   ],

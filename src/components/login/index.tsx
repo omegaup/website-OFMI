@@ -1,4 +1,35 @@
+import { BadRequestError } from "@/types/badRequestError.schema";
+import { useState } from "react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/router";
+
 export default function Login(): JSX.Element {
+  const router = useRouter();
+  const [error, setError] = useState<BadRequestError | null>(null);
+
+  async function handleSubmit(
+    event: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const email = data.get("email")?.toString();
+    const password = data.get("password")?.toString();
+
+    setError(null);
+    const response = await signIn("credentials", {
+      redirect: false,
+      email,
+      password,
+    });
+
+    if (response?.error) {
+      setError({ message: response.error });
+      return;
+    } else {
+      router.push(response?.url ?? "/");
+    }
+  }
+
   return (
     <>
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
@@ -14,7 +45,12 @@ export default function Login(): JSX.Element {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form className="space-y-6" action="#" method="POST">
+          <form
+            className="space-y-6"
+            action="#"
+            method="POST"
+            onSubmit={(ev) => handleSubmit(ev)}
+          >
             <div>
               <label
                 htmlFor="email"
@@ -68,7 +104,7 @@ export default function Login(): JSX.Element {
                 type="submit"
                 className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
-                Iniciar sesión
+                Iniciar sesiónyarn
               </button>
             </div>
           </form>

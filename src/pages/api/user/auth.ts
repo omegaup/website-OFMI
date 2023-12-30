@@ -24,8 +24,8 @@ async function loginUserHandler(
   if (!Value.Check(LoginUserRequestSchema, body)) {
     return res.status(400).json({ message: "invalid inputs" });
   }
-  const { email, password } = req.body;
-  if (email != null || password != null) {
+  const { email, password } = body;
+  if (email == null || password == null) {
     return res.status(400).json({ message: "invalid inputs" });
   }
   const user = await prisma.userAuth.findUnique({

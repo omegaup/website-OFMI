@@ -3,10 +3,12 @@ import { useSetAtom } from "jotai";
 import { sendSignUpAtom } from "./client";
 import { useState } from "react";
 import { Alert } from "../alert";
+import { useRouter } from "next/router";
 
 export default function SignUp(): JSX.Element {
   const [error, setError] = useState<BadRequestError | null>(null);
   const sendSignUp = useSetAtom(sendSignUpAtom);
+  const router = useRouter();
 
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>,
@@ -29,7 +31,9 @@ export default function SignUp(): JSX.Element {
     const response = await sendSignUp({ email, password });
     if (!response.success) {
       setError(response.error);
+      return;
     }
+    router.push("/login");
   }
 
   return (
@@ -49,9 +53,8 @@ export default function SignUp(): JSX.Element {
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
           <form
             className="space-y-6"
-            action="#"
             method="POST"
-            onSubmit={() => handleSubmit}
+            onSubmit={(ev) => handleSubmit(ev)}
           >
             <div>
               <label
