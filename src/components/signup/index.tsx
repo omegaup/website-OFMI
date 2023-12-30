@@ -4,11 +4,11 @@ import { sendSignUpAtom } from './client'
 import { useState } from 'react'
 import { Alert } from '../alert'
 
-export default function SignUp () {
+export default function SignUp (): JSX.Element {
   const [error, setError] = useState<BadRequestError | null>(null)
   const sendSignUp = useSetAtom(sendSignUpAtom)
 
-  async function handleSubmit (event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit (event: React.FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault()
     const data = new FormData(event.currentTarget)
     const email = data.get('email')?.toString()
@@ -45,7 +45,7 @@ export default function SignUp () {
             className='space-y-6'
             action='#'
             method='POST'
-            onSubmit={handleSubmit}
+            onSubmit={() => handleSubmit}
           >
             <div>
               <label
