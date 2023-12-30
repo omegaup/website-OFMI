@@ -1,6 +1,5 @@
-import { userAuthAtom } from '@/atoms/userAuth'
 import { BadRequestError } from '@/types/badRequestError.schema'
-import { useAtomValue, useSetAtom } from 'jotai'
+import { useSetAtom } from 'jotai'
 import { sendSignUpAtom } from './client'
 import { useState } from 'react'
 import { Alert } from '../alert'
@@ -15,7 +14,7 @@ export default function SignUp () {
     const email = data.get('email')?.toString()
     const password = data.get('password')?.toString()
     const confirmPassword = data.get('confirmPassword')?.toString()
-    if (!email || !password || !confirmPassword) {
+    if (email == null || password == null || confirmPassword == null) {
       setError({ message: 'Todos los campos son requeridos' })
       return
     }
