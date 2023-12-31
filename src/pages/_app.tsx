@@ -11,9 +11,9 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
       <Head>
         <title>OFMI</title>
         <link rel="icon" href="logo.svg" />
-        <Navbar />
       </Head>
       <Provider>
+        <Navbar />
         <Component {...pageProps} />
       </Provider>
     </SessionProvider>
