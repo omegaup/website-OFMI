@@ -1,5 +1,3 @@
-import { Text } from "../text";
-
 export const Alert = ({ text }: { text: string }): JSX.Element => {
   return (
     <div
@@ -35,9 +33,8 @@ export const SuccessAlert = ({
           </svg>
         </div>
         <div>
-          <Text fontWeight="semibold">{title ?? "Success."}</Text>
-          <br />
-          <Text size="sm">{text}</Text>
+          <p className="font-bold">{title ?? "Success."}</p>
+          <p className="text-sm">{text}</p>
         </div>
       </div>
     </div>
