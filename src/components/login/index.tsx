@@ -21,11 +21,15 @@ interface LoginError {
   emailNotVerified?: boolean;
 }
 
+interface LoginProps {
+  verified?: boolean | null;
+  initialEmail?: string | null;
+}
+
 export default function Login({
   verified,
-}: {
-  verified?: boolean | null;
-}): JSX.Element {
+  initialEmail,
+}: LoginProps): JSX.Element {
   const router = useRouter();
   const [successResendEmailMsg, setSuccessResendEmailMsg] = useState<
     string | null
@@ -113,6 +117,7 @@ export default function Login({
                 id="email"
                 name="email"
                 type="email"
+                defaultValue={initialEmail ?? ""}
                 autoComplete="email"
                 required
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:leading-6"

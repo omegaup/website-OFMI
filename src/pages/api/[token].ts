@@ -24,6 +24,9 @@ async function verifyEmailHandler(
     });
 
     if (user.emailVerified != null) {
+      res.redirect(
+        `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/login?verified=true&email=${user.email}`,
+      );
       return res.status(400).json({
         message:
           "Este correo ya fue verificado previamente, ya puedes hacer login",
