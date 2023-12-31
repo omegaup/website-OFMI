@@ -1,6 +1,4 @@
-import { BadRequestError } from "@/types/badRequestError.schema";
-import { useSetAtom } from "jotai";
-import { sendSignUpAtom } from "./client";
+import { sendSignUp } from "./client";
 import { useState } from "react";
 import { Alert, SuccessAlert } from "../alert";
 import { Button } from "../button";
@@ -19,9 +17,8 @@ const SuccessSignUp = (): JSX.Element => {
 
 export default function SignUp(): JSX.Element {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<BadRequestError | null>(null);
+  const [error, setError] = useState<Error | null>(null);
   const [successSignUp, setSuccessSignUp] = useState(false);
-  const sendSignUp = useSetAtom(sendSignUpAtom);
 
   if (successSignUp) {
     return <SuccessSignUp />;
@@ -38,11 +35,11 @@ export default function SignUp(): JSX.Element {
     const password = data.get("password")?.toString();
     const confirmPassword = data.get("confirmPassword")?.toString();
     if (email == null || password == null || confirmPassword == null) {
-      setError({ message: "Todos los campos son requeridos" });
+      setError(new Error("Todos los campos son requeridos"));
       return;
     }
     if (password !== confirmPassword) {
-      setError({ message: "Las contraseñas no coinciden" });
+      setError(new Error("Las contraseñas no coinciden."));
       return;
     }
 

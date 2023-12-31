@@ -7,7 +7,7 @@ import {
   CreateUserResponse,
 } from "@/types/auth.schema";
 import { Value } from "@sinclair/typebox/value";
-import { BadRequestError } from "@/types/badRequestError.schema";
+import { BadRequestError } from "@/types/errors";
 import generateAndSendVerificationToken from "@/lib/email-verification-token";
 
 // We hash the user entered password using crypto.js

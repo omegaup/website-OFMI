@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { VerifyEmailResponse } from "@/types/auth.schema";
-import { BadRequestError } from "@/types/badRequestError.schema";
+import { BadRequestError } from "@/types/errors";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
 
@@ -47,7 +47,7 @@ async function verifyEmailHandler(
     return res.status(500).json({ message: "Internal server error" });
   }
 
-  res.redirect(`${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/login`);
+  res.redirect(`${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/login?verified=true`);
 }
 
 export default async function handle(

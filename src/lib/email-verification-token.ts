@@ -16,6 +16,7 @@ export default async function generateAndSendVerificationToken(
   );
 
   const url: string = `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/api/${emailToken}`;
+  console.log(url);
 
-  await emailer.notifyUserForSignup(email, url);
+  // await emailer.notifyUserForSignup(email, url);
 }

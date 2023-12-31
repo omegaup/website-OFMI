@@ -32,5 +32,6 @@ export const VerifyEmailRequestSchema = Type.Object({
 });
 
 export interface VerifyEmailResponse {
-  user: UserAuth;
+  email: string;
+  message: string;
 }

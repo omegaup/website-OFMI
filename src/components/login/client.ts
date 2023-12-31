@@ -1,12 +1,10 @@
-import { CreateUserRequest, CreateUserResponse } from "@/types/auth.schema";
+import { VerifyEmailRequest, VerifyEmailResponse } from "@/types/auth.schema";
 import { BadRequestError } from "@/types/errors";
 
-export async function sendSignUp({
+export async function resendEmailVerification({
   email,
-  password,
 }: {
   email: string;
-  password: string;
 }): Promise<
   | {
       success: false;
@@ -14,15 +12,14 @@ export async function sendSignUp({
     }
   | {
       success: true;
-      data: CreateUserResponse;
+      data: VerifyEmailResponse;
     }
 > {
-  const payload: CreateUserRequest = {
+  const payload: VerifyEmailRequest = {
     email,
-    password,
   };
 
-  const response = await fetch("/api/user/create", {
+  const response = await fetch("/api/user/resendEmailVerification", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -37,7 +34,7 @@ export async function sendSignUp({
     };
   }
 
-  if (response.status !== 201) {
+  if (response.status !== 200) {
     const data: BadRequestError = await response.json();
     return {
       success: false,
@@ -45,7 +42,7 @@ export async function sendSignUp({
     };
   }
 
-  const data: CreateUserResponse = await response.json();
+  const data: VerifyEmailResponse = await response.json();
   return {
     success: true,
     data,

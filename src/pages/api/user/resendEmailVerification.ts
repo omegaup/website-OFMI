@@ -2,7 +2,7 @@ import {
   VerifyEmailRequestSchema,
   VerifyEmailResponse,
 } from "@/types/auth.schema";
-import { BadRequestError } from "@/types/badRequestError.schema";
+import { BadRequestError } from "@/types/errors";
 import { Value } from "@sinclair/typebox/value";
 import { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "@/lib/prisma";
@@ -14,7 +14,9 @@ async function resendEmailVerificationTokenHandler(
 ): Promise<void> {
   const { body } = req;
   if (!Value.Check(VerifyEmailRequestSchema, body)) {
-    return res.status(400).json({ message: "Invalid request body" });
+    return res.status(400).json({
+      message: "Invalid request body",
+    });
   }
   const { email } = body;
 
@@ -40,6 +42,7 @@ async function resendEmailVerificationTokenHandler(
   await generateAndSendVerificationToken(user.id, email);
 
   return res.status(200).json({
+    email,
     message:
       "Si hay una cuenta registrada con ese correo, recibirás una liga con el nuevo token.",
   });

@@ -1,21 +1,41 @@
-import { BadRequestError } from "@/types/badRequestError.schema";
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
-import { Alert } from "../alert";
+import { Alert, SuccessAlert } from "../alert";
 import { Button } from "../button";
 import { PasswordInput } from "../password";
 import Link from "next/link";
+import { resendEmailVerification } from "./client";
 
-interface LoginError extends BadRequestError {
+const SuccessResendEmail = ({ msg }: { msg: string }): JSX.Element => {
+  return (
+    <div className="mx-auto flex min-h-full w-96 flex-1 flex-col items-center justify-center px-6 py-12 lg:px-8">
+      <SuccessAlert title="Email enviado!" text={msg} />
+    </div>
+  );
+};
+
+interface LoginError {
+  errorMsg: string;
   email: string;
   emailNotVerified?: boolean;
 }
 
-export default function Login(): JSX.Element {
+export default function Login({
+  verified,
+}: {
+  verified?: boolean | null;
+}): JSX.Element {
   const router = useRouter();
+  const [successResendEmailMsg, setSuccessResendEmailMsg] = useState<
+    string | null
+  >(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<LoginError | null>(null);
+
+  if (successResendEmailMsg != null) {
+    return <SuccessResendEmail msg={successResendEmailMsg} />;
+  }
 
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>,
@@ -40,7 +60,7 @@ export default function Login(): JSX.Element {
           : response.error;
 
       setError({
-        message: userError,
+        errorMsg: userError,
         email: email ?? "",
         emailNotVerified: response.status === 401,
       });
@@ -48,6 +68,17 @@ export default function Login(): JSX.Element {
       await router.push(response?.url ?? "/");
     }
     setLoading(false);
+  }
+
+  async function handleResendEmailVerification(email: string): Promise<void> {
+    console.log("resend email verification");
+    const response = await resendEmailVerification({ email });
+    if (!response.success) {
+      console.log("error", response.error);
+      setError({ errorMsg: response.error.message, email });
+      return;
+    }
+    setSuccessResendEmailMsg(response.data.message);
   }
 
   return (
@@ -138,18 +169,31 @@ export default function Login(): JSX.Element {
           </div>
         </form>
 
+        {/* Success email verification */}
+        {verified && (
+          <SuccessAlert
+            title="Email verificado!"
+            text="Ahora puedes iniciar sesión."
+          />
+        )}
+
         {/* Error alert */}
         {error != null && (
-          <Alert errorMsg={error.message}>
+          <Alert errorMsg={error.errorMsg}>
             {error.emailNotVerified && (
-              <p>
-                Enviar correo de verificación{" "}
+              <p className="mt-2">
+                <span>Has click </span>
                 <Link
                   className="font-semibold hover:underline"
-                  href={`/api/token?token=${error.email}`}
+                  href="#"
+                  onClick={async (ev) => {
+                    ev.preventDefault();
+                    await handleResendEmailVerification(error.email);
+                  }}
                 >
-                  nuevamente
+                  aquí
                 </Link>
+                <span> para enviar el correo de verificación nuevamente.</span>
               </p>
             )}
           </Alert>

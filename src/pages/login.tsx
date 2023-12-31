@@ -1,13 +1,20 @@
 import Login from "@/components/login";
 import { getServerSession } from "next-auth/next";
-import type { GetServerSideProps } from "next/types";
+import type {
+  GetServerSideProps,
+  InferGetServerSidePropsType,
+} from "next/types";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 
-export default function LoginPage(): JSX.Element {
-  return <Login />;
+export default function LoginPage(
+  props: InferGetServerSidePropsType<typeof getServerSideProps>,
+): JSX.Element {
+  return <Login verified={props.verified} />;
 }
 
-export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+export const getServerSideProps: GetServerSideProps<{
+  verified: boolean | null;
+}> = async ({ req, res, query }) => {
   const session = await getServerSession(req, res, authOptions);
 
   if (session) {
@@ -19,7 +26,11 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     };
   }
 
+  const verified = query.verified;
+
   return {
-    props: {},
+    props: {
+      verified: typeof verified === "string" ? verified === "true" : null,
+    },
   };
 };

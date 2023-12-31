@@ -3,7 +3,7 @@ import { hashPassword } from "./create";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Value } from "@sinclair/typebox/value";
 import { LoginUserRequestSchema, LoginUserResponse } from "@/types/auth.schema";
-import { BadRequestError } from "@/types/badRequestError.schema";
+import { BadRequestError } from "@/types/errors";
 
 async function loginUserHandler(
   req: NextApiRequest,
