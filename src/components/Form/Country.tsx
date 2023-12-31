@@ -1,6 +1,5 @@
 import Text from "./Text";
 import DataList from "./DataList";
-import { useState } from "react";
 
 const states = [
     'Ciudad de Mexico',
@@ -36,20 +35,19 @@ const states = [
     'Zacatecas'
 ]
 
-interface Errs {
-    country: undefined | boolean;
-    state: undefined | boolean;
+interface State {
+    value: string;
+    error: boolean;
+    setError: Function;
+    setValue: React.ChangeEventHandler;
 };
 
-export default function() {
-    const [ location, setLocation ] = useState({
-        country: '',
-        state: '',
-    });
-    const [ errors, setErrors ] = useState<Errs>({
-        country: undefined,
-        state: undefined,
-    });
+interface Props {
+    country: State;
+    state: State;
+};
+
+export default function({ country, state }: Props) {
     return (
         <>
             <p>
@@ -60,36 +58,32 @@ export default function() {
                         'Mexico',
                         'Otro'
                     ]}
-                    value={location.country}
-                    error={errors.country}
-                    setter={(e: React.ChangeEvent<HTMLInputElement>) => { 
-                        setLocation({ ...location, country: e.target.value }) 
-                    }}
-                    magic={(value: boolean) => { 
-                        setErrors({ ...errors, country: value })
-                    }}
+                    value={country.value}
+                    error={country.error}
+                    setValue={country.setValue}
+                    setError={country.setValue}
                 />
             </p>
             <p>
-                {location.country === 'Mexico' ? (
+                {country.value === 'Mexico' ? (
                     <DataList
                         name="state"
                         label="Estado"
                         values={states}
                         strictValidation={true}
-                        value={location.state}
-                        error={errors.state}
-                        setter={(e: React.ChangeEvent<HTMLInputElement>) => {
-                            setLocation({ ...location, state: e.target.value });
-                        }}
-                        magic={(value: boolean) => { 
-                            setErrors({ ...errors, country: value })
-                        }}
+                        value={state.value}
+                        error={state.error}
+                        setValue={state.setValue}
+                        setError={state.setError}
                     />
                 ) : (
                     <Text
                         name='estado'
                         label='Estado'
+                        value={state.value}
+                        error={state.error}
+                        setValue={state.setValue}
+                        setError={state.setError}
                     />
                 )}
             </p>

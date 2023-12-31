@@ -1,13 +1,46 @@
+import { useState } from 'react';
 import Link from 'next/link';
+import Name from '@/components/Form/Name';
+import Text from '@/components/Form/Text';
+import Number from '@/components/Form/Number';
 import Country from '@/components/Form/Country';
 import Options from "@/components/Form/Options";
 
 export default function() {
+    const [ personalData, setPersonalData ] = useState({
+        TyC: '',
+        nombres: '',
+        apellidos: '',
+        pronombres: '',
+        pais: '',
+        estado: '',
+        ciudad: '',
+        escolaridad: '',
+        grado_escolaridad: '',
+
+    });
+    const [ deliveryAddress, setDeliveryAddress ] = useState({
+        nombre_destinatario: '',
+        direccion_completa: '',
+        numero_telefono: ''
+    });
+    const [ dataErrors, setDataErrors ] = useState({
+        TyC: false,
+        nombres: false,
+        apellidos: false,
+        pronombres: false,
+        pais: false,
+        estado: false,
+        ciudad: false,
+        escolaridad: false,
+        grado_escolaridad: false,
+
+    });
     return (
         <form>
             <h1>Registro</h1>
             <Options
-                name='xd'
+                name='TyC'
                 type='radio'
                 label={
                     <legend>
@@ -17,30 +50,63 @@ export default function() {
                     </legend>
                 }
                 options={[{
-                    value: 'si'
+                    value: '0',
+                    label: 'Acepto'
                 }, {
-                    value: 'no'
+                    value: '1',
+                    label: 'No acepto'
                 }]}
+                value={personalData.TyC}
+                error={dataErrors.TyC}
+                setValue={(value: string) => (
+                    setPersonalData({ 
+                        ...personalData,
+                        TyC: value
+                    })
+                )}
+                setError={(value: boolean) => (
+                    setDataErrors({ 
+                        ...dataErrors, 
+                        TyC: value 
+                    })
+                )}
             />
-            <Options
-                name='shirt-size'
-                type='radio'
-                label='Tamaño de playera'
-                options={[{
-                    value: 'small',
-                    label: 'S'
-                }, {
-                    value: 'medium',
-                    label: 'M'
-                }, {
-                    value: 'large',
-                    label: 'L'
-                }, {
-                    value: 'extra-large',
-                    label: 'XL'
-                }]}
+            <Name 
+                name='nombres'
+                type='first'
+                value={personalData.nombres}
+                error={dataErrors.nombres}
+                setValue={(name: string) => (
+                    setPersonalData({ 
+                        ...personalData, 
+                        nombres: name 
+                    })
+                )}
+                setError={(value: boolean) => (
+                    setDataErrors({ 
+                        ...dataErrors,
+                        nombres: value
+                    })
+                )}
             />
-            <Country />
+            <Name 
+                name='apellidos'
+                type='last'
+                value={personalData.apellidos}
+                error={dataErrors.apellidos}
+                setValue={(name: string) => (
+                    setPersonalData({ 
+                        ...personalData, 
+                        apellidos: name 
+                    })
+                )}
+                setError={(value: boolean) => (
+                    setDataErrors({ 
+                        ...dataErrors,
+                        apellidos: value
+                    })
+                )}
+            />
         </form>
     );
 };

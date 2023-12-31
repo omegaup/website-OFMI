@@ -6,12 +6,12 @@ interface DataList {
     value: string;
     label: string;
     values: string[];
-    setter: React.ChangeEventHandler
-    magic: Function;
+    setValue: React.ChangeEventHandler
+    setError: Function;
     strictValidation?: boolean;
 }
 
-export default function({ name, label, value, values, error, setter, magic, strictValidation }: DataList) {
+export default function({ name, label, value, values, error, setValue, setError, strictValidation }: DataList) {
     let validation = {
         function: (value: string) => (isAlphabetic.test(value)),
         message: 'solo puede contener letras'
@@ -22,7 +22,7 @@ export default function({ name, label, value, values, error, setter, magic, stri
     };
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
         const { value } = e.target;
-        magic(!validation.function(value))
+        setError(!validation.function(value))
     };
     return (
         <>
@@ -32,7 +32,7 @@ export default function({ name, label, value, values, error, setter, magic, stri
                 name={`${name}-op`} 
                 id={`${name}-op`} 
                 onBlur={handleBlur} 
-                onChange={setter}
+                onChange={setValue}
                 value={value} 
             />
             <datalist id={`${name}-opts`}>

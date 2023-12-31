@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { type ReactElement, isValidElement, ComponentProps, useState } from 'react';
+import { type ReactElement, isValidElement, ComponentProps } from 'react';
 
 interface Option {
     value: string;
@@ -10,15 +10,15 @@ interface Option {
 interface Props {
     name: string;
     options: Option[];
-    label: string | ReactElement;
     type: 'radio' | 'checkbox';
+    label: string | ReactElement;
+    setValue: Function;
+    setError: Function;
+    error: boolean;
+    value: string;
 };
 
-export default function({ type, name, label, options }: Props) {
-    const [ state, setState ] = useState({
-        error: false,
-        value: ''
-    });
+export default function({ type, name, label, options, error, value, setValue, setError }: Props) {
     const values = options.map(({ value }) => {
         return value;
     });
@@ -36,18 +36,18 @@ export default function({ type, name, label, options }: Props) {
                                 id={value} 
                                 value={value}
                                 onChange={(e) => {
-                                    const { value } = e.target;
-                                    setState({
-                                        value,
-                                        error: !values.includes(value)
-                                    });
+                                    const { 
+                                        value 
+                                    } = e.target;
+                                    setValue(value);
+                                    setError(!values.includes(value));
                                 }}
                             />
                             <label htmlFor={value}>{label ? label : value}</label>
                         </li>
                     );
                 })}
-                {state.error && <em>{`La opcion ${state.value} no es valida`}</em>}
+                {error && <em>{`La opcion ${value} no es valida`}</em>}
             </ul>
         </fieldset>
     );
