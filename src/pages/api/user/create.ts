@@ -8,8 +8,6 @@ import {
 } from "@/types/auth.schema";
 import { Value } from "@sinclair/typebox/value";
 import { BadRequestError } from "@/types/badRequestError.schema";
-import jwt from "jsonwebtoken";
-import { emailer } from "@/lib/emailer";
 import generateAndSendVerificationToken from "@/lib/email-verification-token";
 
 export default async function handle(
