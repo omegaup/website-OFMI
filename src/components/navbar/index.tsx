@@ -4,6 +4,7 @@ import { ProfileDropdown } from "./Profile";
 import { Unauthenticated } from "./Unauthenticated";
 import { classNames } from "./styles";
 import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 
 const navigation = {
   Material: "/material",
@@ -13,12 +14,9 @@ const navigation = {
 
 export type NavigationItem = keyof typeof navigation;
 
-export const Navbar = ({
-  activeItem,
-}: {
-  activeItem?: NavigationItem;
-}): JSX.Element => {
+export const Navbar = (): JSX.Element => {
   const session = useSession();
+  const pathname = usePathname();
   return (
     <Disclosure as="nav" className="bg-stone-300">
       {({ open }: { open: boolean }) => (
@@ -50,12 +48,12 @@ export const Navbar = ({
                         key={name}
                         href={href}
                         className={classNames(
-                          name === activeItem
-                            ? "bg-gray-900 text-white"
-                            : "text-gray-700 hover:bg-gray-700 hover:text-white",
-                          "rounded-md px-3 py-2 text-sm font-medium",
+                          href === pathname
+                            ? "bg-gray-200"
+                            : "hover:bg-gray-700 hover:text-white",
+                          "rounded-md px-3 py-2 text-sm font-medium text-gray-700",
                         )}
-                        aria-current={name === activeItem ? "page" : undefined}
+                        aria-current={href === pathname ? "page" : undefined}
                       >
                         {name}
                       </a>
@@ -79,12 +77,12 @@ export const Navbar = ({
                   as="a"
                   href={href}
                   className={classNames(
-                    name === activeItem
-                      ? "bg-gray-900 text-white"
-                      : "text-gray-700 hover:bg-gray-700 hover:text-white",
-                    "block rounded-md px-3 py-2 text-base font-medium",
+                    href === pathname
+                      ? "bg-gray-200"
+                      : "hover:bg-gray-700 hover:text-white",
+                    "block rounded-md px-3 py-2 text-base font-medium text-gray-700",
                   )}
-                  aria-current={name === activeItem ? "page" : undefined}
+                  aria-current={href === pathname ? "page" : undefined}
                 >
                   {name}
                 </Disclosure.Button>

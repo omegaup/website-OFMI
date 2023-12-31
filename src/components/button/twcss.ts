@@ -37,7 +37,7 @@ const _buttonTypeSecondary: Tailwindest = {
   // border-yellow-400 bg-transparent text-gray-200;
   borderColor: "border-yellow-400",
   backgroundColor: "bg-transparent",
-  color: "text-gray-200",
+  color: "text-gray-900",
   fontWeight: "font-semibold",
   ":enabled": {
     /*

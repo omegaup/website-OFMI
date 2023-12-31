@@ -107,7 +107,7 @@ export default function Login(): JSX.Element {
             </div>
 
             <div>
-              <Button type="submit" styleType="primary" className="w-full">
+              <Button type="submit" buttonType="primary" className="w-full">
                 Iniciar sesión
               </Button>
             </div>

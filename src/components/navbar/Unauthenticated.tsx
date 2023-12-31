@@ -9,11 +9,7 @@ export const Unauthenticated = (): JSX.Element => {
         </Button>
       </a>
       <a href="/signup">
-        <Button
-          className="text-gray-900"
-          buttonType="secondary"
-          buttonSize="sm"
-        >
+        <Button buttonType="secondary" buttonSize="sm">
           Regístrate
         </Button>
       </a>
