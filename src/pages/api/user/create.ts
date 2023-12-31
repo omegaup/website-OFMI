@@ -8,6 +8,7 @@ import {
 } from "@/types/auth.schema";
 import { Value } from "@sinclair/typebox/value";
 import { BadRequestError } from "@/types/badRequestError.schema";
+import generateAndSendVerificationToken from "@/lib/email-verification-token";
 
 export default async function handle(
   req: NextApiRequest,
@@ -47,6 +48,8 @@ async function createUserHandler(
     const user = await prisma.userAuth.create({
       data: { ...body, password: hashPassword(body.password) },
     });
+
+    generateAndSendVerificationToken(user.id, body.email);
 
     return res.status(201).json({ user });
   } catch (e) {

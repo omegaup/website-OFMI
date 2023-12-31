@@ -3,15 +3,12 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { ProfileDropdown } from "./Profile";
 import { Unauthenticated } from "./Unauthenticated";
 import { classNames } from "./styles";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
-import { useEffect, useState } from "react";
-import { Session } from "next-auth";
+import { useSession } from "next-auth/react";
 
 const navigation = {
-  Material: "material",
-  Convocatoria: "convocatoria",
-  FAQ: "faq",
+  Material: "/material",
+  Convocatoria: "/convocatoria",
+  FAQ: "/faq",
 };
 
 export type NavigationItem = keyof typeof navigation;
@@ -21,14 +18,7 @@ export const Navbar = ({
 }: {
   activeItem?: NavigationItem;
 }): JSX.Element => {
-  const [session, setSession] = useState<Session>();
-  useEffect(() => {
-    async function getSessionAsync(): Promise<void> {
-      const s = (await getServerSession(authOptions)) ?? undefined;
-      setSession(s);
-    }
-    getSessionAsync();
-  }, []);
+  const session = useSession();
   return (
     <Disclosure as="nav" className="bg-stone-300">
       {({ open }: { open: boolean }) => (
@@ -71,7 +61,7 @@ export const Navbar = ({
                   </div>
                 </div>
               </div>
-              {session?.user != null ? (
+              {session?.data != null ? (
                 <ProfileDropdown />
               ) : (
                 <Unauthenticated />

@@ -22,6 +22,12 @@ NEXT_PUBLIC_NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_JWT_SECRET="secret"
 NEXTAUTH_SECRET="secret"
+OFMI_EMAIL_SMTP_HOST=stmp host
+OFMI_EMAIL_SMTP_USER=email
+OFMI_EMAIL_SMTP_PASSWORD=password
+OFMI_EMAIL_SMTP_PORT=465
+VERIFICATION_EMAIL_SECRET=emailsecret
+VERIFICATION_TOKEN_EXPIRATION=1d
 ```
 
 2. Run postgres locally. In the root of the project run:
