@@ -58,15 +58,18 @@ export default function Login({
     });
 
     if (response?.error) {
-      const userError =
-        response.error === "CredentialsSignin"
-          ? "Usuario o contraseña incorrectos."
-          : response.error;
-
+      let error = response.error;
+      if (error === "CredentialsSignin") {
+        error = "Usuario o contraseña incorrectos.";
+      }
+      if (error === "EmailNotVerified") {
+        error =
+          "Para poder iniciar sesión es necesario que verifiques tu email.";
+      }
       setError({
-        errorMsg: userError,
+        errorMsg: error,
         email: email ?? "",
-        emailNotVerified: response.status === 401,
+        emailNotVerified: response.error === "EmailNotVerified",
       });
     } else {
       await router.push(response?.url ?? "/");
@@ -187,7 +190,7 @@ export default function Login({
           <Alert errorMsg={error.errorMsg}>
             {error.emailNotVerified && (
               <p className="mt-2">
-                <span>Has click </span>
+                <span>Haz click </span>
                 <Link
                   className="font-semibold hover:underline"
                   href="#"

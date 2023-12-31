@@ -22,7 +22,7 @@ async function loginUserHandler(
   });
   if (user == null || user.password !== hashPassword(password)) {
     return res
-      .status(401)
+      .status(400)
       .json({ message: "Usuario o contraseña incorrectos." });
   }
   if (user.emailVerified === null) {
