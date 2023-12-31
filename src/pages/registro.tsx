@@ -215,6 +215,25 @@ export default function() {
                     })
                 )}
             />
+            <Number
+                name='grado_escolaridad'
+                label={personalData.escolaridad === 'prepa' ? 'Semestre' : 'Año'}
+                range={personalData.escolaridad === 'secundaria' ? [1, 3] : [1, 6]}
+                value={personalData.grado_escolaridad}
+                error={dataErrors.grado_escolaridad}
+                setValue={(value: string) => (
+                    setPersonalData({ 
+                        ...personalData,
+                        grado_escolaridad: value
+                    })
+                )}
+                setError={(value: boolean) => (
+                    setDataErrors({ 
+                        ...dataErrors, 
+                        grado_escolaridad: value 
+                    })
+                )}
+            />
         </form>
     );
 };

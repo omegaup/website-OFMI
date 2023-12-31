@@ -4,7 +4,7 @@ interface Props {
     value: string;
     error: boolean;
     range: [number, number];
-    setValue: React.ChangeEventHandler;
+    setValue: Function;
     setError: Function;
 };
 
@@ -17,7 +17,9 @@ export default function({ name, label, value, error, range, setValue, setError }
                 id={name}
                 name={label}
                 value={value}
-                onChange={setValue}
+                onChange={(e) => {
+                    setValue(e.target.value);
+                }}
                 onBlur={(e) => {
                     let isInRange = true;
                     const value = parseInt(e.target.value);
