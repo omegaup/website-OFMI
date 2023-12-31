@@ -41,7 +41,7 @@ export default function({ name, label, values, strictValidation }: DataList) {
             />
             <datalist id={`${name}-opts`}>
                 {values.map((value) => {
-                    return <option value={value}>{value}</option>;
+                    return <option key={value} value={value}>{value}</option>;
                 })}
             </datalist>
             {error && <em>{error}</em>}
