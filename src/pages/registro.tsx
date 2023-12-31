@@ -133,6 +133,40 @@ export default function() {
                     })
                 )}
             />
+            <Country
+                country={{
+                    value: personalData.pais,
+                    error: dataErrors.pais,
+                    setValue: (value: string) => (
+                        setPersonalData({ 
+                            ...personalData,
+                            pais: value
+                        })
+                    ),
+                    setError: (value: boolean) => (
+                        setDataErrors({ 
+                            ...dataErrors, 
+                            pais: value 
+                        })
+                    )
+                }}
+                state={{
+                    value: personalData.estado,
+                    error: dataErrors.estado,
+                    setValue: (value: string) => (
+                        setPersonalData({ 
+                            ...personalData,
+                            estado: value
+                        })
+                    ),
+                    setError: (value: boolean) => (
+                        setDataErrors({ 
+                            ...dataErrors, 
+                            estado: value 
+                        })
+                    )
+                }}
+            />
         </form>
     );
 };

@@ -39,7 +39,7 @@ interface State {
     value: string;
     error: boolean;
     setError: Function;
-    setValue: React.ChangeEventHandler;
+    setValue: Function;
 };
 
 interface Props {
@@ -61,7 +61,7 @@ export default function({ country, state }: Props) {
                     value={country.value}
                     error={country.error}
                     setValue={country.setValue}
-                    setError={country.setValue}
+                    setError={country.setError}
                 />
             </p>
             <p>

@@ -6,7 +6,7 @@ interface DataList {
     value: string;
     label: string;
     values: string[];
-    setValue: React.ChangeEventHandler
+    setValue: Function
     setError: Function;
     strictValidation?: boolean;
 }
@@ -32,7 +32,9 @@ export default function({ name, label, value, values, error, setValue, setError,
                 name={`${name}-op`} 
                 id={`${name}-op`} 
                 onBlur={handleBlur} 
-                onChange={setValue}
+                onChange={(e) => {
+                    setValue(e.target.value);
+                }}
                 value={value} 
             />
             <datalist id={`${name}-opts`}>
