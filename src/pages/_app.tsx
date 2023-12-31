@@ -10,7 +10,7 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
     <SessionProvider session={pageProps.session}>
       <Head>
         <title>OFMI</title>
-        <link rel="icon" href="logo.svg" />
+        <link rel="icon" href="lightLogo.svg" />
       </Head>
       <Provider>
         <Navbar />
