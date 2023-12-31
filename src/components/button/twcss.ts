@@ -58,7 +58,12 @@ const _buttonSizeSm: Tailwindest = {
   paddingX: "px-3",
   paddingY: "py-1",
 };
-const _buttonSizeMd: Tailwindest = {};
+const _buttonSizeMd: Tailwindest = {
+  // px-4 py-2
+  fontSize: "text-base",
+  paddingX: "px-4",
+  paddingY: "py-2",
+};
 const _buttonSizeLg: Tailwindest = {
   // px-6 py-3
   fontSize: "text-lg",
