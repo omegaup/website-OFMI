@@ -1,32 +1,30 @@
-import { useState  } from "react";
+import { useState } from "react";
 
 const isAlphabetic = /^[A-Z]+$/i;
 
 interface DataList {
     name: string;
+    error: boolean | undefined;
+    value: string;
     label: string;
     values: string[];
+    setter: React.ChangeEventHandler
+    magic: Function;
     strictValidation?: boolean;
 }
 
-export default function({ name, label, values, strictValidation }: DataList) {
-    const [ value, setValue ] = useState<string | undefined>(undefined);
-    const [ error, setError ] = useState<string | undefined>(undefined);
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setValue(e.target.value);
+export default function({ name, label, value, values, error, setter, magic, strictValidation }: DataList) {
+    let validation = {
+        function: isAlphabetic.test,
+        message: 'solo puede contener letras'
     };
-
+    if (strictValidation) {
+        validation.function = values.includes;
+        validation.message = 'no es un valor valido';
+    };
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
         const { value } = e.target;
-        if (strictValidation && !values.includes(value)) {
-            setError(`${value} no es una opción válida`);
-            return;
-        } else if (!strictValidation && !isAlphabetic.test(value)) {
-            setError(`El ${name} debe ser alfabetico`);
-        } else {
-            setError(undefined);
-        };
+        magic(!validation.function(value))
     };
     return (
         <>
@@ -36,7 +34,7 @@ export default function({ name, label, values, strictValidation }: DataList) {
                 name={`${name}-op`} 
                 id={`${name}-op`} 
                 onBlur={handleBlur} 
-                onChange={handleChange}
+                onChange={setter}
                 value={value} 
             />
             <datalist id={`${name}-opts`}>
@@ -44,7 +42,7 @@ export default function({ name, label, values, strictValidation }: DataList) {
                     return <option key={value} value={value}>{value}</option>;
                 })}
             </datalist>
-            {error && <em>{error}</em>}
+            {error && <em>{`El valor de ${name} ${validation.message}`}</em>}
         </>
     );
 };

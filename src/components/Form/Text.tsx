@@ -22,7 +22,7 @@ export default function({ type, name, label }: Text) {
                 onBlur={handleBlur}
                 type={type ? type : 'text'}
             />
-            {error && <em>{`El campo ${name} debe ser alfabetico`}</em>}
+            {error && <em>{`El campo ${name} solo admite letras`}</em>}
         </>
     );
 };

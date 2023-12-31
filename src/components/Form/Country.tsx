@@ -36,10 +36,19 @@ const states = [
     'Zacatecas'
 ]
 
+interface Errs {
+    country: undefined | boolean;
+    state: undefined | boolean;
+};
+
 export default function() {
     const [ location, setLocation ] = useState({
         country: '',
         state: '',
+    });
+    const [ errors, setErrors ] = useState<Errs>({
+        country: undefined,
+        state: undefined,
     });
     return (
         <>
@@ -51,19 +60,35 @@ export default function() {
                         'Mexico',
                         'Otro'
                     ]}
+                    value={location.country}
+                    error={errors.country}
+                    setter={(e: React.ChangeEvent<HTMLInputElement>) => { 
+                        setLocation({ ...location, country: e.target.value }) 
+                    }}
+                    magic={(value: boolean) => { 
+                        setErrors({ ...errors, country: value })
+                    }}
                 />
             </p>
             <p>
-                {location.country === 'mexico' ? (
+                {location.country === 'Mexico' ? (
                     <DataList
                         name="state"
                         label="Estado"
                         values={states}
                         strictValidation={true}
+                        value={location.state}
+                        error={errors.state}
+                        setter={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            setLocation({ ...location, state: e.target.value });
+                        }}
+                        magic={(value: boolean) => { 
+                            setErrors({ ...errors, country: value })
+                        }}
                     />
                 ) : (
                     <Text
-                        name='state'
+                        name='estado'
                         label='Estado'
                     />
                 )}

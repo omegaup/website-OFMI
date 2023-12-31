@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Country from '@/components/Form/Country';
 import Options from "@/components/Form/Options";
 
 export default function() {
@@ -21,6 +22,25 @@ export default function() {
                     value: 'no'
                 }]}
             />
+            <Options
+                name='shirt-size'
+                type='radio'
+                label='Tamaño de playera'
+                options={[{
+                    value: 'small',
+                    label: 'S'
+                }, {
+                    value: 'medium',
+                    label: 'M'
+                }, {
+                    value: 'large',
+                    label: 'L'
+                }, {
+                    value: 'extra-large',
+                    label: 'XL'
+                }]}
+            />
+            <Country />
         </form>
     );
 };

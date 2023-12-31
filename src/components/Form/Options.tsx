@@ -47,7 +47,7 @@ export default function({ type, name, label, options }: Props) {
                         </li>
                     );
                 })}
-                {state.error && <em>{`${state.value} no es una opcion valida`}</em>}
+                {state.error && <em>{`La opcion ${state.value} no es valida`}</em>}
             </ul>
         </fieldset>
     );
