@@ -4,24 +4,21 @@ import { ProfileDropdown } from "./Profile";
 import { Unauthenticated } from "./Unauthenticated";
 import { classNames } from "./styles";
 import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 
 const navigation = {
-  Inicio: "#",
-  Material: "#",
-  Convocatoria: "#",
-  FAQ: "#",
+  Material: "/material",
+  Convocatoria: "/convocatoria",
+  FAQ: "/faq",
 };
 
 export type NavigationItem = keyof typeof navigation;
 
-export const Navbar = ({
-  activeItem,
-}: {
-  activeItem?: NavigationItem;
-}): JSX.Element => {
-  const { status } = useSession();
+export const Navbar = (): JSX.Element => {
+  const session = useSession();
+  const pathname = usePathname();
   return (
-    <Disclosure as="nav" className="bg-gray-800">
+    <Disclosure as="nav" className="bg-stone-300">
       {({ open }: { open: boolean }) => (
         <>
           <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -40,7 +37,9 @@ export const Navbar = ({
               </div>
               <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                 <div className="flex flex-shrink-0 items-center">
-                  <img className="h-9" src="/darkLogo.svg" alt="OFMI" />
+                  <a key="index-icon" href="/">
+                    <img className="h-9" src="/lightLogo.svg" alt="Inicio" />
+                  </a>
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
                   <div className="flex space-x-4">
@@ -49,12 +48,12 @@ export const Navbar = ({
                         key={name}
                         href={href}
                         className={classNames(
-                          name === activeItem
-                            ? "bg-gray-900 text-white"
-                            : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                          "rounded-md px-3 py-2 text-sm font-medium",
+                          href === pathname
+                            ? "bg-gray-200"
+                            : "hover:bg-gray-700 hover:text-white",
+                          "rounded-md px-3 py-2 text-sm font-medium text-gray-700",
                         )}
-                        aria-current={name === activeItem ? "page" : undefined}
+                        aria-current={href === pathname ? "page" : undefined}
                       >
                         {name}
                       </a>
@@ -62,15 +61,10 @@ export const Navbar = ({
                   </div>
                 </div>
               </div>
-              {/* Profile */}
-              {status === "loading" ? null : (
-                <>
-                  {status === "authenticated" ? (
-                    <ProfileDropdown />
-                  ) : (
-                    <Unauthenticated />
-                  )}
-                </>
+              {session?.data != null ? (
+                <ProfileDropdown />
+              ) : (
+                <Unauthenticated />
               )}
             </div>
           </div>
@@ -83,12 +77,12 @@ export const Navbar = ({
                   as="a"
                   href={href}
                   className={classNames(
-                    name === activeItem
-                      ? "bg-gray-900 text-white"
-                      : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                    "block rounded-md px-3 py-2 text-base font-medium",
+                    href === pathname
+                      ? "bg-gray-200"
+                      : "hover:bg-gray-700 hover:text-white",
+                    "block rounded-md px-3 py-2 text-base font-medium text-gray-700",
                   )}
-                  aria-current={name === activeItem ? "page" : undefined}
+                  aria-current={href === pathname ? "page" : undefined}
                 >
                   {name}
                 </Disclosure.Button>
