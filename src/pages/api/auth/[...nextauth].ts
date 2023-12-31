@@ -1,8 +1,8 @@
 import NextAuth, { type AuthOptions } from "next-auth";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 import type { NextApiHandler } from "next/types";
 import { LoginUserRequest, LoginUserResponse } from "@/types/auth.schema";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
