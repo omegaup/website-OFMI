@@ -1,7 +1,10 @@
 import * as nodemailer from "nodemailer";
 import { MailOptions } from "nodemailer/lib/json-transport";
 
-export const newUserEmailTemplate = (email: string, url: string): MailOptions => {
+export const newUserEmailTemplate = (
+  email: string,
+  url: string,
+): MailOptions => {
   return {
     from: process.env.OFMI_EMAIL_SMTP_USER,
     to: email,

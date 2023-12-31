@@ -8,7 +8,7 @@ import {
 } from "@/types/auth.schema";
 import { Value } from "@sinclair/typebox/value";
 import { BadRequestError } from "@/types/badRequestError.schema";
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 import { emailer } from "@/lib/emailer";
 
 export default async function handle(
@@ -52,12 +52,12 @@ async function createUserHandler(
 
     const emailToken: string = jwt.sign(
       {
-        user: user.id
+        user: user.id,
       },
       process.env.VERIFICATION_EMAIL_SECRET as string,
       {
-        expiresIn: process.env.VERIFICATION_TOKEN_EXPIRATION
-      }
+        expiresIn: process.env.VERIFICATION_TOKEN_EXPIRATION,
+      },
     );
 
     const url: string = `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/api/${emailToken}`;
