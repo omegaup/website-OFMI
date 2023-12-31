@@ -4,18 +4,6 @@ import { BadRequestError } from "@/types/badRequestError.schema";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
 
-export default async function handle(
-  req: NextApiRequest,
-  res: NextApiResponse<VerifyEmailResponse | BadRequestError>,
-): Promise<void> {
-  if (req.method === "GET") {
-    /* eslint-disable-next-line @typescript-eslint/no-use-before-define */
-    await verifyEmailHandler(req, res);
-  } else {
-    return res.status(405).json({ message: "Method Not allowed" });
-  }
-}
-
 async function verifyEmailHandler(
   req: NextApiRequest,
   res: NextApiResponse,
@@ -60,4 +48,15 @@ async function verifyEmailHandler(
   }
 
   res.redirect(`${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/login`);
+}
+
+export default async function handle(
+  req: NextApiRequest,
+  res: NextApiResponse<VerifyEmailResponse | BadRequestError>,
+): Promise<void> {
+  if (req.method === "GET") {
+    await verifyEmailHandler(req, res);
+  } else {
+    return res.status(405).json({ message: "Method Not allowed" });
+  }
 }

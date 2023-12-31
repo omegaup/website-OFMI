@@ -18,6 +18,7 @@ const SuccessSignUp = (): JSX.Element => {
 };
 
 export default function SignUp(): JSX.Element {
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<BadRequestError | null>(null);
   const [successSignUp, setSuccessSignUp] = useState(false);
   const sendSignUp = useSetAtom(sendSignUpAtom);
@@ -30,6 +31,8 @@ export default function SignUp(): JSX.Element {
     event: React.FormEvent<HTMLFormElement>,
   ): Promise<void> {
     event.preventDefault();
+    setError(null);
+
     const data = new FormData(event.currentTarget);
     const email = data.get("email")?.toString();
     const password = data.get("password")?.toString();
@@ -43,13 +46,14 @@ export default function SignUp(): JSX.Element {
       return;
     }
 
-    setError(null);
+    setLoading(true);
     const response = await sendSignUp({ email, password });
     if (!response.success) {
       setError(response.error);
-      return;
+    } else {
+      setSuccessSignUp(true);
     }
-    setSuccessSignUp(true);
+    setLoading(false);
   }
 
   return (
@@ -128,7 +132,12 @@ export default function SignUp(): JSX.Element {
             </div>
 
             <div>
-              <Button type="submit" buttonType="primary" className="w-full">
+              <Button
+                type="submit"
+                buttonType="primary"
+                className="w-full"
+                disabled={loading}
+              >
                 Crear cuenta
               </Button>
             </div>
@@ -145,7 +154,7 @@ export default function SignUp(): JSX.Element {
               </p>
             </div>
           </form>
-          {error != null && <Alert text={error.message} />}
+          {error != null && <Alert errorMsg={error.message} />}
         </div>
       </div>
     </>

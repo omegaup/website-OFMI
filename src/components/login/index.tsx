@@ -14,17 +14,19 @@ interface LoginError extends BadRequestError {
 
 export default function Login(): JSX.Element {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<LoginError | null>(null);
 
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>,
   ): Promise<void> {
     event.preventDefault();
+    setLoading(true);
+    setError(null);
+
     const data = new FormData(event.currentTarget);
     const email = data.get("email")?.toString();
     const password = data.get("password")?.toString();
-
-    setError(null);
     const response = await signIn("credentials", {
       redirect: false,
       email,
@@ -36,15 +38,16 @@ export default function Login(): JSX.Element {
         response.error === "CredentialsSignin"
           ? "Usuario o contraseña incorrectos."
           : response.error;
+
       setError({
         message: userError,
         email: email ?? "",
         emailNotVerified: response.status === 401,
       });
-      return;
     } else {
       await router.push(response?.url ?? "/");
     }
+    setLoading(false);
   }
 
   return (
@@ -113,7 +116,12 @@ export default function Login(): JSX.Element {
             </a>
           </div>
 
-          <Button type="submit" buttonType="primary" className="w-full">
+          <Button
+            type="submit"
+            buttonType="primary"
+            className="w-full"
+            disabled={loading}
+          >
             Iniciar sesión
           </Button>
 
