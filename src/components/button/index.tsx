@@ -1,33 +1,31 @@
-import { Size } from "@/types/components.types";
-import classNames from "classnames";
-import { Text } from "@/components/text";
-import s from "./style.module.css";
+import { defaultStyles, ButtonVariantProps } from "./twcss";
+import classnames from "classnames";
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  styleType?: "primary" | "secondary";
-  size?: Size;
-}
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    ButtonVariantProps {}
 
 export const Button = ({
   className,
-  styleType = "primary",
-  size = "base",
+  twcss,
+  buttonSize = "md",
+  buttonType = "default",
   children,
   ...rest
 }: ButtonProps): JSX.Element => {
+  const buttonTw = twcss ? defaultStyles.compose(twcss) : defaultStyles;
   return (
     <button
-      className={classNames(s.button, s[styleType], s[size], className)}
+      className={classnames(
+        buttonTw.class({
+          buttonSize,
+          buttonType,
+        }),
+        className,
+      )}
       {...rest}
     >
-      <Text
-        color="inherit"
-        fontWeight={styleType === "primary" ? "bold" : "semibold"}
-        size={size}
-      >
-        {children}
-      </Text>
+      {children}
     </button>
   );
 };

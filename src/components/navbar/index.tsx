@@ -30,7 +30,7 @@ export const Navbar = ({
     getSessionAsync();
   }, []);
   return (
-    <Disclosure as="nav" className="bg-gray-800">
+    <Disclosure as="nav" className="bg-stone-300">
       {({ open }: { open: boolean }) => (
         <>
           <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -49,9 +49,7 @@ export const Navbar = ({
               </div>
               <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                 <div className="flex flex-shrink-0 items-center">
-                  <a key="index-icon" href="/">
-                    <img className="h-9" src="/lightLogo.svg" alt="Inicio" />
-                  </a>
+                  <img className="h-9" src="/lightLogo.svg" alt="OFMI" />
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
                   <div className="flex space-x-4">
@@ -62,7 +60,7 @@ export const Navbar = ({
                         className={classNames(
                           name === activeItem
                             ? "bg-gray-900 text-white"
-                            : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                            : "text-gray-700 hover:bg-gray-700 hover:text-white",
                           "rounded-md px-3 py-2 text-sm font-medium",
                         )}
                         aria-current={name === activeItem ? "page" : undefined}

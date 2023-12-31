@@ -6,27 +6,20 @@ export interface TextProps {
   children: React.ReactNode;
   size?: Size;
   tag?: "p" | "span" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
-  fontWeight?: "bold" | "semibold" | "normal" | "light";
   color?: string;
 }
 
 export const Text = ({
+  className,
   tag: Tag = "span",
   children,
-  fontWeight = "normal",
   size = "base",
-  className,
-  color = "inherit",
+  color = "current",
   ...rest
 }: TextProps): JSX.Element => {
   return (
     <Tag
-      className={classNames(
-        className,
-        `text-${size}`,
-        `font-${fontWeight}`,
-        `text-${color}`,
-      )}
+      className={classNames(className, `text-${size}`, `text-${color}`)}
       {...rest}
     >
       {children}
