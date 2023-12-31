@@ -9,7 +9,7 @@ export const Button = ({
   className,
   twcss,
   buttonSize = "md",
-  buttonType = "default",
+  buttonType = "primary",
   children,
   ...rest
 }: ButtonProps): JSX.Element => {

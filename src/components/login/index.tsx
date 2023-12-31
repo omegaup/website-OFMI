@@ -46,7 +46,7 @@ export default function Login(): JSX.Element {
             alt="OFMI"
           />
           <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-            Iniciar sesión
+            Inicia sesión
           </h2>
         </div>
 
