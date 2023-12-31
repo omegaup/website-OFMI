@@ -24,7 +24,8 @@ export default function() {
     const [ deliveryAddress, setDeliveryAddress ] = useState({
         nombre_destinatario: '',
         direccion_completa: '',
-        numero_telefono: ''
+        numero_telefono: '',
+        talla_playera: ''
     });
     const [ dataErrors, setDataErrors ] = useState({
         TyC: false,
@@ -38,6 +39,12 @@ export default function() {
         escuela: false,
         grado_escolaridad: false,
 
+    });
+    const [ deliveryErrors, setDeliveryErrors ] = useState({
+        nombre_destinatario: false,
+        direccion_completa: false,
+        numero_telefono: false,
+        talla_playera: false
     });
     return (
         <form>
@@ -231,6 +238,39 @@ export default function() {
                     setDataErrors({ 
                         ...dataErrors, 
                         grado_escolaridad: value 
+                    })
+                )}
+            />
+            {/* CAMPOS SOLO PARA LAS DE MEXICO */}
+            <Options
+                name='talla_playera'
+                type='radio'
+                label='Talla de la Playera'
+                options={[{
+                    value: 'small',
+                    label: 'S'
+                }, {
+                    value: 'medium',
+                    label: 'M'
+                }, {
+                    value: 'large',
+                    label: 'L'
+                }, {
+                    value: 'extra-large',
+                    label: 'XL'
+                }]}
+                value={deliveryAddress.talla_playera}
+                error={deliveryErrors.talla_playera}
+                setValue={(value: string) => (
+                    setDeliveryAddress({ 
+                        ...deliveryAddress,
+                        talla_playera: value
+                    })
+                )}
+                setError={(value: boolean) => (
+                    setDeliveryErrors({ 
+                        ...deliveryErrors, 
+                        talla_playera: value 
                     })
                 )}
             />
