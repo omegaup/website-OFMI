@@ -13,7 +13,7 @@ export const newUserEmailTemplate = (
     html: `
       <p>Gracias por registrarte en la página de la OFMI.</p>
       <p>Por favor da click en <a href="${url}">esta liga</a> para verificar 
-      tu cuenta y que puedas empezar a usar la página </p>
+      tu cuenta y que puedas empezar a usar la página.</p>
       <p>Si tienes alguna duda por favor envía un correo a
       <a href="mailto:ofmi@omegaup.com">ofmi@omegaup.com</a></p>
       <br />
