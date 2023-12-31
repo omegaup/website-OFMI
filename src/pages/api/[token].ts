@@ -36,7 +36,7 @@ async function verifyEmailHandler(
     });
 
     if (user.emailVerified != null) {
-      throw res.status(400).json({
+      return res.status(400).json({
         message:
           "Este correo ya fue verificado previamente, ya puedes hacer login",
       });
