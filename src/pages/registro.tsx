@@ -5,6 +5,7 @@ import Text from '@/components/Form/Text';
 import Number from '@/components/Form/Number';
 import Country from '@/components/Form/Country';
 import Options from "@/components/Form/Options";
+import DataList from '@/components/Form/DataList';
 
 export default function() {
     const [ personalData, setPersonalData ] = useState({
@@ -16,6 +17,7 @@ export default function() {
         estado: '',
         ciudad: '',
         escolaridad: '',
+        escuela: '',
         grado_escolaridad: '',
 
     });
@@ -33,6 +35,7 @@ export default function() {
         estado: false,
         ciudad: false,
         escolaridad: false,
+        escuela: false,
         grado_escolaridad: false,
 
     });
@@ -166,6 +169,51 @@ export default function() {
                         })
                     )
                 }}
+            />
+            <Options
+                name='escolaridad'
+                type='radio'
+                label='Escolaridad'
+                options={[{
+                    value: 'primaria',
+                }, {
+                    value: 'secundaria',
+                }, {
+                    value: 'prepa'
+                }]}
+                value={personalData.escolaridad}
+                error={dataErrors.escolaridad}
+                setValue={(value: string) => (
+                    setPersonalData({ 
+                        ...personalData,
+                        escolaridad: value
+                    })
+                )}
+                setError={(value: boolean) => (
+                    setDataErrors({ 
+                        ...dataErrors, 
+                        escolaridad: value 
+                    })
+                )}
+            />
+            <DataList
+                name='escuela'
+                label='Escuela'
+                values={['prepa 1', 'prepa 2']}
+                value={personalData.escuela}
+                error={dataErrors.escuela}
+                setValue={(value: string) => (
+                    setPersonalData({ 
+                        ...personalData,
+                        escuela: value
+                    })
+                )}
+                setError={(value: boolean) => (
+                    setDataErrors({ 
+                        ...dataErrors, 
+                        escuela: value 
+                    })
+                )}
             />
         </form>
     );
