@@ -107,6 +107,32 @@ export default function() {
                     })
                 )}
             />
+            <Options
+                name='pronombres'
+                type='checkbox'
+                label='Pronombres'
+                options={[{
+                    value: 'el',
+                }, {
+                    value: 'ella',
+                }, {
+                    value: 'elle'
+                }]}
+                value={personalData.pronombres}
+                error={dataErrors.pronombres}
+                setValue={(value: string) => (
+                    setPersonalData({ 
+                        ...personalData,
+                        pronombres: value
+                    })
+                )}
+                setError={(value: boolean) => (
+                    setDataErrors({ 
+                        ...dataErrors, 
+                        pronombres: value 
+                    })
+                )}
+            />
         </form>
     );
 };
