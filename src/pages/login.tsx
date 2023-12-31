@@ -5,16 +5,35 @@ import type {
   InferGetServerSidePropsType,
 } from "next/types";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { verifyEmail } from "@/lib/tokenVerifier";
+import { Alert } from "@/components/alert";
 
 export default function LoginPage(
   props: InferGetServerSidePropsType<typeof getServerSideProps>,
 ): JSX.Element {
-  return <Login verified={props.verified} initialEmail={props.email} />;
+  if (props.errorMsg != null) {
+    return (
+      <div className="flex w-full items-center justify-center">
+        <Alert
+          className="block w-1/2 items-center justify-center"
+          errorMsg={props.errorMsg}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <Login
+      verified={props.verified == null ? undefined : props.verified}
+      initialEmail={props.email == null ? undefined : props.email}
+    />
+  );
 }
 
 export const getServerSideProps: GetServerSideProps<{
   verified: boolean | null;
   email: string | null;
+  errorMsg: string | null;
 }> = async ({ req, res, query }) => {
   const session = await getServerSession(req, res, authOptions);
 
@@ -27,13 +46,32 @@ export const getServerSideProps: GetServerSideProps<{
     };
   }
 
-  const verified = query.verified;
-  const email = query.email;
+  const verifyToken = query.verifyToken;
+
+  let email: string | null = null;
+  let verified: boolean | null = null;
+  let errorMsg: string | null = null;
+  if (typeof verifyToken === "string") {
+    try {
+      const response = await verifyEmail({ token: verifyToken });
+      if (response.success) {
+        email = response.email;
+        verified = true;
+      } else {
+        verified = false;
+        errorMsg = response.errorMsg;
+      }
+    } catch (error) {
+      verified = false;
+      errorMsg = "Ocurrió un error al verificar tu email.";
+    }
+  }
 
   return {
     props: {
-      verified: typeof verified === "string" ? verified === "true" : null,
-      email: typeof email === "string" ? email : null,
+      verified,
+      email,
+      errorMsg,
     },
   };
 };

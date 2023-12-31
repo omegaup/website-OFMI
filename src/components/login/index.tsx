@@ -22,8 +22,8 @@ interface LoginError {
 }
 
 interface LoginProps {
-  verified?: boolean | null;
-  initialEmail?: string | null;
+  verified?: boolean;
+  initialEmail?: string;
 }
 
 export default function Login({
