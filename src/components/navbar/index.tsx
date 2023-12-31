@@ -9,9 +9,9 @@ import { useEffect, useState } from "react";
 import { Session } from "next-auth";
 
 const navigation = {
-  Material: "material",
-  Convocatoria: "convocatoria",
-  FAQ: "faq",
+  Material: "/material",
+  Convocatoria: "/convocatoria",
+  FAQ: "/faq",
 };
 
 export type NavigationItem = keyof typeof navigation;
