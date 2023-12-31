@@ -3,13 +3,15 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { ProfileDropdown } from "./Profile";
 import { Unauthenticated } from "./Unauthenticated";
 import { classNames } from "./styles";
-import { useSession } from "next-auth/react";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
+import { useEffect, useState } from "react";
+import { Session } from "next-auth";
 
 const navigation = {
-  Inicio: "#",
-  Material: "#",
-  Convocatoria: "#",
-  FAQ: "#",
+  Material: "material",
+  Convocatoria: "convocatoria",
+  FAQ: "faq",
 };
 
 export type NavigationItem = keyof typeof navigation;
@@ -19,7 +21,14 @@ export const Navbar = ({
 }: {
   activeItem?: NavigationItem;
 }): JSX.Element => {
-  const { status } = useSession();
+  const [session, setSession] = useState<Session>();
+  useEffect(() => {
+    async function getSessionAsync(): Promise<void> {
+      const s = (await getServerSession(authOptions)) ?? undefined;
+      setSession(s);
+    }
+    getSessionAsync();
+  }, []);
   return (
     <Disclosure as="nav" className="bg-gray-800">
       {({ open }: { open: boolean }) => (
@@ -40,7 +49,9 @@ export const Navbar = ({
               </div>
               <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                 <div className="flex flex-shrink-0 items-center">
-                  <img className="h-9" src="/lightLogo.svg" alt="OFMI" />
+                  <a key="index-icon" href="/">
+                    <img className="h-9" src="/lightLogo.svg" alt="Inicio" />
+                  </a>
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
                   <div className="flex space-x-4">
@@ -62,15 +73,10 @@ export const Navbar = ({
                   </div>
                 </div>
               </div>
-              {/* Profile */}
-              {status === "loading" ? null : (
-                <>
-                  {status === "authenticated" ? (
-                    <ProfileDropdown />
-                  ) : (
-                    <Unauthenticated />
-                  )}
-                </>
+              {session?.user != null ? (
+                <ProfileDropdown />
+              ) : (
+                <Unauthenticated />
               )}
             </div>
           </div>
