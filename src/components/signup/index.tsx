@@ -26,10 +26,6 @@ export default function SignUp(): JSX.Element {
     return <SuccessSignUp />;
   }
 
-  useEffect(() => {
-    console.log(error);
-  }, [error]);
-
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>,
   ): Promise<void> {
