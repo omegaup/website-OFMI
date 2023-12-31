@@ -32,6 +32,4 @@ export type VerifyEmailRequest = Static<typeof VerifyEmailRequestSchema>;
 export const VerifyEmailRequestSchema = Type.Object({
   // email
   email: Type.String({ minLength: 1 }),
-  // jwt
-  token: Type.String({ minLength: 1 }),
 });

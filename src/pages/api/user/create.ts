@@ -10,6 +10,7 @@ import { Value } from "@sinclair/typebox/value";
 import { BadRequestError } from "@/types/badRequestError.schema";
 import jwt from "jsonwebtoken";
 import { emailer } from "@/lib/emailer";
+import generateAndSendVerificationToken from "@/lib/email-verification-token";
 
 export default async function handle(
   req: NextApiRequest,
@@ -50,19 +51,7 @@ async function createUserHandler(
       data: { ...body, password: hashPassword(body.password) },
     });
 
-    const emailToken: string = jwt.sign(
-      {
-        user: user.id,
-      },
-      process.env.VERIFICATION_EMAIL_SECRET as string,
-      {
-        expiresIn: process.env.VERIFICATION_TOKEN_EXPIRATION,
-      },
-    );
-
-    const url: string = `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/api/${emailToken}`;
-
-    emailer.notifyUserForSignup(body.email, url);
+    generateAndSendVerificationToken(user.id, body.email);
 
     return res.status(201).json({ user });
   } catch (e) {
