@@ -37,7 +37,7 @@ async function loginUserHandler(
 
 export default async function handle(
   req: NextApiRequest,
-  res: NextApiResponse,
+  res: NextApiResponse<LoginUserResponse | BadRequestError>,
 ): Promise<void> {
   if (req.method === "POST") {
     await loginUserHandler(req, res);

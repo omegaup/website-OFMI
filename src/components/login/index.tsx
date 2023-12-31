@@ -33,7 +33,7 @@ export default function Login(): JSX.Element {
       setError({ message: userError });
       return;
     } else {
-      router.push(response?.url ?? "/");
+      await router.push(response?.url ?? "/");
     }
   }
 

@@ -22,7 +22,7 @@ export const newUserEmailTemplate = (
   } as MailOptions;
 };
 
-export const signUpSuccessfullEmailTemplate = (email: string): MailOptions => {
+export const signUpSuccessfulEmailTemplate = (email: string): MailOptions => {
   return {
     from: process.env.OFMI_EMAIL_SMTP_USER,
     to: email,
@@ -53,16 +53,16 @@ export class Emailer {
     });
   }
 
-  public sendEmail(mailOptions: MailOptions): Promise<void> {
-    return this.transporter.sendMail(mailOptions);
+  public async sendEmail(mailOptions: MailOptions): Promise<void> {
+    return await this.transporter.sendMail(mailOptions);
   }
 
-  public notifyUserForSignup(email: string, url: string): void {
-    this.sendEmail(newUserEmailTemplate(email, url));
+  public async notifyUserForSignup(email: string, url: string): Promise<void> {
+    await this.sendEmail(newUserEmailTemplate(email, url));
   }
 
-  public notifyUserSuccessfulSignup(email: string): void {
-    this.sendEmail(signUpSuccessfullEmailTemplate(email));
+  public async notifyUserSuccessfulSignup(email: string): Promise<void> {
+    await this.sendEmail(signUpSuccessfulEmailTemplate(email));
   }
 }
 

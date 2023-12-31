@@ -1,10 +1,10 @@
 import jwt from "jsonwebtoken";
 import { emailer } from "./emailer";
 
-export default function generateAndSendVerificationToken(
+export default async function generateAndSendVerificationToken(
   userId: string,
   email: string,
-): void {
+): Promise<void> {
   const emailToken: string = jwt.sign(
     {
       user: userId,
@@ -17,5 +17,5 @@ export default function generateAndSendVerificationToken(
 
   const url: string = `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/api/${emailToken}`;
 
-  emailer.notifyUserForSignup(email, url);
+  await emailer.notifyUserForSignup(email, url);
 }
