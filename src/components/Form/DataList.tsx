@@ -1,4 +1,4 @@
-const isAlphabetic = /^[A-Z]+$/i;
+const isAlphabetic = /^[A-Z0-9 ]+$/i;
 
 interface DataList {
     name: string;
@@ -14,7 +14,7 @@ interface DataList {
 export default function({ name, label, value, values, error, setValue, setError, strictValidation }: DataList) {
     let validation = {
         function: (value: string) => (isAlphabetic.test(value)),
-        message: 'solo puede contener letras'
+        message: 'solo puede contener letras, numeros y espacios'
     };
     if (strictValidation) {
         validation.function = (value: string) => (values.includes(value));
