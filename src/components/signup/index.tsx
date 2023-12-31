@@ -133,7 +133,7 @@ export default function SignUp(): JSX.Element {
             </div>
 
             <div>
-              <Button type="submit" styleType="primary" className="w-full">
+              <Button type="submit" buttonType="primary" className="w-full">
                 Crear cuenta
               </Button>
             </div>
