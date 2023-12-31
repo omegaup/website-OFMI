@@ -37,6 +37,10 @@ export const authOptions: AuthOptions = {
           },
         );
 
+        if (res.status == 401) {
+          throw new Error("EmailNotVerified");
+        }
+
         if (res.status !== 200) {
           const response = await res.json();
 

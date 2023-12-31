@@ -7,21 +7,8 @@ import {
   CreateUserResponse,
 } from "@/types/auth.schema";
 import { Value } from "@sinclair/typebox/value";
-import { BadRequestError } from "@/types/badRequestError.schema";
+import { BadRequestError } from "@/types/errors";
 import generateAndSendVerificationToken from "@/lib/email-verification-token";
-
-export default async function handle(
-  req: NextApiRequest,
-  res: NextApiResponse<CreateUserResponse | BadRequestError>,
-): Promise<void> {
-  if (req.method === "POST") {
-    // create user
-    /* eslint-disable-next-line @typescript-eslint/no-use-before-define */
-    await createUserHandler(req, res);
-  } else {
-    return res.status(405).json({ message: "Method Not allowed" });
-  }
-}
 
 // We hash the user entered password using crypto.js
 export const hashPassword = (string: string): string => {
@@ -31,7 +18,7 @@ export const hashPassword = (string: string): string => {
 // function to create user in our database
 async function createUserHandler(
   req: NextApiRequest,
-  res: NextApiResponse,
+  res: NextApiResponse<CreateUserResponse | BadRequestError>,
 ): Promise<void> {
   const { body } = req;
   if (!Value.Check(CreateUserRequestSchema, body)) {
@@ -49,7 +36,7 @@ async function createUserHandler(
       data: { ...body, password: hashPassword(body.password) },
     });
 
-    generateAndSendVerificationToken(user.id, body.email);
+    await generateAndSendVerificationToken(user.id, body.email);
 
     return res.status(201).json({ user });
   } catch (e) {
@@ -60,5 +47,17 @@ async function createUserHandler(
       return res.status(400).json({ message: e.message });
     }
     return res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+export default async function handle(
+  req: NextApiRequest,
+  res: NextApiResponse<CreateUserResponse | BadRequestError>,
+): Promise<void> {
+  if (req.method === "POST") {
+    // create user
+    await createUserHandler(req, res);
+  } else {
+    return res.status(405).json({ message: "Method Not allowed" });
   }
 }

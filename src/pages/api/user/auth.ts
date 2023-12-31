@@ -3,7 +3,7 @@ import { hashPassword } from "./create";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Value } from "@sinclair/typebox/value";
 import { LoginUserRequestSchema, LoginUserResponse } from "@/types/auth.schema";
-import { BadRequestError } from "@/types/badRequestError.schema";
+import { BadRequestError } from "@/types/errors";
 
 async function loginUserHandler(
   req: NextApiRequest,
@@ -22,7 +22,7 @@ async function loginUserHandler(
   });
   if (user == null || user.password !== hashPassword(password)) {
     return res
-      .status(401)
+      .status(400)
       .json({ message: "Usuario o contraseña incorrectos." });
   }
   if (user.emailVerified === null) {
@@ -37,7 +37,7 @@ async function loginUserHandler(
 
 export default async function handle(
   req: NextApiRequest,
-  res: NextApiResponse,
+  res: NextApiResponse<LoginUserResponse | BadRequestError>,
 ): Promise<void> {
   if (req.method === "POST") {
     await loginUserHandler(req, res);
