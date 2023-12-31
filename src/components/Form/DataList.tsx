@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 const isAlphabetic = /^[A-Z]+$/i;
 
 interface DataList {
@@ -15,11 +13,11 @@ interface DataList {
 
 export default function({ name, label, value, values, error, setter, magic, strictValidation }: DataList) {
     let validation = {
-        function: isAlphabetic.test,
+        function: (value: string) => (isAlphabetic.test(value)),
         message: 'solo puede contener letras'
     };
     if (strictValidation) {
-        validation.function = values.includes;
+        validation.function = (value: string) => (values.includes(value));
         validation.message = 'no es un valor valido';
     };
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
