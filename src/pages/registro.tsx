@@ -25,7 +25,8 @@ export default function() {
         nombre_destinatario: '',
         direccion_completa: '',
         numero_telefono: '',
-        talla_playera: ''
+        talla_playera: '',
+        corte_playera: ''
     });
     const [ dataErrors, setDataErrors ] = useState({
         TyC: false,
@@ -44,7 +45,8 @@ export default function() {
         nombre_destinatario: false,
         direccion_completa: false,
         numero_telefono: false,
-        talla_playera: false
+        talla_playera: false,
+        corte_playera: false,
     });
     return (
         <form>
@@ -271,6 +273,32 @@ export default function() {
                     setDeliveryErrors({ 
                         ...deliveryErrors, 
                         talla_playera: value 
+                    })
+                )}
+            />
+            <Options
+                name='corte_playera'
+                type='radio'
+                label='Corte de la Playera'
+                options={[{
+                    value: 'A',
+                    label: 'Tipo A (Recta)'
+                }, {
+                    value: 'B',
+                    label: 'Tipo B (Acinturada)'
+                }]}
+                value={deliveryAddress.corte_playera}
+                error={deliveryErrors.corte_playera}
+                setValue={(value: string) => (
+                    setDeliveryAddress({ 
+                        ...deliveryAddress,
+                        corte_playera: value
+                    })
+                )}
+                setError={(value: boolean) => (
+                    setDeliveryErrors({ 
+                        ...deliveryErrors, 
+                        corte_playera: value 
                     })
                 )}
             />
