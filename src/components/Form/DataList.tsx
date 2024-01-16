@@ -1,48 +1,36 @@
-const isAlphabetic = /^[A-Z0-9 ]+$/i;
+import Text from "./Text";
+import { memo } from "react";
+import { DataList as IDataList } from "@/types/input.types";
 
-interface DataList {
-    name: string;
-    error: boolean | undefined;
-    value: string;
-    label: string;
-    values: string[];
-    setValue: Function
-    setError: Function;
-    strictValidation?: boolean;
-}
-
-export default function({ name, label, value, values, error, setValue, setError, strictValidation }: DataList) {
-    let validation = {
-        function: (value: string) => (isAlphabetic.test(value)),
-        message: 'solo puede contener letras, numeros y espacios'
+function DataList({ name, options, validation, ...others }: IDataList) {
+    const isStrict = validation === 'strict';
+    if (!options && isStrict) {
+        return false;
     };
-    if (strictValidation) {
-        validation.function = (value: string) => (values.includes(value));
-        validation.message = 'no es un valor valido';
-    };
-    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-        const { value } = e.target;
-        setError(!validation.function(value))
+    let tester = (val: string) => ((options as string[]).includes(val));
+    if (!isStrict) {
+        tester = (val: string) => (validation.test(val));
     };
     return (
-        <>
-            <label htmlFor={`${name}-op`}>{label}</label>
-            <input 
-                list={`${name}-opts`} 
-                name={`${name}-op`} 
-                id={`${name}-op`} 
-                onBlur={handleBlur} 
-                onChange={(e) => {
-                    setValue(e.target.value);
+        <p>
+            <Text
+                name={name}
+                list={`${name}-opts`}
+                validate={{
+                    func: tester,
+                    message: `El valor del campo ${name} no es válido`
                 }}
-                value={value} 
+                {...others}
             />
-            <datalist id={`${name}-opts`}>
-                {values.map((value) => {
-                    return <option key={value} value={value}>{value}</option>;
-                })}
-            </datalist>
-            {error && <em>{`El valor de ${name} ${validation.message}`}</em>}
-        </>
+            {options && (
+                <datalist id={`${name}-opts`}>
+                    {options.map((value) => {
+                        return <option key={value} value={value}>{value}</option>;
+                    })}
+                </datalist>
+            )}
+        </p>
     );
 };
+
+export default memo(DataList);

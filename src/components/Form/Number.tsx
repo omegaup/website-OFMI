@@ -1,36 +1,30 @@
-interface Props {
-    name: string;
-    label: string;
-    value: string;
-    error: boolean;
-    range: [number, number];
-    setValue: Function;
-    setError: Function;
+import Text from "./Text";
+import { Text as IText } from "@/types/input.types";
+
+interface Number extends IText {
+    range?: [number, number];
 };
 
-export default function({ name, label, value, error, range, setValue, setError }: Props) {
-    const [ start, end ] = range;
+export default function({ name, range, ...others }: Number) {
+    const [ start, end ] = range || ([1, Infinity]);
+    const isDefaultRange = start === 1 && end === Infinity;
     return (
-        <>
-            <label htmlFor={name}>{label}</label>
-            <input
-                id={name}
-                name={label}
-                value={value}
-                onChange={(e) => {
-                    setValue(e.target.value);
-                }}
-                onBlur={(e) => {
-                    let isInRange = true;
-                    const value = parseInt(e.target.value);
-                    if (value < start || value > end) {
-                        isInRange = false;
-                    };
-                    setError(!isInRange);
-                }}
+        <p>
+            <Text
                 type='number'
+                name={name}
+                validate={{
+                    func: (value: string) => {
+                        const num = Number(value);
+                        if (Number.isNaN(num) || num < start || num > end) {
+                            return false;
+                        };
+                        return true;
+                    },
+                    message: `El campo ${name} solo admite un número ${isDefaultRange ? 'positivo mayor que uno' : `entre ${start} y ${end}`}`
+                }}
+                {...others}
             />
-            {error && <em>{`El valor de ${name} debe estar entre ${start} y ${end}`}</em>}
-        </>
+        </p>
     );
 };

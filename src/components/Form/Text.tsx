@@ -1,32 +1,33 @@
-interface Props {
-    type?: string;
-    name: string;
-    label: string;
-    value: string;
-    error: boolean;
-    setError: Function;
-    setValue: Function;
-};
+import { Text } from "@/types/input.types";
+import { memo, isValidElement } from "react";
 
-const isAlphabetic = /^[a-zA-Z ]+$/;
-
-export default function({ type, name, label, value, error, setError, setValue }: Props) {
+function Text({ type, name, label, validate, value, error, isRequired = true, ...others }: Text) {
+    if (!value || !error || !validate) {
+        return false;
+    };
     return (
         <>
-            <label htmlFor={name}>{label}</label>
+            {isValidElement(label) ? {...label, props: { htmlFor: name }} : <label htmlFor={name}>{label}</label>}
             <input
                 id={name}
-                name={label}
-                value={value}
+                name={name}
+                value={value.state}
                 onChange={(e) => {
-                    setValue(e.target.value);
+                    value.updater(e.target.value);
                 }}
-                onBlur={(e) => {
-                    setError(!isAlphabetic.test(e.target.value))
+                onBlur={async (e) => {
+                    const isValid = await validate.func(e.target.value)
+                    error.updater(!isValid);
                 }}
                 type={type ? type : 'text'}
+                {...others}
             />
-            {error && <em>{`El campo ${name} solo admite letras y espacios`}</em>}
+            {Boolean(value.state.length && error.state) && (<em>{validate.message}</em>)}
+            {isRequired && error.state !== null && !value.state.length && (
+                <em>{`El campo ${name} no puede estar vacío`}</em>
+            )}
         </>
     );
 };
+
+export default memo(Text);
