@@ -8,9 +8,13 @@ for (const { nombre, municipios } of Mexico) {
     let cities = {};
     state_names.push(nombre);
     for (const { nombre, localidades } of municipios) {
-        cities[nombre] = localidades.map(({ nombre }) => {
+        const validas = localidades.filter(({ nombre }) => {
+            return nombre !== 'Ninguno';
+        });
+        const nombres = validas.map(({ nombre }) => {
             return nombre;
         });
+        cities[nombre] = Array.from(new Set(nombres));
     };
     states[nombre] = cities;
 };
