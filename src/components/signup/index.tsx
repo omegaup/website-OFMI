@@ -1,7 +1,6 @@
-import { BadRequestError } from "@/types/badRequestError.schema";
-import { useSetAtom } from "jotai";
-import { sendSignUpAtom } from "./client";
-import { useEffect, useState } from "react";
+import { BadRequestError } from "@/types/errors";
+import { useState } from "react";
+import { sendSignUp } from "./client";
 import { Alert, SuccessAlert } from "../alert";
 import { Button } from "../button";
 import { PasswordInput } from "../password";
@@ -18,9 +17,9 @@ const SuccessSignUp = (): JSX.Element => {
 };
 
 export default function SignUp(): JSX.Element {
-  const [error, setError] = useState<BadRequestError | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
   const [successSignUp, setSuccessSignUp] = useState(false);
-  const sendSignUp = useSetAtom(sendSignUpAtom);
 
   if (successSignUp) {
     return <SuccessSignUp />;
@@ -30,26 +29,29 @@ export default function SignUp(): JSX.Element {
     event: React.FormEvent<HTMLFormElement>,
   ): Promise<void> {
     event.preventDefault();
+    setError(null);
+
     const data = new FormData(event.currentTarget);
     const email = data.get("email")?.toString();
     const password = data.get("password")?.toString();
     const confirmPassword = data.get("confirmPassword")?.toString();
     if (email == null || password == null || confirmPassword == null) {
-      setError({ message: "Todos los campos son requeridos" });
+      setError(new Error("Todos los campos son requeridos"));
       return;
     }
     if (password !== confirmPassword) {
-      setError({ message: "Las contraseñas no coinciden" });
+      setError(new Error("Las contraseñas no coinciden."));
       return;
     }
 
-    setError(null);
+    setLoading(true);
     const response = await sendSignUp({ email, password });
     if (!response.success) {
       setError(response.error);
-      return;
+    } else {
+      setSuccessSignUp(true);
     }
-    setSuccessSignUp(true);
+    setLoading(false);
   }
 
   return (
@@ -128,7 +130,12 @@ export default function SignUp(): JSX.Element {
             </div>
 
             <div>
-              <Button type="submit" buttonType="primary" className="w-full">
+              <Button
+                type="submit"
+                buttonType="primary"
+                className="w-full"
+                disabled={loading}
+              >
                 Crear cuenta
               </Button>
             </div>
@@ -145,7 +152,7 @@ export default function SignUp(): JSX.Element {
               </p>
             </div>
           </form>
-          {error != null && <Alert text={error.message} />}
+          {error != null && <Alert errorMsg={error.message} />}
         </div>
       </div>
     </>

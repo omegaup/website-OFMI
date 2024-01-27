@@ -1,11 +1,29 @@
-export const Alert = ({ text }: { text: string }): JSX.Element => {
+import classnames from "classnames";
+
+export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
+  errorTitle?: string | null;
+  errorMsg?: string;
+}
+
+export const Alert = ({
+  className,
+  errorTitle = "Error!",
+  errorMsg,
+  children,
+  ...rest
+}: AlertProps): JSX.Element => {
   return (
     <div
-      className="relative my-2 rounded border border-red-400 bg-red-100 px-4 py-2 text-xs text-red-700"
+      className={classnames(
+        "relative my-2 rounded border border-red-400 bg-red-100 px-4 py-2 text-red-700",
+        className,
+      )}
       role="alert"
+      {...rest}
     >
-      <strong className="font-bold">Error!</strong>
-      <span className="block sm:inline"> {text}</span>
+      {errorTitle ? <strong className="font-bold">{errorTitle} </strong> : null}
+      {errorMsg ? <span className="block sm:inline">{errorMsg}</span> : null}
+      {children}
     </div>
   );
 };
