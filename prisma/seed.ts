@@ -1,67 +1,46 @@
-import { faker } from "@faker-js/faker";
+import { PrismaClient } from "@prisma/client";
 
-import { prisma } from "../src/utils/client";
-import config from "../src/config/default";
+const prisma = new PrismaClient();
 
-/**
- *
- * @param length dummy data length
- * @returns created/failed response
- */
-const feedSomeData = async (length: number) => {
-  try {
-    const createRandomUsers = () => {
-      return {
-        name: faker.person.fullName(),
-        email: faker.internet.email(),
-        avatar: faker.internet.avatar(),
-        role: "user",
-      } as unknown as any;
-    };
-
-    // create users
-    await prisma.user.createMany({
-      data: faker.helpers.multiple(createRandomUsers, { count: length }),
-      skipDuplicates: true,
-    });
-
-    const users = await prisma.user.findMany({
-      where: {
-        role: "user",
+async function main(): Promise<void> {
+  await prisma.user.upsert({
+    where: { email: "ofmi@omegaup.com" },
+    update: {},
+    create: {
+      email: "ofmi@omegaup.com",
+      password: "password",
+      first_name: "Admin",
+      last_name: "OFMI",
+      birth_date: "2015-09-30T07:06:21.5663224Z",
+      government_id: "CURP",
+      preferred_name: "admin",
+      pronouns: "they/them",
+      shirt_size: "M",
+      shirt_style: "idk",
+      mailing_address: {
+        create: {
+          street: "Sesame Street",
+          external_number: "123",
+          internal_number: "A",
+          zip_code: "123123",
+          neighborhood: "idk",
+          county: "somewhere",
+          state: "MX-MEX",
+          country: "MX",
+          name: "OFMI Mail Name",
+          phone: "123-123-1234",
+        },
       },
-      select: {
-        id: true,
-      },
-    });
+    },
+  });
+}
 
-    const getRandomUserId = () => {
-      const index = Math.floor(Math.random() * 11);
-
-      if (users.at(index) !== undefined) {
-        return users[index].id;
-      }
-
-      return "";
-    };
-
-    const createRandomPosts = () => {
-      return {
-        name: faker.lorem.slug(),
-        image: faker.image.url(),
-        user_id: getRandomUserId(),
-      };
-    };
-
-    // create posts
-    await prisma.post.createMany({
-      data: faker.helpers.multiple(createRandomPosts, { count: length }),
-      skipDuplicates: true,
-    });
-
-    console.log("🚀 ~ file: seed.ts:45 ~ data feeded successfully.");
-  } catch (error) {
-    console.log("🚀 ~ file: seed.ts:44 ~ feedSomeData ~ error:", error);
-  }
-};
-
-feedSomeData(config.dummyDataLength);
+main()
+  .then(async () => {
+    await prisma.$disconnect();
+  })
+  .catch(async (e) => {
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
+  });

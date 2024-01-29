@@ -10,3 +10,4 @@ const hStackStyle: Tailwindest = {
 export const HStack = ({ twCss, ...props }: ContainerProps) => {
   return <Container twCss={twCompose(hStackStyle, twCss)} {...props} />;
 };
+

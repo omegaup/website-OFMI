@@ -18,3 +18,4 @@ export interface Post {
   createdAt: string;
   updatedA: string;
 }
+

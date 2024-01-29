@@ -12,28 +12,130 @@ datasource db {
 
 // Your models goes here ...
 
-model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  role      Role     @default(user)
-  avatar    String?
-  posts     Post[]
-  createdAt DateTime @default(now()) @db.Timestamp(3)
-  updatedAt DateTime @updatedAt @db.Timestamp(3)
-}
-
-model Post {
-  id        String   @id @default(uuid())
-  name      String   @unique
-  image     String
-  user      User?    @relation(fields: [user_id], references: [id])
-  user_id   String?
-  createdAt DateTime @default(now()) @db.Timestamp(3)
-  updatedAt DateTime @updatedAt @db.Timestamp(3)
+model UserAuth {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String
+  role          Role      @default(user)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  emailVerified DateTime?
 }
 
 enum Role {
   user
   admin
+}
+
+model School {
+  id                      String                    @id @default(uuid())
+  name                    String
+  ContestantParticipation ContestantParticipation[]
+}
+
+model ParticipationRole {
+  id            String          @id @default(uuid())
+  name          String
+  Participation Participation[]
+}
+
+model MailingAddress {
+  id              String  @id @default(uuid())
+  street          String
+  external_number String
+  internal_number String?
+  zip_code        String
+  state           String
+  country         String
+  neighborhood    String
+  county          String
+  name            String
+  phone           String
+  User            User[]
+}
+
+model User {
+  id                 String          @id @default(uuid())
+  email              String          @unique
+  password           String
+  first_name         String
+  last_name          String
+  birth_date         DateTime
+  government_id      String
+  preferred_name     String
+  pronouns           String
+  shirt_size         String
+  shirt_style        String
+  mailing_address    MailingAddress  @relation(fields: [mailing_address_id], references: [id])
+  mailing_address_id String          @unique
+  Participation      Participation[]
+}
+
+model Ofmi {
+  id             String           @id @default(uuid())
+  year           Int
+  Participation  Participation[]
+  OmegaupContest OmegaupContest[]
+}
+
+model Roles {
+  id   String @id @default(uuid())
+  name String
+}
+
+model Participation {
+  id                          String                   @id @default(uuid())
+  user                        User                     @relation(fields: [user_id], references: [id])
+  user_id                     String
+  ofmi                        Ofmi                     @relation(fields: [ofmi_id], references: [id])
+  ofmi_id                     String
+  role                        ParticipationRole        @relation(fields: [role_id], references: [id])
+  role_id                     String
+  state                       String
+  country                     String
+  mentor_participation_id     String?
+  mentor                      Participation?           @relation("MentorMentee", fields: [mentor_participation_id], references: [id])
+  mentees                     Participation[]          @relation("MentorMentee")
+  contestant_participation_id String?
+  contestant_participation    ContestantParticipation? @relation(fields: [contestant_participation_id], references: [id])
+}
+
+model ContestantParticipation {
+  id               String          @id @default(uuid())
+  school_id        String
+  school           School          @relation(fields: [school_id], references: [id])
+  school_grade     Int
+  medal            String
+  place            Int
+  disqualified     Boolean
+  omegaup_username String          @unique
+  omegaup_password String
+  problem_results  ProblemResult[]
+  Participation    Participation[]
+  File             File[]
+}
+
+model ProblemResult {
+  omegaup_alias             String                  @id
+  score                     Int
+  contestant_participant    ContestantParticipation @relation(fields: [contestant_participant_id], references: [id])
+  contestant_participant_id String
+}
+
+model File {
+  id                        String                  @id @default(uuid())
+  filename                  String
+  file_url                  String
+  contestant_participant    ContestantParticipation @relation(fields: [contestant_participant_id], references: [id])
+  contestant_participant_id String
+  contestant_comment        String
+  file_type                 String
+}
+
+model OmegaupContest {
+  omegaup_alias String   @id
+  ofmi          Ofmi     @relation(fields: [ofmi_id], references: [id])
+  ofmi_id       String
+  name          String
+  date          DateTime
 }
