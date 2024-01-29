@@ -2,7 +2,7 @@ import { useState } from "react";
 import objHasKey from "@/utils/objHasKey";
 import Inputs, { Errors, Values, ObjVals } from "../../types/input.types";
 
-interface Response {
+export interface Response {
   isError: null | boolean;
   message: string;
 }

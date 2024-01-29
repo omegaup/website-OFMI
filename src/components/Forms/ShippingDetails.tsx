@@ -1,4 +1,3 @@
-import Form from "../Form/Form";
 import { useState } from "react";
 import Number from "../Form/Num";
 import Options from "../Form/Options";
@@ -7,13 +6,14 @@ import AlphaText from "../Form/AlphaText";
 import PhoneNumber from "../Form/PhoneNumber";
 import PostalCode from "../Form/PostalCode";
 import { ObjVals, ObjErrs } from "@/types/input.types";
+import Form, { Response } from "../Form/Form";
 import initializeDefaults from "@/utils/initializeDefaults";
 import Estados from "@/data/Estados.json";
 import MexicoJSON from "@/data/Mexico.json";
 
 const Mexico = Object.create(MexicoJSON);
 
-export default function () {
+export default function ShippingDetails(): JSX.Element {
   const fields = [
     "receptor_nombre",
     "receptor_telefono",
@@ -34,7 +34,8 @@ export default function () {
     ...initializeDefaults(fields, null),
     count: fields.length,
   });
-  const submitHandler = (vals: ObjVals) => {
+  const submitHandler = (vals: ObjVals): Response => {
+    console.log(vals);
     return {
       isError: false,
       message: "Tu registro ha sido completado",
