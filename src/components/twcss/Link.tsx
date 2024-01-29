@@ -6,15 +6,14 @@ export interface LinkProps
   extends React.AnchorHTMLAttributes<HTMLAnchorElement>,
     TwProps {}
 
-const defaultStyle: Tailwindest = {
-};
+const defaultStyle: Tailwindest = {};
 
 export const Link = React.forwardRef<
   HTMLAnchorElement,
   React.PropsWithChildren<LinkProps>
 >(function Link(
   { twCss, children, className, ...props }: LinkProps,
-  ref: React.Ref<HTMLAnchorElement>
+  ref: React.Ref<HTMLAnchorElement>,
 ) {
   return (
     <a
