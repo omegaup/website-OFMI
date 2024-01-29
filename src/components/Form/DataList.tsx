@@ -2,14 +2,19 @@ import Text from "./Text";
 import { memo } from "react";
 import { DataList as IDataList } from "@/types/input.types";
 
-function DataList({ name, options, validation, ...others }: IDataList) {
+function DataList({
+  name,
+  options,
+  validation,
+  ...others
+}: IDataList): false | JSX.Element {
   const isStrict = validation === "strict";
   if (!options && isStrict) {
     return false;
   }
-  let tester = (val: string) => (options as string[]).includes(val);
+  let tester = (val: string): boolean => (options as string[]).includes(val);
   if (!isStrict) {
-    tester = (val: string) => validation.test(val);
+    tester = (val: string): boolean => validation.test(val);
   }
   return (
     <p>

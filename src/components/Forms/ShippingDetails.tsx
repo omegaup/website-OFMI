@@ -1,6 +1,6 @@
 import Form from "../Form/Form";
 import { useState } from "react";
-import Number from "../Form/Number";
+import Number from "../Form/Num";
 import Options from "../Form/Options";
 import DataList from "../Form/DataList";
 import AlphaText from "../Form/AlphaText";

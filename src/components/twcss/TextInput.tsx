@@ -67,4 +67,3 @@ export const TextInput = React.forwardRef(function TextInput(
     </VStack>
   );
 });
-

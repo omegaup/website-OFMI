@@ -12,10 +12,7 @@ function Options({
   value,
   error,
   isRequired = true,
-}: IOptions) {
-  if (!value || !error) {
-    return false;
-  }
+}: IOptions): false | JSX.Element {
   const values: string[] = options.map((v) => {
     if (typeof v === "string") {
       return v;
@@ -23,11 +20,12 @@ function Options({
     return v.val;
   });
   const defaults = initializeDefaults(values, false);
+  const [state, setState] = useState(defaults);
+  if (!value || !error) {
+    return false;
+  }
   const selected = value.state.split(", ");
-  const [state, setState] = useState({
-    ...defaults,
-    ...initializeDefaults(selected, true),
-  });
+  setState({ ...state, ...initializeDefaults(selected, true) });
   return (
     <fieldset>
       {isValidElement(label) ? label : <legend>{label}</legend>}

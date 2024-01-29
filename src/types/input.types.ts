@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Object } from "@/utils/initializeDefaults";
+import { Obj } from "@/utils/initializeDefaults";
 import { ComponentProps, ReactElement, Dispatch, SetStateAction } from "react";
 
 interface Response {
@@ -57,7 +57,7 @@ type Inputs =
   | ReactElement<DataList>
   | ReactElement<Text>;
 
-export type ObjVals = Object<string>;
+export type ObjVals = Obj<string>;
 
 export interface ObjErrs extends FieldErrs {
   count: number;

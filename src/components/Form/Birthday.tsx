@@ -5,7 +5,10 @@ interface Birthday extends IText {
   ageRange: [number, number];
 }
 
-export default function ({ ageRange, ...others }: Birthday) {
+export default function Birthday({
+  ageRange,
+  ...others
+}: Birthday): JSX.Element {
   const [min, max] = ageRange;
   return (
     <p>

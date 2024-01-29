@@ -6,7 +6,7 @@ import AlphaText from "../Form/AlphaText";
 import AlphaNumText from "../Form/AlphaNumText";
 import DataList from "../Form/DataList";
 import Birthday from "../Form/Birthday";
-import Number from "../Form/Number";
+import Num from "../Form/Num";
 import CURP from "../Form/CURP";
 import initializeDefaults from "@/utils/initializeDefaults";
 import { ObjVals, ObjErrs, Handler } from "@/types/input.types";
@@ -16,7 +16,7 @@ interface Props {
   submitHandler: Handler;
 }
 
-export default function ({ submitHandler }: Props) {
+export default function PersonalDetails({ submitHandler }: Props): JSX.Element {
   const fields = [
     "TyC",
     "nombres",
@@ -93,7 +93,7 @@ export default function ({ submitHandler }: Props) {
         label="Escolaridad"
         options={["Primaria", "Secundaria", "Preparatoria"]}
       />
-      <Number
+      <Num
         name="periodo"
         range={data.escolaridad === "Secundaria" ? [1, 3] : [1, 6]}
         label={data.escolaridad === "Preparatoria" ? "Semestre" : "Año"}

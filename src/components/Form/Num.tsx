@@ -1,11 +1,11 @@
 import Text from "./Text";
 import { Text as IText } from "@/types/input.types";
 
-interface Number extends IText {
+interface INum extends IText {
   range?: [number, number];
 }
 
-export default function ({ name, range, ...others }: Number) {
+export default function Num({ name, range, ...others }: INum): JSX.Element {
   const [start, end] = range || [1, Infinity];
   const isDefaultRange = start === 1 && end === Infinity;
   return (

@@ -12,7 +12,7 @@ interface Submit {
   handler: (vals: ObjVals) => Response | Promise<Response>;
 }
 
-interface Form {
+interface IForm {
   name: string;
   errors: Errors;
   values: Values;
@@ -20,19 +20,25 @@ interface Form {
   children: Inputs | Array<Inputs | false>;
 }
 
-export default function ({ name, children, values, errors, submit }: Form) {
+export default function Form({
+  name,
+  children,
+  values,
+  errors,
+  submit,
+}: IForm): JSX.Element {
   const [cantSubmit, setCantSubmit] = useState(true);
   const [showResponse, setShowResponse] = useState(false);
   const [submitResponse, setSubmitResponse] = useState<Response>({
     isError: null,
     message: "",
   });
-  const stateManager = (child: Inputs) => {
+  const stateManager = (child: Inputs): JSX.Element => {
     const { props, ...others } = child;
     const name = props.name;
     const val = {
       state: values.state[name],
-      updater: (val: string) => {
+      updater: (val: string): void => {
         if (!objHasKey(values.state, name)) {
           return;
         }
@@ -41,7 +47,7 @@ export default function ({ name, children, values, errors, submit }: Form) {
     };
     const err = {
       state: errors.state[name],
-      updater: (val: boolean) => {
+      updater: (val: boolean): void => {
         const maxErrs = Object.keys(values.state).length;
         const value = Number(val);
         if (!objHasKey(values.state, name)) {

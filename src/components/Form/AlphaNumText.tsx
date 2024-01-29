@@ -1,7 +1,7 @@
 import Text from "./Text";
 import { Text as IText } from "@/types/input.types";
 
-export default function ({ name, ...others }: IText) {
+export default function AlphaNumText({ name, ...others }: IText): JSX.Element {
   return (
     <p>
       <Text

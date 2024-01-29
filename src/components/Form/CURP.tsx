@@ -1,5 +1,6 @@
 import Text from "./Text";
 import { Text as IText } from "@/types/input.types";
+import { Object as Obj } from "@/utils/initializeDefaults";
 
 interface CURP extends IText {
   fullLast: string;
@@ -12,7 +13,7 @@ const letter = /[A-Z]/;
 const vocal = /[AEIOU]/;
 const consonant = /[BCDFGHJKLMNPQRSTVXYZ]/;
 
-const clearName = (name: string) => {
+const clearName = (name: string): string[] => {
   const prepositions = [
     "DA",
     "DAS",
@@ -41,7 +42,7 @@ const clearName = (name: string) => {
   return names;
 };
 
-const getFirstMatch = (regex: RegExp, str: string) => {
+const getFirstMatch = (regex: RegExp, str: string): string => {
   const result = regex.exec(str);
   if (result === null) {
     return "X";
@@ -49,7 +50,7 @@ const getFirstMatch = (regex: RegExp, str: string) => {
   return result[0];
 };
 
-const parseName = (cleanName = "") => {
+const parseName = (cleanName = ""): Obj<string> => {
   const internal = cleanName.substring(1);
   return {
     firstVocal: getFirstMatch(vocal, internal),
@@ -58,7 +59,7 @@ const parseName = (cleanName = "") => {
   };
 };
 
-const pickFirstName = (fullFirstName: string) => {
+const pickFirstName = (fullFirstName: string): Obj<string> => {
   const [first, second] = clearName(fullFirstName);
   let name = "";
   if (!second) {
@@ -73,21 +74,21 @@ const pickFirstName = (fullFirstName: string) => {
   return parseName(name);
 };
 
-const createSegment = (letters: string[]) => {
+const createSegment = (letters: string[]): string => {
   return letters.join("");
 };
 
-const reverseStr = (str: string, delimiter = "") => {
+const reverseStr = (str: string, delimiter = ""): string => {
   return str.split(delimiter).reverse().join("");
 };
 
-export default function ({
+export default function CURP({
   fullLast,
   fullFirst,
   birthday,
   state,
   ...others
-}: CURP) {
+}: CURP): JSX.Element {
   const [firstLastName, secondLastName] = clearName(fullLast);
 
   const {

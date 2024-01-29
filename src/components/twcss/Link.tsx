@@ -25,4 +25,3 @@ export const Link = React.forwardRef<
     </a>
   );
 });
-

@@ -11,4 +11,3 @@ const vStackStyle: Tailwindest = {
 export const VStack = ({ twCss, ...props }: ContainerProps) => {
   return <Container twCss={twCompose(vStackStyle, twCss)} {...props} />;
 };
-

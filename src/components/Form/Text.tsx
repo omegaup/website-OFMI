@@ -10,7 +10,7 @@ function Text({
   error,
   isRequired = true,
   ...others
-}: Text) {
+}: Text): false | JSX.Element {
   if (!value || !error || !validate) {
     return false;
   }

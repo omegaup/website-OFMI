@@ -1,5 +1,5 @@
 import * as fs from "node:fs";
-import { Object } from "../utils/initializeDefaults";
+import { Object as Obj } from "../utils/initializeDefaults";
 
 interface Entry {
   clave: string;
@@ -20,11 +20,11 @@ const file = fs.readFileSync("./Original.min.json", "utf-8");
 
 const Mexico = JSON.parse(file) as Country;
 
-let states: Object<Object<string[]>> = {};
-let state_names: string[] = [];
+const states: Obj<Obj<string[]>> = {};
+const state_names: string[] = [];
 
 for (const { nombre, municipios } of Mexico) {
-  let cities: Object<string[]> = {};
+  const cities: Obj<string[]> = {};
   state_names.push(nombre);
   for (const { nombre, localidades } of municipios) {
     const validas = localidades.filter(({ nombre }) => {
