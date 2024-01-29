@@ -1,31 +1,19 @@
-run = "yarn dev:server"
+run = "yarn dev"
 hidden = [".config", "package-lock.json", "tsconfig.json"]
-
-[packager]
-language = "nodejs"
-  [packager.features]
-  enabledForHosting = false
-  packageSearch = true
-  guessImports = true
+modules = ["nodejs-18:v27-20240117-0bd73cd"]
+disableGuessImports = true
 
 [nix]
 channel = "stable-22_11"
 
 [env]
-XDG_CONFIG_HOME = "$REPL_HOME/.config"
-PATH = "$REPL_HOME/node_modules/.bin:$REPL_HOME/.config/npm/node_global/bin"
-npm_config_prefix = "$REPL_HOME/.config/npm/node_global"
-
-[gitHubImport]
-requiredFiles = [".replit", "replit.nix", ".config"]
-
-[languages]
-  [languages.typescript]
-  pattern = "**/{*.ts,*.js,*.tsx,*.jsx,*.json}"
-    [languages.typescript.languageServer]
-    start = "typescript-language-server --stdio"
+NEXT_TELEMETRY_DISABLED = "1"
 
 [deployment]
-run = ["sh", "-c", "yarn dev:server"]
+build = ["npm", "run", "build"]
+run = ["npm", "run", "start"]
 deploymentTarget = "cloudrun"
-ignorePorts = false
+
+[[ports]]
+localPort = 3000
+externalPort = 80
