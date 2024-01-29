@@ -1,5 +1,5 @@
 import * as fs from 'node:fs';
-import { Object } from '@/utils/initializeDefaults';
+import { Object } from '../utils/initializeDefaults';
 
 interface Entry {
     clave: string;
@@ -30,10 +30,10 @@ for (const { nombre, municipios } of Mexico) {
         const validas = localidades.filter(({ nombre }) => {
             return nombre !== 'Ninguno';
         });
-        const final = validas.map(({ nombre }) => {
+        const names = validas.map(({ nombre }) => {
             return nombre;
         });
-        cities[nombre] = Array.from(new Set(final));
+        cities[nombre] = Array.from(new Set(names));
     };
     states[nombre] = cities;
 };
