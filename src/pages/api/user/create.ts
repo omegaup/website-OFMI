@@ -29,7 +29,7 @@ async function createUserHandler(
   if (password.length < 8) {
     return res
       .status(400)
-      .json({ message: "password length should be more than 8 characters" });
+      .json({ message: "La contraseña debe tener al menos 8 caracteres" });
   }
   try {
     const user = await prisma.userAuth.create({
@@ -42,7 +42,10 @@ async function createUserHandler(
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       if (e.code === "P2002") {
-        return res.status(400).json({ message: e.message });
+        // Docs: https://www.prisma.io/docs/orm/reference/error-reference#p2002
+        return res
+          .status(400)
+          .json({ message: "Ya existe una cuenta con ese email." });
       }
       return res.status(400).json({ message: e.message });
     }
