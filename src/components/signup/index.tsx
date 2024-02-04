@@ -1,4 +1,3 @@
-import { BadRequestError } from "@/types/errors";
 import { useState } from "react";
 import { sendSignUp } from "./client";
 import { Alert, SuccessAlert } from "../alert";
