@@ -6,17 +6,15 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "generate": "./node_modules/.bin/dotenv -e .env.local npx prisma generate",
-    "migrate:dev": "./node_modules/.bin/dotenv -e .env.local npx prisma migrate dev --preview-feature",
-    "push": "./node_modules/.bin/dotenv -e .env.local npx prisma db push",
-    "studio": "./node_modules/.bin/dotenv -e .env.local npx prisma studio",
+    "generate": "npx prisma generate",
+    "migrate:dev": "npx prisma migrate dev --preview-feature",
+    "push": "npx prisma db push",
+    "studio": "npx prisma studio",
     "test": "vitest",
-    "format": "./node_modules/.bin/dotenv -e .env.local npx prisma format && prettier . --write && eslint --fix .",
+    "format": "npx prisma format && prettier . --write && eslint --fix .",
     "format-ci": "prettier . --check && eslint --report-unused-disable-directives .",
-    "deploy": "npx prisma generate && npx prisma migrate deploy && next build"
-  },
-  "prisma": {
-    "seed": "./node_modules/.bin/dotenv -e .env.local ts-node prisma/seed.ts"
+    "deploy": "npx prisma generate && npx prisma migrate deploy && next build",
+    "prisma:seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
     "@faker-js/faker": "^8.0.2",
@@ -73,6 +71,5 @@
     "prisma": "^5.7.1",
     "ts-node": "^10.9.1",
     "vitest": "^1.1.0"
-  },
-  "packageManager": "yarn@3.5.1"
+  }
 }

@@ -61,10 +61,12 @@ export const Navbar = (): JSX.Element => {
                   </div>
                 </div>
               </div>
-              {session?.data != null ? (
+              {session.status === "authenticated" ? (
                 <ProfileDropdown />
-              ) : (
+              ) : session.status === "unauthenticated" ? (
                 <Unauthenticated />
+              ) : (
+                <></>
               )}
             </div>
           </div>

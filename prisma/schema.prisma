@@ -20,6 +20,7 @@ model UserAuth {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   emailVerified DateTime?
+  User          User?
 }
 
 enum Role {
@@ -56,8 +57,8 @@ model MailingAddress {
 
 model User {
   id                 String          @id @default(uuid())
-  email              String          @unique
-  password           String
+  user_auth_id       String          @unique
+  user_auth          UserAuth        @relation(fields: [user_auth_id], references: [id])
   first_name         String
   last_name          String
   birth_date         DateTime

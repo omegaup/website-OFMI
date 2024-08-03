@@ -56,6 +56,7 @@ export const authOptions: AuthOptions = {
         }
 
         const response: LoginUserResponse = await res.json();
+
         return response.user;
       },
     }),
