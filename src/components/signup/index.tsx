@@ -1,5 +1,5 @@
-import { sendSignUp } from "./client";
 import { useState } from "react";
+import { sendSignUp } from "./client";
 import { Alert, SuccessAlert } from "../alert";
 import { Button } from "../button";
 import { PasswordInput } from "../password";
