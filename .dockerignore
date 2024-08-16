@@ -1,0 +1,5 @@
+# This is to avoid the error:
+# Error: You installed esbuild for another platform than the one you're currently using.
+# This won't work because esbuild is written with native code and needs to
+# install a platform-specific binary executable.
+node_modules/

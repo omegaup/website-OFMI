@@ -28,15 +28,24 @@ enum Role {
   admin
 }
 
+enum SchoolStage {
+  Elementary
+  Secondary
+  High
+}
+
 model School {
   id                      String                    @id @default(uuid())
   name                    String
+  stage                   SchoolStage
   ContestantParticipation ContestantParticipation[]
+
+  @@unique([name, stage])
 }
 
 model ParticipationRole {
   id            String          @id @default(uuid())
-  name          String
+  name          String          @unique
   Participation Participation[]
 }
 
@@ -58,7 +67,7 @@ model MailingAddress {
 model User {
   id                 String          @id @default(uuid())
   user_auth_id       String          @unique
-  user_auth          UserAuth        @relation(fields: [user_auth_id], references: [id])
+  UserAuth           UserAuth        @relation(fields: [user_auth_id], references: [id])
   first_name         String
   last_name          String
   birth_date         DateTime
@@ -73,15 +82,15 @@ model User {
 }
 
 model Ofmi {
-  id             String           @id @default(uuid())
-  year           Int
-  Participation  Participation[]
-  OmegaupContest OmegaupContest[]
-}
-
-model Roles {
-  id   String @id @default(uuid())
-  name String
+  id                               String           @id @default(uuid())
+  edition                          Int              @unique
+  year                             Int
+  registrationOpenTime             DateTime
+  registrationCloseTime            DateTime
+  birthDateRequirement             DateTime?
+  studyingHighScoolDateRequirement DateTime?
+  Participation                    Participation[]
+  OmegaupContest                   OmegaupContest[]
 }
 
 model Participation {
@@ -99,21 +108,23 @@ model Participation {
   mentees                     Participation[]          @relation("MentorMentee")
   contestant_participation_id String?
   contestant_participation    ContestantParticipation? @relation(fields: [contestant_participation_id], references: [id])
+
+  @@unique([user_id, ofmi_id, role_id])
 }
 
 model ContestantParticipation {
-  id               String          @id @default(uuid())
-  school_id        String
-  school           School          @relation(fields: [school_id], references: [id])
-  school_grade     Int
-  medal            String
-  place            Int
-  disqualified     Boolean
-  omegaup_username String          @unique
-  omegaup_password String
-  problem_results  ProblemResult[]
-  Participation    Participation[]
-  File             File[]
+  id              String          @id @default(uuid())
+  school_id       String
+  school          School          @relation(fields: [school_id], references: [id])
+  school_grade    Int
+  medal           String?
+  place           Int?
+  disqualified    Boolean
+  omegaup_user_id String?
+  omegaup_user    OmegaupUser?    @relation(fields: [omegaup_user_id], references: [id])
+  problem_results ProblemResult[]
+  Participation   Participation[]
+  File            File[]
 }
 
 model ProblemResult {
@@ -139,4 +150,11 @@ model OmegaupContest {
   ofmi_id       String
   name          String
   date          DateTime
+}
+
+model OmegaupUser {
+  id                      String                    @id @default(uuid())
+  username                String                    @unique
+  password                String
+  ContestantParticipation ContestantParticipation[]
 }

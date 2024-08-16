@@ -1,4 +1,3 @@
-import { SHA256 as sha256 } from "crypto-js";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -9,11 +8,8 @@ import {
 import { Value } from "@sinclair/typebox/value";
 import { BadRequestError } from "@/types/errors";
 import generateAndSendVerificationToken from "@/lib/email-verification-token";
-
-// We hash the user entered password using crypto.js
-export const hashPassword = (string: string): string => {
-  return sha256(string).toString();
-};
+import { hashPassword } from "@/lib/hashPassword";
+import { parseValueError } from "@/lib/typebox";
 
 // function to create user in our database
 async function createUserHandler(
@@ -22,7 +18,10 @@ async function createUserHandler(
 ): Promise<void> {
   const { body } = req;
   if (!Value.Check(CreateUserRequestSchema, body)) {
-    return res.status(400).json({ message: "Invalid request body" });
+    const firstError = Value.Errors(CreateUserRequestSchema, body).First();
+    return res.status(400).json({
+      message: `${firstError ? parseValueError(firstError) : "Invalid request body."}`,
+    });
   }
   const { password } = body;
 
@@ -49,6 +48,7 @@ async function createUserHandler(
       }
       return res.status(400).json({ message: e.message });
     }
+    console.log(e);
     return res.status(500).json({ message: "Internal server error" });
   }
 }

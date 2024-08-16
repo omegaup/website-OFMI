@@ -14,7 +14,7 @@
     "format": "npx prisma format && prettier . --write && eslint --fix .",
     "format-ci": "prettier . --check && eslint --report-unused-disable-directives .",
     "deploy": "npx prisma generate && npx prisma migrate deploy && next build",
-    "prisma:seed": "ts-node prisma/seed.ts"
+    "prisma:seed": "tsx src/scripts/seed.ts"
   },
   "dependencies": {
     "@faker-js/faker": "^8.0.2",
@@ -51,9 +51,10 @@
     "tailwindest": "^2.2.1",
     "typescript": "5.2.2"
   },
+  "//": "TODO: swc-jotai/react-refresh is broken at version 0.1.1, holding meanwhile.",
   "devDependencies": {
     "@next/eslint-plugin-next": "^14.0.4",
-    "@swc-jotai/react-refresh": "^0.1.0",
+    "@swc-jotai/react-refresh": "0.1.0",
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/typography": "^0.5.10",
     "@testing-library/react": "^14.1.2",
@@ -66,10 +67,11 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.2",
     "jsdom": "^23.0.1",
+    "node-mocks-http": "^1.15.1",
     "prettier": "^3.1.1",
     "prettier-plugin-tailwindcss": "^0.5.10",
     "prisma": "^5.7.1",
-    "ts-node": "^10.9.1",
+    "tsx": "^4.17.0",
     "vitest": "^1.1.0"
   }
 }
