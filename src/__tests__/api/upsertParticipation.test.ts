@@ -11,6 +11,7 @@ import upsertParticipationHandler from "@/pages/api/ofmi/upsertParticipation";
 import { emailReg } from "@/lib/validators";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/hashPassword";
+import { ParticipationRole } from "@/types/participation.schema";
 
 type ApiRequest = NextApiRequest & ReturnType<typeof createRequest>;
 type APiResponse = NextApiResponse & ReturnType<typeof createResponse>;
@@ -23,6 +24,7 @@ const validOfmi = {
   registrationOpenTime: new Date("2024-07-07"),
   registrationCloseTime: new Date("2050-08-08"),
 };
+const validRole: ParticipationRole = "CONTESTANT";
 
 beforeEach(async () => {
   // upsert ofmi
@@ -33,6 +35,16 @@ beforeEach(async () => {
     },
     create: {
       ...validOfmi,
+    },
+  });
+  // Rol is needed
+  await prisma.participationRole.upsert({
+    where: {
+      name: validRole,
+    },
+    update: {},
+    create: {
+      name: validRole,
     },
   });
   // Upsert the valid user Auth
@@ -95,7 +107,7 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
   };
 
   const validUserParticipationInput = {
-    role: "CONTESTANT",
+    role: validRole,
     schoolName: "Colegio Carol Baur",
     schoolGrade: 3,
     schoolStage: "High",
