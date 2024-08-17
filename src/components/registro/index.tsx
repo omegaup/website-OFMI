@@ -9,6 +9,7 @@ import { useState } from "react";
 import { PronounsOfString } from "@/types/pronouns";
 import { ShirtSizeOfString, ShirtStyleOfString } from "@/types/shirt";
 import { SchoolStage } from "@prisma/client";
+import { sendUpsertParticipation } from "./client";
 
 export default function Registro({
   ofmiEdition,
@@ -16,10 +17,14 @@ export default function Registro({
   ofmiEdition: number;
 }): JSX.Element {
   const [error, setError] = useState<Error | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [successfulUpsert, setSuccessfulUpsert] = useState(false);
+
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>,
   ): Promise<void> {
     event.preventDefault();
+    setError(null);
 
     const data = new FormData(event.currentTarget);
     console.log(data);
@@ -92,12 +97,20 @@ export default function Registro({
     };
 
     console.log(request);
+    setLoading(true);
+    const response = await sendUpsertParticipation(request);
+    if (!response.success) {
+      setError(response.error);
+    } else {
+      setSuccessfulUpsert(true);
+    }
+    setLoading(false);
   }
 
   return (
-    <div>
+    <div className="mx-auto max-w-3xl px-2 pt-4">
       <form
-        className="mx-auto max-w-3xl px-2 pt-4"
+        className="mb-8"
         action="#"
         method="POST"
         onSubmit={(ev) => handleSubmit(ev)}
@@ -110,7 +123,11 @@ export default function Registro({
         <SchoolDetails />
         {/* Submit form */}
         <div className="flex justify-center">
-          <Button type="submit" className="min-w-full md:w-64 md:min-w-0">
+          <Button
+            type="submit"
+            className="min-w-full md:w-64 md:min-w-0"
+            disabled={loading}
+          >
             Submit
           </Button>
         </div>
