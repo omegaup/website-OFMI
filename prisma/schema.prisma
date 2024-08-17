@@ -17,10 +17,10 @@ model UserAuth {
   email         String    @unique
   password      String
   role          Role      @default(user)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
   emailVerified DateTime?
   User          User?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 enum Role {
@@ -28,20 +28,33 @@ enum Role {
   admin
 }
 
+enum SchoolStage {
+  Elementary
+  Secondary
+  High
+}
+
 model School {
   id                      String                    @id @default(uuid())
   name                    String
+  stage                   SchoolStage
   ContestantParticipation ContestantParticipation[]
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+
+  @@unique([name, stage])
 }
 
 model ParticipationRole {
   id            String          @id @default(uuid())
-  name          String
+  name          String          @unique
   Participation Participation[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 }
 
 model MailingAddress {
-  id              String  @id @default(uuid())
+  id              String   @id @default(uuid())
   street          String
   external_number String
   internal_number String?
@@ -53,12 +66,14 @@ model MailingAddress {
   name            String
   phone           String
   User            User[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model User {
   id                 String          @id @default(uuid())
   user_auth_id       String          @unique
-  user_auth          UserAuth        @relation(fields: [user_auth_id], references: [id])
+  UserAuth           UserAuth        @relation(fields: [user_auth_id], references: [id])
   first_name         String
   last_name          String
   birth_date         DateTime
@@ -70,18 +85,22 @@ model User {
   mailing_address    MailingAddress  @relation(fields: [mailing_address_id], references: [id])
   mailing_address_id String          @unique
   Participation      Participation[]
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
 }
 
 model Ofmi {
-  id             String           @id @default(uuid())
-  year           Int
-  Participation  Participation[]
-  OmegaupContest OmegaupContest[]
-}
-
-model Roles {
-  id   String @id @default(uuid())
-  name String
+  id                               String           @id @default(uuid())
+  edition                          Int              @unique
+  year                             Int
+  registrationOpenTime             DateTime
+  registrationCloseTime            DateTime
+  birthDateRequirement             DateTime?
+  studyingHighScoolDateRequirement DateTime?
+  Participation                    Participation[]
+  OmegaupContest                   OmegaupContest[]
+  createdAt                        DateTime         @default(now())
+  updatedAt                        DateTime         @updatedAt
 }
 
 model Participation {
@@ -99,21 +118,27 @@ model Participation {
   mentees                     Participation[]          @relation("MentorMentee")
   contestant_participation_id String?
   contestant_participation    ContestantParticipation? @relation(fields: [contestant_participation_id], references: [id])
+  createdAt                   DateTime                 @default(now())
+  updatedAt                   DateTime                 @updatedAt
+
+  @@unique([user_id, ofmi_id, role_id])
 }
 
 model ContestantParticipation {
-  id               String          @id @default(uuid())
-  school_id        String
-  school           School          @relation(fields: [school_id], references: [id])
-  school_grade     Int
-  medal            String
-  place            Int
-  disqualified     Boolean
-  omegaup_username String          @unique
-  omegaup_password String
-  problem_results  ProblemResult[]
-  Participation    Participation[]
-  File             File[]
+  id              String          @id @default(uuid())
+  school_id       String
+  school          School          @relation(fields: [school_id], references: [id])
+  school_grade    Int
+  medal           String?
+  place           Int?
+  disqualified    Boolean
+  omegaup_user_id String?
+  omegaup_user    OmegaupUser?    @relation(fields: [omegaup_user_id], references: [id])
+  problem_results ProblemResult[]
+  Participation   Participation[]
+  File            File[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 }
 
 model ProblemResult {
@@ -121,6 +146,8 @@ model ProblemResult {
   score                     Int
   contestant_participant    ContestantParticipation @relation(fields: [contestant_participant_id], references: [id])
   contestant_participant_id String
+  createdAt                 DateTime                @default(now())
+  updatedAt                 DateTime                @updatedAt
 }
 
 model File {
@@ -131,6 +158,8 @@ model File {
   contestant_participant_id String
   contestant_comment        String
   file_type                 String
+  createdAt                 DateTime                @default(now())
+  updatedAt                 DateTime                @updatedAt
 }
 
 model OmegaupContest {
@@ -139,4 +168,15 @@ model OmegaupContest {
   ofmi_id       String
   name          String
   date          DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model OmegaupUser {
+  id                      String                    @id @default(uuid())
+  username                String                    @unique
+  password                String
+  ContestantParticipation ContestantParticipation[]
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
 }

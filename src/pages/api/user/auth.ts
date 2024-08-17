@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { hashPassword } from "./create";
+import { hashPassword } from "@/lib/hashPassword";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Value } from "@sinclair/typebox/value";
 import { LoginUserRequestSchema, LoginUserResponse } from "@/types/auth.schema";

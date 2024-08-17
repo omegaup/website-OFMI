@@ -8,6 +8,7 @@ services:
     env_file: ".env.docker"
     volumes:
       - .:/app
+      - /app/node_modules # this one
     ports:
       - "3000:3000"
     depends_on:
@@ -31,6 +32,7 @@ services:
     env_file: ".env.docker"
     volumes:
       - .:/app
+      - /app/node_modules # this one
     ports:
       - "5555:5555"
     depends_on:
