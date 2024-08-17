@@ -22,7 +22,7 @@ jobs:
       - run: docker compose exec app npm run generate
       - run: docker compose exec app npm run build
       - run: docker compose exec app npm run format-ci
-      - run: docker compose exec app npm run test
+      - run: docker compose exec app npm run test-ci
       - name: Stop containers
         if: always()
         run: docker compose -f "docker-compose.yml" down
