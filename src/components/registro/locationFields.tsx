@@ -4,9 +4,11 @@ import { useState } from "react";
 export const LocationFields = ({
   idPrefix,
   onlyCountryState = false,
+  required,
 }: {
   idPrefix: string;
   onlyCountryState?: boolean;
+  required?: boolean;
 }): JSX.Element => {
   const [country, setCountry] = useState("MEX");
   const states = stateNames(country); // TODO: Cambiar con el valor del current
@@ -38,6 +40,7 @@ export const LocationFields = ({
             setCountry(ev.target.value);
           }}
           className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0"
+          required={required}
         >
           <option value="MEX">México</option>
           <option value="USA">Estados Unidos</option>
@@ -59,6 +62,7 @@ export const LocationFields = ({
             ev.preventDefault();
             setState(ev.target.value);
           }}
+          required={required}
         >
           <option value=""></option>
           {states.map((name) => (
@@ -87,6 +91,7 @@ export const LocationFields = ({
                 ev.preventDefault();
                 setMunicipality(ev.target.value);
               }}
+              required={required}
             >
               {municipalities.map((name) => (
                 <option value={name} key={name}>
@@ -111,6 +116,7 @@ export const LocationFields = ({
                   {name}
                 </option>
               ))}
+              required={required}
             </select>
             <label
               htmlFor={`${idPrefix}_locality`}

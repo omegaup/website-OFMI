@@ -25,7 +25,7 @@ export function MailingAddress(): JSX.Element {
         </div>
       </div>
 
-      <LocationFields idPrefix="mailing"></LocationFields>
+      <LocationFields idPrefix="mailing" required></LocationFields>
 
       <div className="grid md:grid-cols-2 md:gap-6">
         <div className="grid md:grid-cols-2 md:gap-6">
@@ -58,7 +58,6 @@ export function MailingAddress(): JSX.Element {
             ev.preventDefault();
             ev.target.value = ev.target.value.replace(/\D/g, "").slice(0, 10);
           }}
-          required
         />
       </div>
 
