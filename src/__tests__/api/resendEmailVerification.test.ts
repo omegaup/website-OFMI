@@ -18,12 +18,12 @@ type APiResponse = NextApiResponse & ReturnType<typeof createResponse>;
 
 const dummyEmail = "emailVerification@test.com";
 
-describe("/api/user/resendEmailVerification API Endpoint", () => {
-  beforeEach(async () => {
-    await removeIfExists(dummyEmail);
-    mockEmailer.resetMock();
-  });
+beforeEach(async () => {
+  await removeIfExists(dummyEmail);
+  mockEmailer.resetMock();
+});
 
+describe("/api/user/resendEmailVerification API Endpoint", () => {
   function mockRequestResponse({
     method = "POST",
     body,

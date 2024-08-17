@@ -10,13 +10,13 @@ import {
 
 const dummyEmail = "create@test.com";
 
-describe("/api/user/create API Endpoint", () => {
-  beforeEach(async () => {
-    await removeIfExists(dummyEmail);
-    // emailer
-    mockEmailer.resetMock();
-  });
+beforeEach(async () => {
+  await removeIfExists(dummyEmail);
+  // emailer
+  mockEmailer.resetMock();
+});
 
+describe("/api/user/create API Endpoint", () => {
   it("successfull insert", async () => {
     await insertAndCheckSuccessfullyDummyInsertion(dummyEmail);
   });

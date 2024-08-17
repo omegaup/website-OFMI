@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, beforeAll } from "vitest";
 import { mockEmailer } from "./mocks/emailer";
 import {
   createMocks,
@@ -26,8 +26,8 @@ const validOfmi = {
 };
 const validRole: ParticipationRole = "CONTESTANT";
 
-beforeEach(async () => {
-  // upsert ofmi
+beforeAll(async () => {
+  // ofmi is Needed
   await prisma.ofmi.upsert({
     where: { edition: validOfmi.edition },
     update: {
@@ -53,6 +53,9 @@ beforeEach(async () => {
     update: {},
     create: { email: dummyEmail, password: hashPassword("pass") },
   });
+});
+
+beforeEach(async () => {
   // Remove participation of dummy email
   await prisma.participation.deleteMany({
     where: { user: { UserAuth: { email: dummyEmail } } },
