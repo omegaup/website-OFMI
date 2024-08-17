@@ -62,6 +62,7 @@ model MailingAddress {
   state           String
   country         String
   neighborhood    String
+  references      String?
   county          String
   name            String
   phone           String

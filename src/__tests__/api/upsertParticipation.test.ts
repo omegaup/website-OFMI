@@ -56,10 +56,17 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
+  // Remove contestant participation of dummy email
+  await prisma.contestantParticipation.deleteMany({
+    where: {
+      Participation: { every: { user: { UserAuth: { email: dummyEmail } } } },
+    },
+  });
   // Remove participation of dummy email
   await prisma.participation.deleteMany({
     where: { user: { UserAuth: { email: dummyEmail } } },
   });
+  // Remover contestant participation
   mockEmailer.resetMock();
 });
 
@@ -94,6 +101,7 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
     municipality: "Aguascalientes",
     locality: "Aguascalientes",
     phone: "5511223344",
+    references: "Hasta el fondo",
   };
 
   const validUserInput = {

@@ -20,7 +20,6 @@ jobs:
       - name: Start containers
         run: docker compose -f "docker-compose.yml" up -d --build
       - run: docker compose exec app npm run format-ci
-      - run: docker compose exec app npm run migrate:dev
       - run: docker compose exec app npm run build
       - run: docker compose exec app npm run test-ci
       - name: Stop containers
