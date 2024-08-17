@@ -17,7 +17,7 @@ export default async function generateAndSendVerificationToken(
   email: string,
 ): Promise<void> {
   const payload: verificationEmailToken = { userAuthId };
-  const emailToken = encrypt(payload, config.VERIFICATION_EMAIL_SECRET, {
+  const emailToken = await encrypt(payload, config.VERIFICATION_EMAIL_SECRET, {
     expiresIn: config.VERIFICATION_TOKEN_EXPIRATION,
   });
 
@@ -65,6 +65,9 @@ export async function verifyEmail({ token }: { token: string }): Promise<
         emailVerified: new Date(),
       },
     });
+
+    // Send verification email
+    await emailer.notifyUserSuccessfulSignup(user.email);
 
     return { email: user.email, success: true };
   } catch (e) {
