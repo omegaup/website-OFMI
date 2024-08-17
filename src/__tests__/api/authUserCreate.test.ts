@@ -6,7 +6,7 @@ import {
   insertAndCheckSuccessfullyDummyInsertion,
   mockRequestResponse,
   removeIfExists,
-} from "./createUtils";
+} from "./authUserCreateUtils";
 
 const dummyEmail = "create@test.com";
 

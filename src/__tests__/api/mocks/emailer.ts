@@ -1,5 +1,6 @@
 import {
   newUserEmailTemplate,
+  ofmiRegistrationCompleteTemplate,
   signUpSuccessfulEmailTemplate,
 } from "@/lib/emailer/template";
 import type { MailOptions } from "nodemailer/lib/json-transport";
@@ -20,6 +21,10 @@ class MockEmailer {
 
   public async notifyUserSuccessfulSignup(email: string): Promise<void> {
     await this.sendEmail(signUpSuccessfulEmailTemplate(email));
+  }
+
+  public async notifySuccessfulOfmiRegistration(email: string): Promise<void> {
+    await this.sendEmail(ofmiRegistrationCompleteTemplate(email));
   }
 
   public getSentEmails(): sentEmails {

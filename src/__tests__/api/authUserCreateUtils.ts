@@ -52,10 +52,18 @@ export async function insertAndCheckSuccessfullyDummyInsertion(
   await createUserHandler(req, res);
 
   expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
-  expect(res._getJSONData()).toMatchObject({
+  const resJson = res._getJSONData();
+  expect(resJson).toMatchObject({
     user: {
       email: email,
     },
   });
   expect(res.statusCode).toBe(201);
+
+  // Check it was created in DB
+  const userAuth = await prisma.userAuth.findUnique({
+    where: { email: email },
+  });
+
+  expect(userAuth).not.toBeNull();
 }

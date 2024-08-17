@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
+import { mockEmailer } from "./mocks/emailer";
 import {
   createMocks,
   RequestMethod,
@@ -10,10 +11,12 @@ import upsertParticipationHandler from "@/pages/api/ofmi/upsertParticipation";
 import { emailReg } from "@/lib/validators";
 import { prisma } from "@/lib/prisma";
 import { seed } from "@/scripts/seed";
+import { hashPassword } from "@/lib/hashPassword";
 
 type ApiRequest = NextApiRequest & ReturnType<typeof createRequest>;
 type APiResponse = NextApiResponse & ReturnType<typeof createResponse>;
 
+const dummyEmail = "upsertParticipation@test.com";
 const validOfmiEdition = 1;
 const birthDayLimit = new Date("2005-07-01");
 
@@ -27,6 +30,17 @@ beforeEach(async () => {
       birthDateRequirement: birthDayLimit,
     },
   });
+  // Upsert the valid user Auth
+  await prisma.userAuth.upsert({
+    where: { email: dummyEmail },
+    update: {},
+    create: { email: dummyEmail, password: hashPassword("pass") },
+  });
+  // Remove participation of dummy email
+  await prisma.participation.deleteMany({
+    where: { user: { UserAuth: { email: dummyEmail } } },
+  });
+  mockEmailer.resetMock();
 });
 
 describe("/api/ofmi/registerParticipation API Endpoint", () => {
@@ -51,8 +65,19 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
     return { req, res };
   }
 
+  const validMailingAddressInput = {
+    street: "Calle",
+    externalNumber: "#8Bis",
+    zipcode: "01234",
+    country: "MEX",
+    state: "Aguascalientes",
+    municipality: "Aguascalientes",
+    locality: "Aguascalientes",
+    phone: "5511223344",
+  };
+
   const validUserInput = {
-    email: "ofmi@omegaup.com",
+    email: dummyEmail,
     firstName: "Juan Carlos",
     lastName: "Sigler Priego",
     preferredName: "Juanito",
@@ -61,16 +86,7 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
     governmentId: "HEGG061124MVZRRL02",
     shirtSize: "M",
     shirtStyle: "UNISEX",
-    mailingAddress: {
-      street: "Calle",
-      externalNumber: "#8Bis",
-      zipcode: "01234",
-      country: "MEX",
-      state: "Aguascalientes",
-      municipality: "Aguascalientes",
-      locality: "Aguascalientes",
-      phone: "5511223344",
-    },
+    mailingAddress: validMailingAddressInput,
   };
 
   const validUserParticipationInput = {
@@ -94,6 +110,142 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
 
     expect(res.statusCode).toBe(201);
     expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
+    const participation = res._getJSONData()["participation"];
+
+    // Check update in DB
+    const participationModel = await prisma.participation.findUnique({
+      where: {
+        user_id_ofmi_id_role_id: {
+          user_id: participation["user_id"],
+          ofmi_id: participation["ofmi_id"],
+          role_id: participation["role_id"],
+        },
+      },
+    });
+
+    expect(participationModel).not.toBeNull();
+  });
+
+  it("should update", async () => {
+    const { req, res } = mockRequestResponse({ body: validRequest });
+    await upsertParticipationHandler(req, res);
+    expect(res.statusCode).toBe(201);
+    expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
+    const participation = res._getJSONData()["participation"];
+
+    const newCountry = "USA";
+    const newFirstName = "Other Name";
+    const newSchool = "Other school";
+    const newZipcode = "06200";
+    const { req: req2, res: res2 } = mockRequestResponse({
+      body: {
+        ...validRequest,
+        country: newCountry,
+        user: {
+          ...validUserInput,
+          firstName: newFirstName,
+          mailingAddress: {
+            ...validMailingAddressInput,
+            zipcode: newZipcode,
+          },
+        },
+        userParticipation: {
+          ...validUserParticipationInput,
+          schoolName: newSchool,
+        },
+      },
+    });
+    await upsertParticipationHandler(req2, res2);
+    expect(res2.getHeaders()).toEqual({ "content-type": "application/json" });
+    expect(res2._getJSONData()).toMatchObject({
+      participation: {
+        country: newCountry,
+        user_id: participation["user_id"],
+        contestant_participation_id:
+          participation["contestant_participation_id"],
+      },
+    });
+    expect(res2.statusCode).toBe(201);
+
+    // Check update in DB
+    const participationModel = await prisma.participation.findUnique({
+      include: {
+        user: {
+          include: {
+            mailing_address: true,
+          },
+        },
+        contestant_participation: {
+          include: {
+            school: true,
+          },
+        },
+      },
+      where: {
+        user_id_ofmi_id_role_id: {
+          user_id: participation["user_id"],
+          ofmi_id: participation["ofmi_id"],
+          role_id: participation["role_id"],
+        },
+      },
+    });
+    if (!participationModel) {
+      expect(participationModel).not.toBeNull();
+    }
+
+    expect(participationModel).toMatchObject({
+      user_id: participation["user_id"],
+      ofmi_id: participation["ofmi_id"],
+      role_id: participation["role_id"],
+      country: newCountry,
+      user: {
+        first_name: newFirstName,
+        mailing_address: {
+          zip_code: newZipcode,
+        },
+      },
+      contestant_participation: {
+        school: {
+          name: newSchool,
+        },
+      },
+    });
+  });
+
+  it("should sent email on registration", async () => {
+    const { req, res } = mockRequestResponse({ body: validRequest });
+    await upsertParticipationHandler(req, res);
+    expect(res.statusCode).toBe(201);
+    expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
+
+    expect(mockEmailer.getSentEmails()).toMatchObject([
+      {
+        mailOptions: {
+          to: dummyEmail,
+          subject: "Te has registrado exitosamente a la OFMI",
+        },
+      },
+    ]);
+
+    // Update a field and check that this time we don't get an email
+    mockEmailer.resetMock();
+
+    const { req: req2, res: res2 } = mockRequestResponse({
+      body: {
+        ...validRequest,
+        country: "USA",
+      },
+    });
+    await upsertParticipationHandler(req2, res2);
+    expect(res2.getHeaders()).toEqual({ "content-type": "application/json" });
+    expect(res2._getJSONData()).toMatchObject({
+      participation: {
+        country: "USA",
+      },
+    });
+    expect(res2.statusCode).toBe(201);
+
+    expect(mockEmailer.getSentEmails()).toMatchObject([]);
   });
 
   it("invalid OFMI edition", async () => {

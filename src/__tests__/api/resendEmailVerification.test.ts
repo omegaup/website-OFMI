@@ -3,7 +3,7 @@ import { mockEmailer } from "./mocks/emailer";
 import {
   removeIfExists,
   insertAndCheckSuccessfullyDummyInsertion,
-} from "./createUtils";
+} from "./authUserCreateUtils";
 import {
   createMocks,
   RequestMethod,

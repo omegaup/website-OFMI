@@ -16,6 +16,7 @@ import {
 } from "@/lib/validators";
 import { parseValueError } from "@/lib/typebox";
 import type { ValidationResult } from "@/lib/validators/types";
+import { emailer } from "@/lib/emailer";
 
 // Check user is able to compete in ofmi
 function validateOfmi(
@@ -70,6 +71,7 @@ async function upsertParticipationHanlder(
   req: NextApiRequest,
   res: NextApiResponse<UpsertParticipationResponse | BadRequestError>,
 ): Promise<void> {
+  const requestStartTime = Date.now();
   const { body } = req;
   if (!Value.Check(UpsertParticipationRequestSchema, body)) {
     const firstError = Value.Errors(
@@ -293,6 +295,10 @@ async function upsertParticipationHanlder(
     },
   });
 
+  if (requestStartTime <= participation.createdAt.getTime()) {
+    // Participation was created
+    await emailer.notifySuccessfulOfmiRegistration(userInput.email);
+  }
   return res.status(201).json({ participation });
 }
 

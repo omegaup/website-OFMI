@@ -2,6 +2,7 @@ import * as nodemailer from "nodemailer";
 import type { MailOptions } from "nodemailer/lib/json-transport";
 import {
   newUserEmailTemplate,
+  ofmiRegistrationCompleteTemplate,
   signUpSuccessfulEmailTemplate,
 } from "./template";
 
@@ -28,6 +29,10 @@ export class Emailer {
 
   public async notifyUserSuccessfulSignup(email: string): Promise<void> {
     await this.sendEmail(signUpSuccessfulEmailTemplate(email));
+  }
+
+  public async notifySuccessfulOfmiRegistration(email: string): Promise<void> {
+    await this.sendEmail(ofmiRegistrationCompleteTemplate(email));
   }
 }
 
