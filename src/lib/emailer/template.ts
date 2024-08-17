@@ -38,3 +38,21 @@ export const signUpSuccessfulEmailTemplate = (email: string): MailOptions => {
       `,
   } as MailOptions;
 };
+
+export const ofmiRegistrationCompleteTemplate = (
+  email: string,
+): MailOptions => {
+  return {
+    from: process.env.OFMI_EMAIL_SMTP_USER,
+    to: email,
+    subject: "Te has registrado exitosamente a la OFMI",
+    text: "Te has registrado exitosamente a la OFMI",
+    html: `
+        <p>Ahora ya tienes un lugar en la OFMI.</p>
+        <p>Si tienes alguna duda por favor envía un correo a
+        <a href="mailto:ofmi@omegaup.com">ofmi@omegaup.com</a></p>
+        <br />
+        <p>Equipo organizador de la OFMI</p>
+      `,
+  } as MailOptions;
+};

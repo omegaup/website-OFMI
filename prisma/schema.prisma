@@ -17,10 +17,10 @@ model UserAuth {
   email         String    @unique
   password      String
   role          Role      @default(user)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
   emailVerified DateTime?
   User          User?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 enum Role {
@@ -39,6 +39,8 @@ model School {
   name                    String
   stage                   SchoolStage
   ContestantParticipation ContestantParticipation[]
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
 
   @@unique([name, stage])
 }
@@ -47,10 +49,12 @@ model ParticipationRole {
   id            String          @id @default(uuid())
   name          String          @unique
   Participation Participation[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 }
 
 model MailingAddress {
-  id              String  @id @default(uuid())
+  id              String   @id @default(uuid())
   street          String
   external_number String
   internal_number String?
@@ -62,6 +66,8 @@ model MailingAddress {
   name            String
   phone           String
   User            User[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model User {
@@ -79,6 +85,8 @@ model User {
   mailing_address    MailingAddress  @relation(fields: [mailing_address_id], references: [id])
   mailing_address_id String          @unique
   Participation      Participation[]
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
 }
 
 model Ofmi {
@@ -91,6 +99,8 @@ model Ofmi {
   studyingHighScoolDateRequirement DateTime?
   Participation                    Participation[]
   OmegaupContest                   OmegaupContest[]
+  createdAt                        DateTime         @default(now())
+  updatedAt                        DateTime         @updatedAt
 }
 
 model Participation {
@@ -108,6 +118,8 @@ model Participation {
   mentees                     Participation[]          @relation("MentorMentee")
   contestant_participation_id String?
   contestant_participation    ContestantParticipation? @relation(fields: [contestant_participation_id], references: [id])
+  createdAt                   DateTime                 @default(now())
+  updatedAt                   DateTime                 @updatedAt
 
   @@unique([user_id, ofmi_id, role_id])
 }
@@ -125,6 +137,8 @@ model ContestantParticipation {
   problem_results ProblemResult[]
   Participation   Participation[]
   File            File[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 }
 
 model ProblemResult {
@@ -132,6 +146,8 @@ model ProblemResult {
   score                     Int
   contestant_participant    ContestantParticipation @relation(fields: [contestant_participant_id], references: [id])
   contestant_participant_id String
+  createdAt                 DateTime                @default(now())
+  updatedAt                 DateTime                @updatedAt
 }
 
 model File {
@@ -142,6 +158,8 @@ model File {
   contestant_participant_id String
   contestant_comment        String
   file_type                 String
+  createdAt                 DateTime                @default(now())
+  updatedAt                 DateTime                @updatedAt
 }
 
 model OmegaupContest {
@@ -150,6 +168,8 @@ model OmegaupContest {
   ofmi_id       String
   name          String
   date          DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model OmegaupUser {
@@ -157,4 +177,6 @@ model OmegaupUser {
   username                String                    @unique
   password                String
   ContestantParticipation ContestantParticipation[]
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
 }
