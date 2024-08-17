@@ -5,7 +5,7 @@ import type {
   InferGetServerSidePropsType,
 } from "next/types";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
-import { verifyEmail } from "@/lib/tokenVerifier";
+import { verifyEmail } from "@/lib/emailVerificationToken";
 import { Alert } from "@/components/alert";
 
 export default function LoginPage(

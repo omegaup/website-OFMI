@@ -1,5 +1,30 @@
 import jwt from "jsonwebtoken";
+import config from "@/config/default";
+import { emailer } from "./emailer";
 import { prisma } from "@/lib/prisma";
+import { Static, Type } from "@sinclair/typebox";
+import { decrypt, encrypt } from "./jwt";
+
+export type verificationEmailToken = Static<
+  typeof verificationEmailTokenSchema
+>;
+const verificationEmailTokenSchema = Type.Object({
+  userAuthId: Type.String(), // User auth id
+});
+
+export default async function generateAndSendVerificationToken(
+  userAuthId: string,
+  email: string,
+): Promise<void> {
+  const payload: verificationEmailToken = { userAuthId };
+  const emailToken = encrypt(payload, config.VERIFICATION_EMAIL_SECRET, {
+    expiresIn: config.VERIFICATION_TOKEN_EXPIRATION,
+  });
+
+  const url: string = `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/login?verifyToken=${emailToken}`;
+
+  await emailer.notifyUserForSignup(email, url);
+}
 
 export async function verifyEmail({ token }: { token: string }): Promise<
   | {
@@ -12,16 +37,15 @@ export async function verifyEmail({ token }: { token: string }): Promise<
     }
 > {
   try {
-    const result = jwt.verify(
-      token as string,
+    const result = await decrypt(
+      verificationEmailTokenSchema,
+      token,
       process.env.VERIFICATION_EMAIL_SECRET as string,
     );
-    if (typeof result === "string") {
-      throw new Error(result);
-    }
+
     const user = await prisma.userAuth.findFirstOrThrow({
       where: {
-        id: result.user,
+        id: result.userAuthId,
       },
     });
 

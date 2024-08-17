@@ -6,7 +6,7 @@ import { BadRequestError } from "@/types/errors";
 import { Value } from "@sinclair/typebox/value";
 import { NextApiRequest, NextApiResponse } from "next";
 import { prisma } from "@/lib/prisma";
-import generateAndSendVerificationToken from "@/lib/email-verification-token";
+import generateAndSendVerificationToken from "@/lib/emailVerificationToken";
 
 async function resendEmailVerificationTokenHandler(
   req: NextApiRequest,
