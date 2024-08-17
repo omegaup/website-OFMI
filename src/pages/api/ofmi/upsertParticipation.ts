@@ -194,6 +194,7 @@ async function upsertParticipationHanlder(
       mailingAddressInput.recipient ??
       `${userInput.firstName} ${userInput.lastName}`,
     phone: mailingAddressInput.phone,
+    references: mailingAddressInput.references,
   };
 
   const user = await prisma.user.upsert({

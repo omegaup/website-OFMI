@@ -101,6 +101,7 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
     municipality: "Aguascalientes",
     locality: "Aguascalientes",
     phone: "5511223344",
+    references: "Hasta el fondo",
   };
 
   const validUserInput = {
