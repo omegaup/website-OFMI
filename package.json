@@ -12,8 +12,8 @@
     "studio": "npx prisma studio",
     "test": "vitest",
     "test-ci": "vitest run",
-    "format": "npx prisma format && prettier . --write && eslint --fix .",
-    "format-ci": "prettier . --check && eslint --report-unused-disable-directives .",
+    "format": "tsc --noEmit && npx prisma format && prettier . --write && eslint --fix .",
+    "format-ci": "tsc --noEmit && prettier . --check && eslint --report-unused-disable-directives .",
     "deploy": "npx prisma generate && npx prisma migrate deploy && next build",
     "prisma:seed": "tsx src/scripts/seed.ts"
   },

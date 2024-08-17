@@ -50,9 +50,20 @@ export function MailingAddress(): JSX.Element {
             required
           />
         </div>
-        <div>
-          <FloatingInput type="text" id="references" label="Referencia(s)" />
-        </div>
+        <FloatingInput
+          type="text"
+          label="Nombre de la persona que recibe"
+          id="recipient"
+          onChange={(ev) => {
+            ev.preventDefault();
+            ev.target.value = ev.target.value.replace(/\D/g, "").slice(0, 10);
+          }}
+          required
+        />
+      </div>
+
+      <div className="grid md:grid-cols-2 md:gap-6">
+        <FloatingInput type="text" id="references" label="Referencia(s)" />
       </div>
     </div>
   );

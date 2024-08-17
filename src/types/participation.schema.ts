@@ -2,6 +2,8 @@ import { Type, Static } from "@sinclair/typebox";
 import { Participation, SchoolStage } from "@prisma/client";
 import { countryReg, phoneReg, zipcodeReg } from "@/lib/validators/address";
 import { emailReg } from "@/lib/validators";
+import { ShirtSizes, ShirtStyles } from "./shirt";
+import { Pronouns } from "./pronouns";
 
 const CONTESTANT = "CONTESTANT";
 const MENTOR = "MENTOR";
@@ -9,26 +11,16 @@ export type ParticipationRole = typeof CONTESTANT | typeof MENTOR;
 
 const SchoolStageSchema = Type.Enum(SchoolStage);
 
-export type ShirtStyle = Static<typeof ShirtStyleSchema>;
-const ShirtStyleSchema = Type.Union([Type.Literal("UNISEX")]);
+const ShirtStyleSchema = Type.Union(
+  ShirtStyles.map((value) => Type.Literal(value)),
+);
 
-export type ShirtSize = Static<typeof ShirtSizeSchema>;
-const ShirtSizeSchema = Type.Union([
-  Type.Literal("XS"),
-  Type.Literal("S"),
-  Type.Literal("M"),
-  Type.Literal("L"),
-  Type.Literal("XL"),
-]);
+const ShirtSizeSchema = Type.Union(
+  ShirtSizes.map((value) => Type.Literal(value)),
+);
 
 export type Pronouns = Static<typeof PronounsSchema>;
-const PronounsSchema = Type.Union([
-  Type.Literal("SHE"),
-  Type.Literal("HE"),
-  Type.Literal("ZE"),
-  Type.Literal("THEY"),
-  Type.Literal("NAME"),
-]);
+const PronounsSchema = Type.Union(Pronouns.map((value) => Type.Literal(value)));
 
 const MailingAddressSchema = Type.Object({
   // Persona que recibe
