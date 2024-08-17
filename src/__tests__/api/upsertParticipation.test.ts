@@ -56,10 +56,17 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
+  // Remove contestant participation of dummy email
+  await prisma.contestantParticipation.deleteMany({
+    where: {
+      Participation: { every: { user: { UserAuth: { email: dummyEmail } } } },
+    },
+  });
   // Remove participation of dummy email
   await prisma.participation.deleteMany({
     where: { user: { UserAuth: { email: dummyEmail } } },
   });
+  // Remover contestant participation
   mockEmailer.resetMock();
 });
 
