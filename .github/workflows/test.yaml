@@ -1,18 +1,28 @@
 name: Run Tests
 
-on: [push]
+on:
+  pull_request:
+  # allow manual run
+  workflow_dispatch:
+  # always run on main
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          cache: 'npm'
-      - run: npm install
-      - run: npm run format-ci
-      - run: npm run build
-      - run: npm run test
+      - name: Start containers
+        run: docker compose -f "docker-compose.yml" up -d --build
+      - run: docker compose exec app npm run format-ci
+      - run: docker compose exec app npm run migrate:dev
+      - run: docker compose exec app npm run build
+      - run: docker compose exec app npm run test-ci
+      - name: Stop containers
+        if: always()
+        run: docker compose -f "docker-compose.yml" down

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, beforeAll } from "vitest";
 import { mockEmailer } from "./mocks/emailer";
 import {
   createMocks,
@@ -10,24 +10,41 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import upsertParticipationHandler from "@/pages/api/ofmi/upsertParticipation";
 import { emailReg } from "@/lib/validators";
 import { prisma } from "@/lib/prisma";
-import { seed } from "@/scripts/seed";
 import { hashPassword } from "@/lib/hashPassword";
+import { ParticipationRole } from "@/types/participation.schema";
 
 type ApiRequest = NextApiRequest & ReturnType<typeof createRequest>;
 type APiResponse = NextApiResponse & ReturnType<typeof createResponse>;
 
 const dummyEmail = "upsertParticipation@test.com";
-const validOfmiEdition = 1;
-const birthDayLimit = new Date("2005-07-01");
+const validOfmi = {
+  edition: 1,
+  birthDateRequirement: new Date("2005-07-01"),
+  year: 2024,
+  registrationOpenTime: new Date("2024-07-07"),
+  registrationCloseTime: new Date("2050-08-08"),
+};
+const validRole: ParticipationRole = "CONTESTANT";
 
-beforeEach(async () => {
-  // Seed db
-  await seed();
-  // update ofmi birth day limit
-  await prisma.ofmi.update({
-    where: { edition: validOfmiEdition },
-    data: {
-      birthDateRequirement: birthDayLimit,
+beforeAll(async () => {
+  // ofmi is Needed
+  await prisma.ofmi.upsert({
+    where: { edition: validOfmi.edition },
+    update: {
+      ...validOfmi,
+    },
+    create: {
+      ...validOfmi,
+    },
+  });
+  // Rol is needed
+  await prisma.participationRole.upsert({
+    where: {
+      name: validRole,
+    },
+    update: {},
+    create: {
+      name: validRole,
     },
   });
   // Upsert the valid user Auth
@@ -36,6 +53,9 @@ beforeEach(async () => {
     update: {},
     create: { email: dummyEmail, password: hashPassword("pass") },
   });
+});
+
+beforeEach(async () => {
   // Remove participation of dummy email
   await prisma.participation.deleteMany({
     where: { user: { UserAuth: { email: dummyEmail } } },
@@ -90,7 +110,7 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
   };
 
   const validUserParticipationInput = {
-    role: "CONTESTANT",
+    role: validRole,
     schoolName: "Colegio Carol Baur",
     schoolGrade: 3,
     schoolStage: "High",

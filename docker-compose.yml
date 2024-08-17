@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     image: ofmi_app
     command: npm run dev
-    env_file: ".env.docker"
+    env_file: ".env.dev"
     volumes:
       - .:/app
       - /app/node_modules # this one
@@ -29,7 +29,7 @@ services:
     image: ofmi_app
     restart: always
     command: npm run studio
-    env_file: ".env.docker"
+    env_file: ".env.dev"
     volumes:
       - .:/app
       - /app/node_modules # this one
