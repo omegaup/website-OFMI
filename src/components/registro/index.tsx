@@ -14,7 +14,9 @@ export default function Registro(): JSX.Element {
       <SchoolDetails />
       {/* Submit form */}
       <div className="flex justify-center">
-        <Button type="submit">Submit</Button>
+        <Button type="submit" className="min-w-full md:w-64 md:min-w-0">
+          Submit
+        </Button>
       </div>
     </form>
   );
