@@ -1,7 +1,7 @@
 import { tw, type Tailwindest } from "@/styles/twcss";
 import { GetVariants } from "tailwindest";
 
-const _base: Tailwindest = {
+const base: Tailwindest = {
   // rounded-lg border px-4 py-2 duration-300
   borderRadius: "rounded-lg",
   borderWidth: "border-2",
@@ -16,7 +16,7 @@ const _base: Tailwindest = {
 };
 
 // buttonType
-const _buttonTypePrimary: Tailwindest = {
+const buttonTypePrimary: Tailwindest = {
   // border-yellow-400 bg-yellow-400 text-gray-900;
   borderColor: "border-yellow-400",
   backgroundColor: "bg-yellow-400",
@@ -33,7 +33,7 @@ const _buttonTypePrimary: Tailwindest = {
     },
   },
 };
-const _buttonTypeSecondary: Tailwindest = {
+const buttonTypeSecondary: Tailwindest = {
   // border-yellow-400 bg-transparent text-gray-200;
   borderColor: "border-yellow-400",
   backgroundColor: "bg-transparent",
@@ -52,19 +52,19 @@ const _buttonTypeSecondary: Tailwindest = {
 };
 
 // buttonSize
-const _buttonSizeSm: Tailwindest = {
+const buttonSizeSm: Tailwindest = {
   // px-3 py-1
   fontSize: "text-sm",
   paddingX: "px-3",
   paddingY: "py-1",
 };
-const _buttonSizeMd: Tailwindest = {
+const buttonSizeMd: Tailwindest = {
   // px-4 py-2
   fontSize: "text-base",
   paddingX: "px-4",
   paddingY: "py-2",
 };
-const _buttonSizeLg: Tailwindest = {
+const buttonSizeLg: Tailwindest = {
   // px-6 py-3
   fontSize: "text-lg",
   paddingX: "px-5",
@@ -72,17 +72,17 @@ const _buttonSizeLg: Tailwindest = {
 };
 
 export const defaultStyles = tw.variants({
-  base: _base,
+  base: base,
 
   variants: {
     buttonType: {
-      primary: _buttonTypePrimary,
-      secondary: _buttonTypeSecondary,
+      primary: buttonTypePrimary,
+      secondary: buttonTypeSecondary,
     },
     buttonSize: {
-      sm: _buttonSizeSm,
-      md: _buttonSizeMd,
-      lg: _buttonSizeLg,
+      sm: buttonSizeSm,
+      md: buttonSizeMd,
+      lg: buttonSizeLg,
     },
   },
 });
