@@ -18,11 +18,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Start containers
-        run: docker-compose -f "docker-compose.yml" up -d --build
-      - run: docker-compose exec app npm run install
-      - run: docker-compose exec app npm run format-ci
-      - run: docker-compose exec app npm run build
-      - run: docker-compose exec app npm run test
+        run: docker compose -f "docker-compose.yml" up -d --build
+      - run: docker compose exec app npm run format-ci
+      - run: docker compose exec app npm run build
+      - run: docker compose exec app npm run test
       - name: Stop containers
         if: always()
-        run: docker-compose -f "docker-compose.yml" down
+        run: docker compose -f "docker-compose.yml" down
