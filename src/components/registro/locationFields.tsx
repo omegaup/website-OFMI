@@ -34,6 +34,7 @@ export const LocationFields = ({
       <div className="group relative z-0 mb-5 w-full">
         <select
           id={`${idPrefix}_country`}
+          name={`${idPrefix}_country`}
           value={country}
           onChange={(ev) => {
             ev.preventDefault();
@@ -56,6 +57,7 @@ export const LocationFields = ({
       <div className="group relative z-0 mb-5 w-full">
         <select
           id={`${idPrefix}_state`}
+          name={`${idPrefix}_state`}
           className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0"
           value={state}
           onChange={(ev) => {
@@ -85,6 +87,7 @@ export const LocationFields = ({
           <div className="group relative z-0 mb-5 w-full">
             <select
               id={`${idPrefix}_municipality`}
+              name={`${idPrefix}_municipality`}
               className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0"
               value={municipality}
               onChange={(ev) => {
@@ -109,6 +112,7 @@ export const LocationFields = ({
           <div className="group relative z-0 mb-5 w-full">
             <select
               id={`${idPrefix}_locality`}
+              name={`${idPrefix}_locality`}
               className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0"
             >
               {localities.map((name) => (

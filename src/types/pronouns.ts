@@ -20,3 +20,7 @@ export const PronounName = (pronoun: Pronoun): string => {
     }
   }
 };
+
+export const PronounsOfString = (pronoun: string): Pronoun | undefined => {
+  return Pronouns.find((value) => value === pronoun);
+};

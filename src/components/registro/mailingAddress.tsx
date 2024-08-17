@@ -1,6 +1,7 @@
 import { FloatingInput } from "@/components/input/FloatingInput";
 import { SectionTitle } from "./sectionTitle";
 import { LocationFields } from "./locationFields";
+import { fieldIds } from "./constants";
 
 export function MailingAddress(): JSX.Element {
   return (
@@ -8,19 +9,24 @@ export function MailingAddress(): JSX.Element {
       <SectionTitle title="Dirección de envío" />
       <div className="grid md:grid-cols-2 md:gap-6">
         <div>
-          <FloatingInput type="text" id="street" label="Calle" required />
+          <FloatingInput
+            type="text"
+            id={fieldIds.mailingStreet}
+            label="Calle"
+            required
+          />
         </div>
         <div className="grid md:grid-cols-2 md:gap-6">
           <FloatingInput
             type="text"
             label="No. Exterior"
-            id="external_number"
+            id={fieldIds.mailingExternalNumber}
             required
           />
           <FloatingInput
             type="text"
             label="No. Interior"
-            id="internal_number"
+            id={fieldIds.mailingInternalNumber}
           />
         </div>
       </div>
@@ -32,7 +38,7 @@ export function MailingAddress(): JSX.Element {
           <FloatingInput
             type="text"
             label="Código Postal"
-            id="zip_code"
+            id={fieldIds.mailingZipcode}
             onChange={(ev) => {
               ev.preventDefault();
               ev.target.value = ev.target.value.replace(/\D/g, "").slice(0, 5);
@@ -42,7 +48,7 @@ export function MailingAddress(): JSX.Element {
           <FloatingInput
             type="text"
             label="Número de teléfono"
-            id="phone"
+            id={fieldIds.mailingPhone}
             onChange={(ev) => {
               ev.preventDefault();
               ev.target.value = ev.target.value.replace(/\D/g, "").slice(0, 10);
@@ -53,16 +59,16 @@ export function MailingAddress(): JSX.Element {
         <FloatingInput
           type="text"
           label="Nombre de la persona que recibe"
-          id="recipient"
-          onChange={(ev) => {
-            ev.preventDefault();
-            ev.target.value = ev.target.value.replace(/\D/g, "").slice(0, 10);
-          }}
+          id={fieldIds.mailingRecipient}
         />
       </div>
 
       <div className="grid md:grid-cols-2 md:gap-6">
-        <FloatingInput type="text" id="references" label="Referencia(s)" />
+        <FloatingInput
+          type="text"
+          id={fieldIds.mailingReferences}
+          label="Referencia(s)"
+        />
       </div>
     </div>
   );
