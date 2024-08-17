@@ -1,5 +1,5 @@
 import { Button } from "@/components/button";
-import { Alert } from "@/components/alert";
+import { Alert, SuccessAlert } from "@/components/alert";
 import { MailingAddress } from "./mailingAddress";
 import { PersonalDetails } from "./personalDetails";
 import { SchoolDetails } from "./schoolDetails";
@@ -109,6 +109,10 @@ export default function Registro({
 
   return (
     <div className="mx-auto max-w-3xl px-2 pt-4">
+      <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
+        Registro {ofmiEdition}
+        <sup>a</sup> OFMI
+      </h2>
       <form
         className="mb-8"
         action="#"
@@ -133,6 +137,9 @@ export default function Registro({
         </div>
       </form>
       {error != null && <Alert errorMsg={error.message} />}
+      {error == null && successfulUpsert && (
+        <SuccessAlert text="Hemos registrado tus datos correctamente." />
+      )}
     </div>
   );
 }

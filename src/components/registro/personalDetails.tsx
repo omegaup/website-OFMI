@@ -1,4 +1,3 @@
-import { LabeledSelected } from "@/components/select/LabeledSelect";
 import { ShirtSizes, ShirtStyles } from "@/types/shirt";
 import { FloatingInput } from "@/components/input/FloatingInput";
 import { SectionTitle } from "./sectionTitle";

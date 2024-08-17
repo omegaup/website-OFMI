@@ -62,7 +62,7 @@ export function SchoolDetails(): JSX.Element {
             required
           >
             <option value=""></option>
-            {schoolGrades ? (
+            {schoolGrades &&
               Array.from(Array(schoolGrades).keys()).map((_, index) => {
                 const grade = index + 1;
                 return (
@@ -70,10 +70,7 @@ export function SchoolDetails(): JSX.Element {
                     {grade}°
                   </option>
                 );
-              })
-            ) : (
-              <></>
-            )}
+              })}
           </select>
           <label
             htmlFor={fieldIds.schoolGrade}

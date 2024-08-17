@@ -80,9 +80,7 @@ export const LocationFields = ({
           Estado
         </label>
       </div>
-      {onlyCountryState ? (
-        <></>
-      ) : (
+      {!onlyCountryState && (
         <>
           <div className="group relative z-0 mb-5 w-full">
             <select
