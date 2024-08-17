@@ -10,24 +10,29 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import upsertParticipationHandler from "@/pages/api/ofmi/upsertParticipation";
 import { emailReg } from "@/lib/validators";
 import { prisma } from "@/lib/prisma";
-import { seed } from "@/scripts/seed";
 import { hashPassword } from "@/lib/hashPassword";
 
 type ApiRequest = NextApiRequest & ReturnType<typeof createRequest>;
 type APiResponse = NextApiResponse & ReturnType<typeof createResponse>;
 
 const dummyEmail = "upsertParticipation@test.com";
-const validOfmiEdition = 1;
-const birthDayLimit = new Date("2005-07-01");
+const validOfmi = {
+  edition: 1,
+  birthDateRequirement: new Date("2005-07-01"),
+  year: 2024,
+  registrationOpenTime: new Date("2024-07-07"),
+  registrationCloseTime: new Date("2050-08-08"),
+};
 
 beforeEach(async () => {
-  // Seed db
-  await seed();
-  // update ofmi birth day limit
-  await prisma.ofmi.update({
-    where: { edition: validOfmiEdition },
-    data: {
-      birthDateRequirement: birthDayLimit,
+  // upsert ofmi
+  await prisma.ofmi.upsert({
+    where: { edition: validOfmi.edition },
+    update: {
+      ...validOfmi,
+    },
+    create: {
+      ...validOfmi,
     },
   });
   // Upsert the valid user Auth
