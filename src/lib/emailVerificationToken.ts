@@ -4,6 +4,7 @@ import { emailer } from "./emailer";
 import { prisma } from "@/lib/prisma";
 import { Static, Type } from "@sinclair/typebox";
 import { decrypt, encrypt } from "./jwt";
+import { createSession } from "./session";
 
 export type verificationEmailToken = Static<
   typeof verificationEmailTokenSchema
@@ -57,7 +58,7 @@ export async function verifyEmail({ token }: { token: string }): Promise<
       };
     }
 
-    await prisma.userAuth.update({
+    const userAuth = await prisma.userAuth.update({
       where: {
         id: user.id,
       },
@@ -66,8 +67,15 @@ export async function verifyEmail({ token }: { token: string }): Promise<
       },
     });
 
-    // Send verification email
+    // Send successful verification email
     await emailer.notifyUserSuccessfulSignup(user.email);
+
+    // Set cookie
+    await createSession({
+      userAuthId: userAuth.id,
+      role: userAuth.role,
+      email: userAuth.email,
+    });
 
     return { email: user.email, success: true };
   } catch (e) {
