@@ -114,7 +114,7 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
     pronouns: "HE",
     governmentId: "HEGG061124MVZRRL02",
     shirtSize: "M",
-    shirtStyle: "UNISEX",
+    shirtStyle: "STRAIGHT",
     mailingAddress: validMailingAddressInput,
   };
 
