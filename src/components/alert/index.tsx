@@ -51,7 +51,7 @@ export const SuccessAlert = ({
           </svg>
         </div>
         <div>
-          <p className="font-bold">{title ?? "Success."}</p>
+          <p className="font-bold">{title ?? "¡Listo!"}</p>
           <p className="text-sm">{text}</p>
         </div>
       </div>

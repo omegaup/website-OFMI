@@ -142,7 +142,7 @@ export default function Registro({
             className="min-w-full md:w-64 md:min-w-0"
             disabled={loading}
           >
-            Submit
+            Enviar
           </Button>
         </div>
       </form>
