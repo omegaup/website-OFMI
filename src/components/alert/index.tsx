@@ -28,17 +28,23 @@ export const Alert = ({
   );
 };
 
+export interface SuccessAlertProps
+  extends React.HTMLAttributes<HTMLDivElement> {
+  title?: string;
+  text: string;
+}
+
 export const SuccessAlert = ({
   title,
   text,
-}: {
-  title?: string;
-  text: string;
-}): JSX.Element => {
+  children,
+  ...rest
+}: SuccessAlertProps): JSX.Element => {
   return (
     <div
       className="my-2 rounded-b border-t-4 border-teal-500 bg-teal-100 px-4 py-3 text-teal-900 shadow-md"
       role="alert"
+      {...rest}
     >
       <div className="flex">
         <div className="py-1">
@@ -53,6 +59,7 @@ export const SuccessAlert = ({
         <div>
           <p className="font-bold">{title ?? "¡Listo!"}</p>
           <p className="text-sm">{text}</p>
+          {children}
         </div>
       </div>
     </div>

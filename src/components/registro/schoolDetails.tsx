@@ -5,9 +5,16 @@ import { LocationFields } from "./locationFields";
 import { fieldIds } from "./constants";
 import { SchoolStage } from "@prisma/client";
 import { SchoolStageName } from "@/types/school";
+import { ParticipationRequestInput } from "@/types/participation.schema";
 
-export function SchoolDetails(): JSX.Element {
-  const [schoolStageValue, setSchoolStage] = useState<string | undefined>();
+export function SchoolDetails({
+  participation,
+}: {
+  participation: ParticipationRequestInput | null;
+}): JSX.Element {
+  const [schoolStageValue, setSchoolStage] = useState<string | undefined>(
+    participation?.userParticipation.schoolStage,
+  );
   const schoolGrades = schoolStageValue
     ? schoolStageValue === "elementary"
       ? 6
@@ -21,9 +28,17 @@ export function SchoolDetails(): JSX.Element {
           type="text"
           label="Nombre de la escuela"
           id={fieldIds.schoolName}
+          defaultValue={participation?.userParticipation.schoolName}
           required
         />
-        <LocationFields idPrefix="school" onlyCountryState required />
+        <LocationFields
+          countryFieldId={fieldIds.schoolCountry}
+          stateFieldId={fieldIds.schoolState}
+          defaultCountryValue={participation?.country}
+          defaultStateValue={participation?.state}
+          onlyCountryState
+          required
+        />
       </div>
       <div className="grid md:grid-cols-4 md:gap-6">
         <div className="group relative z-0 mb-5 w-full">
@@ -58,6 +73,7 @@ export function SchoolDetails(): JSX.Element {
           <select
             id={fieldIds.schoolGrade}
             name={fieldIds.schoolGrade}
+            defaultValue={participation?.userParticipation.schoolGrade}
             className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0"
             required
           >

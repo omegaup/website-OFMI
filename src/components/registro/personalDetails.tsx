@@ -15,6 +15,7 @@ import { exhaustiveMatchingGuard } from "@/utils";
 import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import { useState } from "react";
+import { ParticipationRequestInput } from "@/types/participation.schema";
 
 function getImageData(shirtStyle: ShirtStyle): StaticImageData {
   switch (shirtStyle) {
@@ -28,9 +29,15 @@ function getImageData(shirtStyle: ShirtStyle): StaticImageData {
   }
 }
 
-export function PersonalDetails(): JSX.Element {
-  const [shirtStyle, setShirtStyle] = useState<ShirtStyle>();
-
+export function PersonalDetails({
+  participation,
+}: {
+  participation: ParticipationRequestInput | null;
+}): JSX.Element {
+  const user = participation?.user;
+  const [shirtStyle, setShirtStyle] = useState<ShirtStyle | undefined>(
+    user?.shirtStyle,
+  );
   return (
     <div>
       <SectionTitle title="Datos de contacto" />
@@ -38,12 +45,14 @@ export function PersonalDetails(): JSX.Element {
         <FloatingInput
           type="text"
           label="Nombre(s)"
+          defaultValue={user?.firstName}
           id={fieldIds.firstName}
           required
         />
         <FloatingInput
           type="text"
           label="Apellido(s)"
+          defaultValue={user?.lastName}
           id={fieldIds.lastName}
           required
         />
@@ -52,6 +61,7 @@ export function PersonalDetails(): JSX.Element {
         <FloatingInput
           type="text"
           id={fieldIds.preferredName}
+          defaultValue={user?.preferredName}
           label="Nombre preferido"
           placeholder=" "
         />
@@ -59,6 +69,7 @@ export function PersonalDetails(): JSX.Element {
           <select
             id={fieldIds.pronouns}
             name={fieldIds.pronouns}
+            defaultValue={user?.pronouns}
             className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0"
           >
             {Pronouns.map((value) => {
@@ -82,6 +93,7 @@ export function PersonalDetails(): JSX.Element {
           type="date"
           id={fieldIds.birthDate}
           label="Fecha de nacimiento"
+          defaultValue={user?.birthDate.substring(0, 10)}
           placeholder=" "
           required
         />
@@ -89,6 +101,7 @@ export function PersonalDetails(): JSX.Element {
           type="text"
           id={fieldIds.governmentId}
           label="CURP"
+          defaultValue={user?.governmentId}
           placeholder=" "
           required
         />
@@ -100,6 +113,7 @@ export function PersonalDetails(): JSX.Element {
           <select
             id={fieldIds.shirtSize}
             name={fieldIds.shirtSize}
+            defaultValue={user?.shirtSize}
             className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0"
           >
             <option value=""></option>
@@ -122,6 +136,7 @@ export function PersonalDetails(): JSX.Element {
           <select
             id={fieldIds.shirtStyle}
             name={fieldIds.shirtStyle}
+            defaultValue={user?.shirtStyle}
             className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0"
             onChange={(ev) => {
               ev.preventDefault();

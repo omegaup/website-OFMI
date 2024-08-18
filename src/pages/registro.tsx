@@ -5,11 +5,17 @@ import type {
 } from "next/types";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import Registro from "@/components/registro";
-import { findMostRecentOfmi } from "@/lib/ofmi";
+import { findMostRecentOfmi, findParticipation } from "@/lib/ofmi";
 import { Alert } from "@/components/alert";
+import { Value } from "@sinclair/typebox/value";
+import {
+  ParticipationRequestInput,
+  ParticipationRequestInputSchema,
+} from "@/types/participation.schema";
 
 export default function RegistroPage({
   ofmiEdition,
+  participationJSON,
   registrationClosingTime,
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
   if (
@@ -32,18 +38,42 @@ export default function RegistroPage({
     );
   }
 
-  return <Registro ofmiEdition={ofmiEdition} />;
+  let participation: ParticipationRequestInput | null = null;
+  const body = participationJSON ? JSON.parse(participationJSON) : null;
+
+  if (Value.Check(ParticipationRequestInputSchema, body)) {
+    participation = body;
+  } else {
+    console.info("Estan corruptos los datos");
+  }
+
+  return <Registro ofmiEdition={ofmiEdition} participation={participation} />;
 }
 
 export const getServerSideProps: GetServerSideProps<{
   ofmiEdition: number | null;
   registrationClosingTime: number | null;
+  participationJSON: string | null;
 }> = async ({ req, res }) => {
+  const session = await getServerSession(req, res, authOptions);
+  const email = session?.user?.email;
+  if (!session?.user?.email) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false,
+      },
+    };
+  }
+
   const ofmi = await findMostRecentOfmi();
+  const participation =
+    ofmi && email ? await findParticipation(ofmi, email) : null;
 
   return {
     props: {
-      session: await getServerSession(req, res, authOptions),
+      session,
+      participationJSON: JSON.stringify(participation),
       ofmiEdition: ofmi?.edition ?? null,
       registrationClosingTime: ofmi?.registrationCloseTime.getTime() ?? null,
     },

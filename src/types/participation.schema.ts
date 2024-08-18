@@ -8,7 +8,8 @@ import { toISOStringReg } from "@/lib/validators/date";
 
 const CONTESTANT = "CONTESTANT";
 const MENTOR = "MENTOR";
-export type ParticipationRole = typeof CONTESTANT | typeof MENTOR;
+export type ContestantParticipationRole = typeof CONTESTANT;
+export type ParticipationRole = ContestantParticipationRole | typeof MENTOR;
 
 const SchoolStageSchema = Type.Enum(SchoolStage);
 
@@ -62,10 +63,10 @@ const ContestantParticipationInputSchema = Type.Object({
   schoolGrade: Type.Integer({ minimum: 1 }),
 });
 
-export type UpsertParticipationRequest = Static<
-  typeof UpsertParticipationRequestSchema
+export type ParticipationRequestInput = Static<
+  typeof ParticipationRequestInputSchema
 >;
-export const UpsertParticipationRequestSchema = Type.Object({
+export const ParticipationRequestInputSchema = Type.Object({
   // Ofmi edition
   ofmiEdition: Type.Integer({ minimum: 1 }),
   // User
@@ -75,6 +76,11 @@ export const UpsertParticipationRequestSchema = Type.Object({
   state: Type.String({ minLength: 1 }),
   userParticipation: Type.Union([ContestantParticipationInputSchema]),
 });
+
+export type UpsertParticipationRequest = Static<
+  typeof UpsertParticipationRequestSchema
+>;
+export const UpsertParticipationRequestSchema = ParticipationRequestInputSchema;
 
 export interface UpsertParticipationResponse {
   participation: Participation;

@@ -3,7 +3,10 @@ import { Alert, SuccessAlert } from "@/components/alert";
 import { MailingAddress } from "./mailingAddress";
 import { PersonalDetails } from "./personalDetails";
 import { SchoolDetails } from "./schoolDetails";
-import type { UpsertParticipationRequest } from "@/types/participation.schema";
+import type {
+  ParticipationRequestInput,
+  UpsertParticipationRequest,
+} from "@/types/participation.schema";
 import { fieldIds } from "./constants";
 import { useState } from "react";
 import { PronounsOfString } from "@/types/pronouns";
@@ -15,9 +18,14 @@ import { undefinedIfEmpty } from "@/utils";
 
 export default function Registro({
   ofmiEdition,
+  participation,
 }: {
   ofmiEdition: number;
+  participation: ParticipationRequestInput | null;
 }): JSX.Element {
+  const [showAlreadyRegistered, setShowAlreadyRedistered] = useState(
+    participation !== null,
+  );
   const { data: session } = useSession();
   const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState(false);
@@ -30,7 +38,6 @@ export default function Registro({
     setError(null);
 
     const data = new FormData(event.currentTarget);
-    data.forEach((value, key) => console.log(`${key}: ${value}`));
 
     const email = session?.user?.email;
     if (!email) {
@@ -40,7 +47,6 @@ export default function Registro({
     const pronouns = PronounsOfString(
       data.get(fieldIds.pronouns)?.valueOf().toString() ?? "",
     );
-    console.log(data.get(fieldIds.pronouns));
     const shirtSize = ShirtSizeOfString(
       data.get(fieldIds.shirtSize)?.toString() ?? "",
     );
@@ -104,7 +110,6 @@ export default function Registro({
       },
     };
 
-    console.log(request);
     setLoading(true);
     const response = await sendUpsertParticipation(request);
     if (!response.success) {
@@ -113,6 +118,26 @@ export default function Registro({
       setSuccessfulUpsert(true);
     }
     setLoading(false);
+  }
+
+  if (showAlreadyRegistered) {
+    return (
+      <div className="mx-auto max-w-3xl px-2 pt-4">
+        <SuccessAlert
+          title="Ya estas registrada!"
+          text="Quieres modificar tu registro?"
+        />
+        <div className="text-center">
+          <Button
+            buttonSize="sm"
+            buttonType="secondary"
+            onClick={() => setShowAlreadyRedistered(false)}
+          >
+            Modificar
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -128,11 +153,11 @@ export default function Registro({
         onSubmit={(ev) => handleSubmit(ev)}
       >
         {/* Personal information */}
-        <PersonalDetails />
+        <PersonalDetails participation={participation} />
         {/* Mailing address */}
-        <MailingAddress />
+        <MailingAddress participation={participation} />
         {/* School */}
-        <SchoolDetails />
+        <SchoolDetails participation={participation} />
         {/* Submit form */}
         <div className="flex justify-center">
           <Button
