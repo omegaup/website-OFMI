@@ -44,7 +44,7 @@ export default function RegistroPage({
   if (Value.Check(ParticipationRequestInputSchema, body)) {
     participation = body;
   } else {
-    console.log("INFO: Estan corruptos los datos");
+    console.info("Estan corruptos los datos");
   }
   return <Registro ofmiEdition={ofmiEdition} participation={participation} />;
 }
@@ -68,8 +68,6 @@ export const getServerSideProps: GetServerSideProps<{
   const ofmi = await findMostRecentOfmi();
   const participation =
     ofmi && email ? await findParticipation(ofmi, email) : null;
-
-  console.log("check", { ofmi, participation });
 
   return {
     props: {

@@ -50,7 +50,6 @@ export const LocationFields = ({
           id={countryFieldId}
           name={countryFieldId}
           value={country}
-          defaultValue={defaultCountryValue}
           onChange={(ev) => {
             ev.preventDefault();
             setCountry(ev.target.value);
@@ -73,7 +72,6 @@ export const LocationFields = ({
         <select
           id={stateFieldId}
           name={stateFieldId}
-          defaultValue={defaultStateValue}
           className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0"
           value={state}
           onChange={(ev) => {
@@ -104,7 +102,6 @@ export const LocationFields = ({
               name={municipalityFieldId}
               className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0"
               value={municipality}
-              defaultValue={defaultMunicipalityValue}
               onChange={(ev) => {
                 ev.preventDefault();
                 setMunicipality(ev.target.value);

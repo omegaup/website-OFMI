@@ -35,7 +35,6 @@ export default function Registro({
     setError(null);
 
     const data = new FormData(event.currentTarget);
-    data.forEach((value, key) => console.log(`${key}: ${value}`));
 
     const email = session?.user?.email;
     if (!email) {
@@ -45,7 +44,6 @@ export default function Registro({
     const pronouns = PronounsOfString(
       data.get(fieldIds.pronouns)?.valueOf().toString() ?? "",
     );
-    console.log(data.get(fieldIds.pronouns));
     const shirtSize = ShirtSizeOfString(
       data.get(fieldIds.shirtSize)?.toString() ?? "",
     );
@@ -109,7 +107,6 @@ export default function Registro({
       },
     };
 
-    console.log(request);
     setLoading(true);
     const response = await sendUpsertParticipation(request);
     if (!response.success) {
