@@ -23,6 +23,9 @@ export default function Registro({
   ofmiEdition: number;
   participation: ParticipationRequestInput | null;
 }): JSX.Element {
+  const [showAlreadyRegistered, setShowAlreadyRedistered] = useState(
+    participation !== null,
+  );
   const { data: session } = useSession();
   const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState(false);
@@ -115,6 +118,26 @@ export default function Registro({
       setSuccessfulUpsert(true);
     }
     setLoading(false);
+  }
+
+  if (showAlreadyRegistered) {
+    return (
+      <div className="mx-auto max-w-3xl px-2 pt-4">
+        <SuccessAlert
+          title="Ya estas registrada!"
+          text="Quieres modificar tu registro?"
+        />
+        <div className="text-center">
+          <Button
+            buttonSize="sm"
+            buttonType="secondary"
+            onClick={() => setShowAlreadyRedistered(false)}
+          >
+            Modificar
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (

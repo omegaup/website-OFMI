@@ -46,6 +46,7 @@ export default function RegistroPage({
   } else {
     console.info("Estan corruptos los datos");
   }
+
   return <Registro ofmiEdition={ofmiEdition} participation={participation} />;
 }
 
