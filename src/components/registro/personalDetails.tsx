@@ -1,10 +1,36 @@
-import { ShirtSizes, ShirtStyleName, ShirtStyles } from "@/types/shirt";
+import {
+  ShirtSizes,
+  ShirtStyle,
+  ShirtStyleName,
+  ShirtStyleOfString,
+  ShirtStyles,
+} from "@/types/shirt";
 import { FloatingInput } from "@/components/input/FloatingInput";
 import { SectionTitle } from "./sectionTitle";
 import { PronounName, Pronouns } from "@/types/pronouns";
 import { fieldIds } from "./constants";
+import STRAIGHT from "public/shirtStyles/STRAIGHT.png";
+import WAISTED from "public/shirtStyles/WAISTED.png";
+import { exhaustiveMatchingGuard } from "@/utils";
+import type { StaticImageData } from "next/image";
+import Image from "next/image";
+import { useState } from "react";
+
+function getImageData(shirtStyle: ShirtStyle): StaticImageData {
+  switch (shirtStyle) {
+    case "STRAIGHT":
+      return STRAIGHT;
+    case "WAISTED":
+      return WAISTED;
+    default: {
+      return exhaustiveMatchingGuard(shirtStyle);
+    }
+  }
+}
 
 export function PersonalDetails(): JSX.Element {
+  const [shirtStyle, setShirtStyle] = useState<ShirtStyle>();
+
   return (
     <div>
       <SectionTitle title="Datos de contacto" />
@@ -78,7 +104,11 @@ export function PersonalDetails(): JSX.Element {
           >
             <option value=""></option>
             {ShirtSizes.map((value) => {
-              return <option key={value}>{value}</option>;
+              return (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              );
             })}
           </select>
           <label
@@ -93,10 +123,18 @@ export function PersonalDetails(): JSX.Element {
             id={fieldIds.shirtStyle}
             name={fieldIds.shirtStyle}
             className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0"
+            onChange={(ev) => {
+              ev.preventDefault();
+              setShirtStyle(ShirtStyleOfString(ev.target.value));
+            }}
           >
             <option value=""></option>
             {ShirtStyles.map((value) => {
-              return <option key={value}>{ShirtStyleName(value)}</option>;
+              return (
+                <option key={value} value={value}>
+                  {ShirtStyleName(value)}
+                </option>
+              );
             })}
           </select>
           <label
@@ -106,6 +144,17 @@ export function PersonalDetails(): JSX.Element {
             Estilo de playera
           </label>
         </div>
+        {shirtStyle && (
+          <div className="group relative z-0 mb-5 max-h-12 w-full">
+            <div className="absolute">
+              <Image
+                className="object-contain object-left hover:scale-110 [&:not(:hover)]:max-h-12  [&:not(:hover)]:max-w-12"
+                alt={shirtStyle}
+                src={getImageData(shirtStyle)}
+              ></Image>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

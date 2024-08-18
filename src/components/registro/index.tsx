@@ -29,9 +29,7 @@ export default function Registro({
     event.preventDefault();
     setError(null);
 
-    console.log(event.currentTarget);
     const data = new FormData(event.currentTarget);
-    console.log(data);
     data.forEach((value, key) => console.log(`${key}: ${value}`));
 
     const email = session?.user?.email;
