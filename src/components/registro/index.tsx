@@ -3,7 +3,10 @@ import { Alert, SuccessAlert } from "@/components/alert";
 import { MailingAddress } from "./mailingAddress";
 import { PersonalDetails } from "./personalDetails";
 import { SchoolDetails } from "./schoolDetails";
-import type { UpsertParticipationRequest } from "@/types/participation.schema";
+import type {
+  ParticipationRequestInput,
+  UpsertParticipationRequest,
+} from "@/types/participation.schema";
 import { fieldIds } from "./constants";
 import { useState } from "react";
 import { PronounsOfString } from "@/types/pronouns";
@@ -15,10 +18,12 @@ import { undefinedIfEmpty } from "@/utils";
 
 export default function Registro({
   ofmiEdition,
+  participation,
 }: {
   ofmiEdition: number;
+  participation: ParticipationRequestInput | null;
 }): JSX.Element {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState(false);
   const [successfulUpsert, setSuccessfulUpsert] = useState(false);
@@ -126,14 +131,13 @@ export default function Registro({
         action="#"
         method="POST"
         onSubmit={(ev) => handleSubmit(ev)}
-        hidden={status !== "authenticated"}
       >
         {/* Personal information */}
-        <PersonalDetails />
+        <PersonalDetails participation={participation} />
         {/* Mailing address */}
-        <MailingAddress />
+        <MailingAddress participation={participation} />
         {/* School */}
-        <SchoolDetails />
+        <SchoolDetails participation={participation} />
         {/* Submit form */}
         <div className="flex justify-center">
           <Button
@@ -148,9 +152,6 @@ export default function Registro({
       {error != null && <Alert errorMsg={error.message} />}
       {error == null && successfulUpsert && (
         <SuccessAlert text="Hemos registrado tus datos correctamente." />
-      )}
-      {status === "unauthenticated" && (
-        <Alert errorMsg="Para registrarte a la OFMI, primero debes iniciar sesión." />
       )}
     </div>
   );
