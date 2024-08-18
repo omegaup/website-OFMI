@@ -67,12 +67,13 @@ function validateOfmi(
 }
 
 // Function to register participation in our database
-async function upsertParticipationHanlder(
+async function upsertParticipationHandler(
   req: NextApiRequest,
   res: NextApiResponse<UpsertParticipationResponse | BadRequestError>,
 ): Promise<void> {
   const requestStartTime = Date.now();
   const { body } = req;
+
   if (!Value.Check(UpsertParticipationRequestSchema, body)) {
     const firstError = Value.Errors(
       UpsertParticipationRequestSchema,
@@ -309,7 +310,7 @@ export default async function handle(
 ): Promise<void> {
   if (req.method === "POST") {
     // register to OFMI
-    await upsertParticipationHanlder(req, res);
+    await upsertParticipationHandler(req, res);
   } else {
     return res.status(405).json({ message: "Method Not allowed" });
   }

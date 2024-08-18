@@ -85,6 +85,12 @@ export const authOptions: AuthOptions = {
           ...user,
         };
       }
+      // For safety serialization
+      if (session.user) {
+        session.user.email = session.user.email ?? null;
+        session.user.image = session.user.image ?? null;
+        session.user.name = session.user.name ?? null;
+      }
       return await session;
     },
 

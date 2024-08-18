@@ -10,12 +10,14 @@ import { PronounsOfString } from "@/types/pronouns";
 import { ShirtSizeOfString, ShirtStyleOfString } from "@/types/shirt";
 import { SchoolStage } from "@prisma/client";
 import { sendUpsertParticipation } from "./client";
+import { useSession } from "next-auth/react";
 
 export default function Registro({
   ofmiEdition,
 }: {
   ofmiEdition: number;
 }): JSX.Element {
+  const { data: session } = useSession();
   const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState(false);
   const [successfulUpsert, setSuccessfulUpsert] = useState(false);
@@ -26,10 +28,15 @@ export default function Registro({
     event.preventDefault();
     setError(null);
 
+    console.log(event.currentTarget);
     const data = new FormData(event.currentTarget);
     console.log(data);
     data.forEach((value, key) => console.log(`${key}: ${value}`));
 
+    const email = session?.user?.email;
+    if (!email) {
+      return setError(new Error("Inicia sesión primero"));
+    }
     const birthDate = data.get(fieldIds.birthDate)?.toString();
     const pronouns = PronounsOfString(
       data.get(fieldIds.pronouns)?.valueOf().toString() ?? "",
@@ -47,14 +54,6 @@ export default function Registro({
         ? SchoolStage[schoolStageStr as keyof typeof SchoolStage]
         : undefined;
 
-    console.log({
-      pronouns,
-      shirtSize,
-      birthDate,
-      shirtStyle,
-      schoolStage,
-    });
-
     if (!pronouns || !shirtSize || !birthDate || !shirtStyle || !schoolStage) {
       return setError(new Error("Todos los campos son requeridos"));
     }
@@ -64,7 +63,7 @@ export default function Registro({
       country: data.get(fieldIds.schoolCountry)?.toString() ?? "",
       state: data.get(fieldIds.schoolState)?.toString() ?? "",
       user: {
-        email: "", // TODO: Add email
+        email,
         firstName: data.get(fieldIds.firstName)?.toString() ?? "",
         lastName: data.get(fieldIds.lastName)?.toString() ?? "",
         preferredName: data.get(fieldIds.preferredName)?.toString() ?? "",
