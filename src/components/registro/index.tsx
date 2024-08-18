@@ -11,6 +11,7 @@ import { ShirtSizeOfString, ShirtStyleOfString } from "@/types/shirt";
 import { SchoolStage } from "@prisma/client";
 import { sendUpsertParticipation } from "./client";
 import { useSession } from "next-auth/react";
+import { undefinedIfEmpty } from "@/utils";
 
 export default function Registro({
   ofmiEdition,
@@ -67,23 +68,33 @@ export default function Registro({
         firstName: data.get(fieldIds.firstName)?.toString() ?? "",
         lastName: data.get(fieldIds.lastName)?.toString() ?? "",
         preferredName: data.get(fieldIds.preferredName)?.toString() ?? "",
-        birthDate: birthDate,
+        birthDate: new Date(birthDate).toISOString(),
         governmentId: data.get(fieldIds.governmentId)?.toString() ?? "",
         pronouns,
         shirtSize,
         shirtStyle,
         mailingAddress: {
-          recipient: data.get(fieldIds.mailingRecipient)?.toString() ?? "",
+          recipient: undefinedIfEmpty(
+            data.get(fieldIds.mailingRecipient)?.toString(),
+          ),
           street: data.get(fieldIds.mailingStreet)?.toString() ?? "",
           externalNumber:
             data.get(fieldIds.mailingExternalNumber)?.toString() ?? "",
-          internalNumber: data.get(fieldIds.mailingInternalNumber)?.toString(),
+          internalNumber: undefinedIfEmpty(
+            data.get(fieldIds.mailingInternalNumber)?.toString(),
+          ),
           zipcode: data.get(fieldIds.mailingZipcode)?.toString() ?? "",
           country: data.get(fieldIds.mailingCountry)?.toString() ?? "",
           state: data.get(fieldIds.mailingState)?.toString() ?? "",
-          municipality: data.get(fieldIds.mailingMunicipality)?.toString(),
-          locality: data.get(fieldIds.mailingLocality)?.toString(),
-          references: data.get(fieldIds.mailingReferences)?.toString(),
+          municipality: undefinedIfEmpty(
+            data.get(fieldIds.mailingMunicipality)?.toString(),
+          ),
+          locality: undefinedIfEmpty(
+            data.get(fieldIds.mailingLocality)?.toString(),
+          ),
+          references: undefinedIfEmpty(
+            data.get(fieldIds.mailingReferences)?.toString(),
+          ),
           phone: data.get(fieldIds.mailingPhone)?.toString() ?? "",
         },
       },
