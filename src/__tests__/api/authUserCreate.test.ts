@@ -7,6 +7,7 @@ import {
   mockRequestResponse,
   removeIfExists,
 } from "./authUserCreateUtils";
+import { verifyEmail } from "@/lib/emailVerificationToken";
 
 const dummyEmail = "create@test.com";
 
@@ -29,6 +30,37 @@ describe("/api/user/create API Endpoint", () => {
           to: dummyEmail,
           subject: "Verifica tu cuenta de la página de la OFMI",
           html: expect.stringContaining("/login?verifyToken="),
+        },
+      },
+    ]);
+  });
+
+  it("token verification works", async () => {
+    await insertAndCheckSuccessfullyDummyInsertion(dummyEmail);
+    const emails = mockEmailer.getSentEmails();
+    expect(emails).length(1);
+    const html = emails[0].mailOptions.html?.toString();
+    if (!html) {
+      return expect(html).not.toBeUndefined();
+    }
+    const matches = Array.from(
+      html.matchAll(/<a href=".*\/login\?verifyToken=(.*)">/g),
+    );
+    expect(matches).length(1);
+    const token = matches[0][1];
+    // Clear the emailer
+    mockEmailer.resetMock();
+    const response = await verifyEmail({ token });
+    expect(response).toMatchObject({
+      success: true,
+      email: dummyEmail,
+    });
+    expect(mockEmailer.getSentEmails()).toMatchObject([
+      {
+        mailOptions: {
+          to: dummyEmail,
+          subject: "La página de la OFMI te da la bienvenida",
+          html: expect.stringContaining("/registro"),
         },
       },
     ]);

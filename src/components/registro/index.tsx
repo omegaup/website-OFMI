@@ -10,12 +10,15 @@ import { PronounsOfString } from "@/types/pronouns";
 import { ShirtSizeOfString, ShirtStyleOfString } from "@/types/shirt";
 import { SchoolStage } from "@prisma/client";
 import { sendUpsertParticipation } from "./client";
+import { useSession } from "next-auth/react";
+import { undefinedIfEmpty } from "@/utils";
 
 export default function Registro({
   ofmiEdition,
 }: {
   ofmiEdition: number;
 }): JSX.Element {
+  const { data: session } = useSession();
   const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState(false);
   const [successfulUpsert, setSuccessfulUpsert] = useState(false);
@@ -26,10 +29,15 @@ export default function Registro({
     event.preventDefault();
     setError(null);
 
+    console.log(event.currentTarget);
     const data = new FormData(event.currentTarget);
     console.log(data);
     data.forEach((value, key) => console.log(`${key}: ${value}`));
 
+    const email = session?.user?.email;
+    if (!email) {
+      return setError(new Error("Inicia sesión primero"));
+    }
     const birthDate = data.get(fieldIds.birthDate)?.toString();
     const pronouns = PronounsOfString(
       data.get(fieldIds.pronouns)?.valueOf().toString() ?? "",
@@ -47,14 +55,6 @@ export default function Registro({
         ? SchoolStage[schoolStageStr as keyof typeof SchoolStage]
         : undefined;
 
-    console.log({
-      pronouns,
-      shirtSize,
-      birthDate,
-      shirtStyle,
-      schoolStage,
-    });
-
     if (!pronouns || !shirtSize || !birthDate || !shirtStyle || !schoolStage) {
       return setError(new Error("Todos los campos son requeridos"));
     }
@@ -64,27 +64,37 @@ export default function Registro({
       country: data.get(fieldIds.schoolCountry)?.toString() ?? "",
       state: data.get(fieldIds.schoolState)?.toString() ?? "",
       user: {
-        email: "", // TODO: Add email
+        email,
         firstName: data.get(fieldIds.firstName)?.toString() ?? "",
         lastName: data.get(fieldIds.lastName)?.toString() ?? "",
         preferredName: data.get(fieldIds.preferredName)?.toString() ?? "",
-        birthDate: new Date(birthDate),
+        birthDate: new Date(birthDate).toISOString(),
         governmentId: data.get(fieldIds.governmentId)?.toString() ?? "",
         pronouns,
         shirtSize,
         shirtStyle,
         mailingAddress: {
-          recipient: data.get(fieldIds.mailingRecipient)?.toString() ?? "",
+          recipient: undefinedIfEmpty(
+            data.get(fieldIds.mailingRecipient)?.toString(),
+          ),
           street: data.get(fieldIds.mailingStreet)?.toString() ?? "",
           externalNumber:
             data.get(fieldIds.mailingExternalNumber)?.toString() ?? "",
-          internalNumber: data.get(fieldIds.mailingInternalNumber)?.toString(),
+          internalNumber: undefinedIfEmpty(
+            data.get(fieldIds.mailingInternalNumber)?.toString(),
+          ),
           zipcode: data.get(fieldIds.mailingZipcode)?.toString() ?? "",
           country: data.get(fieldIds.mailingCountry)?.toString() ?? "",
           state: data.get(fieldIds.mailingState)?.toString() ?? "",
-          municipality: data.get(fieldIds.mailingMunicipality)?.toString(),
-          locality: data.get(fieldIds.mailingLocality)?.toString(),
-          references: data.get(fieldIds.mailingReferences)?.toString(),
+          municipality: undefinedIfEmpty(
+            data.get(fieldIds.mailingMunicipality)?.toString(),
+          ),
+          locality: undefinedIfEmpty(
+            data.get(fieldIds.mailingLocality)?.toString(),
+          ),
+          references: undefinedIfEmpty(
+            data.get(fieldIds.mailingReferences)?.toString(),
+          ),
           phone: data.get(fieldIds.mailingPhone)?.toString() ?? "",
         },
       },
@@ -132,7 +142,7 @@ export default function Registro({
             className="min-w-full md:w-64 md:min-w-0"
             disabled={loading}
           >
-            Submit
+            Enviar
           </Button>
         </div>
       </form>

@@ -7,7 +7,7 @@ import {
 } from "@/types/auth.schema";
 import { Value } from "@sinclair/typebox/value";
 import { BadRequestError } from "@/types/errors";
-import generateAndSendVerificationToken from "@/lib/email-verification-token";
+import generateAndSendVerificationToken from "@/lib/emailVerificationToken";
 import { hashPassword } from "@/lib/hashPassword";
 import { parseValueError } from "@/lib/typebox";
 

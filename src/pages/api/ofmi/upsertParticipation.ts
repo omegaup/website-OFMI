@@ -67,12 +67,13 @@ function validateOfmi(
 }
 
 // Function to register participation in our database
-async function upsertParticipationHanlder(
+async function upsertParticipationHandler(
   req: NextApiRequest,
   res: NextApiResponse<UpsertParticipationResponse | BadRequestError>,
 ): Promise<void> {
   const requestStartTime = Date.now();
   const { body } = req;
+
   if (!Value.Check(UpsertParticipationRequestSchema, body)) {
     const firstError = Value.Errors(
       UpsertParticipationRequestSchema,
@@ -90,6 +91,7 @@ async function upsertParticipationHanlder(
     userParticipation: userParticipationInput,
   } = body;
   const { mailingAddress: mailingAddressInput } = userInput;
+  const birthDate = new Date(userInput.birthDate);
 
   // Check OFMI edition
   const ofmi = await prisma.ofmi.findUnique({
@@ -101,7 +103,7 @@ async function upsertParticipationHanlder(
     });
   }
   const ofmiValidation = validateOfmi(ofmi, {
-    birthDate: userInput.birthDate,
+    birthDate,
     schoolGrade: userParticipationInput.schoolGrade,
     schoolStage: userParticipationInput.schoolStage,
   });
@@ -137,7 +139,7 @@ async function upsertParticipationHanlder(
     {
       field: "CURP",
       result: validateCURP(body.user.governmentId, {
-        birthDate: userInput.birthDate,
+        birthDate,
       }),
     },
     {
@@ -309,7 +311,7 @@ export default async function handle(
 ): Promise<void> {
   if (req.method === "POST") {
     // register to OFMI
-    await upsertParticipationHanlder(req, res);
+    await upsertParticipationHandler(req, res);
   } else {
     return res.status(405).json({ message: "Method Not allowed" });
   }

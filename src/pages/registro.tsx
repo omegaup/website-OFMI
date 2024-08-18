@@ -39,14 +39,11 @@ export const getServerSideProps: GetServerSideProps<{
   ofmiEdition: number | null;
   registrationClosingTime: number | null;
 }> = async ({ req, res }) => {
-  const session = await getServerSession(req, res, authOptions);
-  // Get current ofmi edition and user email
-  console.log("Session", session);
-
   const ofmi = await findMostRecentOfmi();
 
   return {
     props: {
+      session: await getServerSession(req, res, authOptions),
       ofmiEdition: ofmi?.edition ?? null,
       registrationClosingTime: ofmi?.registrationCloseTime.getTime() ?? null,
     },

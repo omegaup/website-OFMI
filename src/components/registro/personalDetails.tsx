@@ -1,4 +1,4 @@
-import { ShirtSizes, ShirtStyles } from "@/types/shirt";
+import { ShirtSizes, ShirtStyleName, ShirtStyles } from "@/types/shirt";
 import { FloatingInput } from "@/components/input/FloatingInput";
 import { SectionTitle } from "./sectionTitle";
 import { PronounName, Pronouns } from "@/types/pronouns";
@@ -96,7 +96,7 @@ export function PersonalDetails(): JSX.Element {
           >
             <option value=""></option>
             {ShirtStyles.map((value) => {
-              return <option key={value}>{value}</option>;
+              return <option key={value}>{ShirtStyleName(value)}</option>;
             })}
           </select>
           <label
