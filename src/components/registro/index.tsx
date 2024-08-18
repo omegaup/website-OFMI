@@ -67,7 +67,7 @@ export default function Registro({
         firstName: data.get(fieldIds.firstName)?.toString() ?? "",
         lastName: data.get(fieldIds.lastName)?.toString() ?? "",
         preferredName: data.get(fieldIds.preferredName)?.toString() ?? "",
-        birthDate: new Date(birthDate),
+        birthDate: birthDate,
         governmentId: data.get(fieldIds.governmentId)?.toString() ?? "",
         pronouns,
         shirtSize,

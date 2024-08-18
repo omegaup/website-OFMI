@@ -1,0 +1,37 @@
+POST http://localhost:3000/api/ofmi/upsertParticipation HTTP/1.1
+content-type: application/json
+
+{
+    "ofmiEdition":1,
+    "country":"MEX",
+    "state":"Aguascalientes",
+    "user":{
+        "email":"upsertParticipation@test.com",
+        "firstName":"Juan Carlos",
+        "lastName":"Sigler Priego",
+        "preferredName":"Juanito",
+        "birthDate":"2006-11-24T00:00:00.000Z",
+        "pronouns":"HE",
+        "governmentId":"HEGG061124MVZRRL02",
+        "shirtSize":"M",
+        "shirtStyle":"UNISEX",
+        "mailingAddress":
+        {
+            "street":"Calle",
+            "externalNumber":"#8Bis",
+            "zipcode":"01234",
+            "country":"MEX",
+            "state":"Aguascalientes",
+            "municipality":"Aguascalientes",
+            "locality":"Aguascalientes",
+            "phone":"5511223344",
+            "references":"Hasta el fondo"
+        }
+    },
+    "userParticipation":{
+        "role":"CONTESTANT",
+        "schoolName":"Colegio Carol Baur",
+        "schoolGrade":3,
+        "schoolStage":"High"
+    }
+}

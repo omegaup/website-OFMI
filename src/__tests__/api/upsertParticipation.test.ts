@@ -12,6 +12,7 @@ import { emailReg } from "@/lib/validators";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/hashPassword";
 import { ParticipationRole } from "@/types/participation.schema";
+import { toISOStringReg } from "@/lib/validators/date";
 
 type ApiRequest = NextApiRequest & ReturnType<typeof createRequest>;
 type APiResponse = NextApiResponse & ReturnType<typeof createResponse>;
@@ -109,7 +110,7 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
     firstName: "Juan Carlos",
     lastName: "Sigler Priego",
     preferredName: "Juanito",
-    birthDate: new Date("2006-11-24"),
+    birthDate: new Date("2006-11-24").toISOString(),
     pronouns: "HE",
     governmentId: "HEGG061124MVZRRL02",
     shirtSize: "M",
@@ -345,7 +346,7 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
 
       expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
       expect(res._getJSONData()).toMatchObject({
-        message: "Se esperaba un Date para el campo /user/birthDate",
+        message: `El campo /user/birthDate no cumple con los requerimientos. Expected string to match '${toISOStringReg}'`,
       });
       expect(res.statusCode).toBe(400);
     });
@@ -356,7 +357,7 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
           ...validRequest,
           user: {
             ...validUserInput,
-            birthDate: new Date("2008-12-12"),
+            birthDate: new Date("2008-12-12").toISOString(),
           },
         },
       });
@@ -376,7 +377,7 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
           ...validRequest,
           user: {
             ...validUserInput,
-            birthDate: new Date("2004-12-12"),
+            birthDate: new Date("2004-12-12").toISOString(),
           },
         },
       });

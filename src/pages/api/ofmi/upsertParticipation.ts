@@ -91,6 +91,7 @@ async function upsertParticipationHandler(
     userParticipation: userParticipationInput,
   } = body;
   const { mailingAddress: mailingAddressInput } = userInput;
+  const birthDate = new Date(userInput.birthDate);
 
   // Check OFMI edition
   const ofmi = await prisma.ofmi.findUnique({
@@ -102,7 +103,7 @@ async function upsertParticipationHandler(
     });
   }
   const ofmiValidation = validateOfmi(ofmi, {
-    birthDate: userInput.birthDate,
+    birthDate,
     schoolGrade: userParticipationInput.schoolGrade,
     schoolStage: userParticipationInput.schoolStage,
   });
@@ -138,7 +139,7 @@ async function upsertParticipationHandler(
     {
       field: "CURP",
       result: validateCURP(body.user.governmentId, {
-        birthDate: userInput.birthDate,
+        birthDate,
       }),
     },
     {

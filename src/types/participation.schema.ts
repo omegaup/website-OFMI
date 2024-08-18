@@ -4,6 +4,7 @@ import { countryReg, phoneReg, zipcodeReg } from "@/lib/validators/address";
 import { emailReg } from "@/lib/validators";
 import { ShirtSizes, ShirtStyles } from "./shirt";
 import { Pronouns } from "./pronouns";
+import { toISOStringReg } from "@/lib/validators/date";
 
 const CONTESTANT = "CONTESTANT";
 const MENTOR = "MENTOR";
@@ -43,7 +44,10 @@ const UserInputSchema = Type.Object({
   firstName: Type.String({ minLength: 1 }),
   lastName: Type.String({ minLength: 1 }),
   preferredName: Type.String({ minLength: 1 }),
-  birthDate: Type.Date(),
+  // Type.Date is unsupported for JSON serialization/deserialization
+  // Lets use Date.toISOString to send Dates and make sure the format
+  // comes from toISOString
+  birthDate: Type.String({ pattern: toISOStringReg }),
   governmentId: Type.String({ minLength: 1 }),
   pronouns: PronounsSchema,
   shirtSize: ShirtSizeSchema,
