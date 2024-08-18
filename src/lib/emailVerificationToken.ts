@@ -4,7 +4,7 @@ import { emailer } from "./emailer";
 import { prisma } from "@/lib/prisma";
 import { Static, Type } from "@sinclair/typebox";
 import { decrypt, encrypt } from "./jwt";
-import { createSession } from "./session";
+import { Role } from "@prisma/client";
 
 export type verificationEmailToken = Static<
   typeof verificationEmailTokenSchema
@@ -29,7 +29,9 @@ export default async function generateAndSendVerificationToken(
 
 export async function verifyEmail({ token }: { token: string }): Promise<
   | {
+      userAuthId: string;
       email: string;
+      role: Role;
       success: true;
     }
   | {
@@ -70,14 +72,12 @@ export async function verifyEmail({ token }: { token: string }): Promise<
     // Send successful verification email
     await emailer.notifyUserSuccessfulSignup(user.email);
 
-    // Set cookie
-    await createSession({
+    return {
+      email: userAuth.email,
       userAuthId: userAuth.id,
       role: userAuth.role,
-      email: userAuth.email,
-    });
-
-    return { email: user.email, success: true };
+      success: true,
+    };
   } catch (e) {
     if (e instanceof jwt.TokenExpiredError) {
       return {

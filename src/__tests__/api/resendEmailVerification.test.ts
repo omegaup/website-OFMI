@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { mockEmailer } from "./mocks/emailer";
-import { verifySession } from "./mocks/session";
 import {
   removeIfExists,
   insertAndCheckSuccessfullyDummyInsertion,
@@ -13,7 +12,6 @@ import {
 } from "node-mocks-http";
 import type { NextApiRequest, NextApiResponse } from "next";
 import resendEmailVerificationTokenHandler from "@/pages/api/user/resendEmailVerification";
-import { afterEach } from "node:test";
 
 type ApiRequest = NextApiRequest & ReturnType<typeof createRequest>;
 type APiResponse = NextApiResponse & ReturnType<typeof createResponse>;
@@ -23,10 +21,6 @@ const dummyEmail = "emailVerification@test.com";
 beforeEach(async () => {
   await removeIfExists(dummyEmail);
   mockEmailer.resetMock();
-});
-
-afterEach(async () => {
-  expect(await verifySession()).toBeNull();
 });
 
 describe("/api/user/resendEmailVerification API Endpoint", () => {

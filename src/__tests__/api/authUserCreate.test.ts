@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { verifySession } from "./mocks/session";
 import { mockEmailer } from "./mocks/emailer";
 import createUserHandler from "@/pages/api/user/create";
 import { emailReg } from "@/lib/validators";
@@ -65,11 +64,6 @@ describe("/api/user/create API Endpoint", () => {
         },
       },
     ]);
-    // Make sure it ingest the cookie session
-    expect(await verifySession()).toMatchObject({
-      email: dummyEmail,
-      role: "user",
-    });
   });
 
   it("try to register with the same email", async () => {
