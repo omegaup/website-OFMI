@@ -5,5 +5,6 @@
   },
   "standard.enable": false,
   "prettier.prettierPath": "./node_modules/prettier",
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "tailwindCSS.codeActions": false
 }

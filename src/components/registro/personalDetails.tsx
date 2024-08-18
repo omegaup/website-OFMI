@@ -148,7 +148,7 @@ export function PersonalDetails(): JSX.Element {
           <div className="group relative z-0 mb-5 max-h-12 w-full">
             <div className="absolute">
               <Image
-                className={`object-contain object-left hover:scale-110 [&:not(:hover)]:max-h-${12} [&:not(:hover)]:max-w-${12}`}
+                className="object-contain object-left hover:scale-110 [&:not(:hover)]:max-h-12  [&:not(:hover)]:max-w-12"
                 alt={shirtStyle}
                 src={getImageData(shirtStyle)}
               ></Image>
