@@ -18,7 +18,7 @@ export default function Registro({
 }: {
   ofmiEdition: number;
 }): JSX.Element {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState(false);
   const [successfulUpsert, setSuccessfulUpsert] = useState(false);
@@ -126,6 +126,7 @@ export default function Registro({
         action="#"
         method="POST"
         onSubmit={(ev) => handleSubmit(ev)}
+        hidden={status !== "authenticated"}
       >
         {/* Personal information */}
         <PersonalDetails />
@@ -147,6 +148,9 @@ export default function Registro({
       {error != null && <Alert errorMsg={error.message} />}
       {error == null && successfulUpsert && (
         <SuccessAlert text="Hemos registrado tus datos correctamente." />
+      )}
+      {status === "unauthenticated" && (
+        <Alert errorMsg="Para registrarte a la OFMI, primero debes iniciar sesión." />
       )}
     </div>
   );
