@@ -20,7 +20,12 @@ async function loginUserHandler(
   const user = await prisma.userAuth.findUnique({
     where: { email },
   });
-  if (user == null || user.password !== hashPassword(password)) {
+  if (user == null) {
+    return res
+      .status(400)
+      .json({ message: "No hay un usuario asociado a este correo." });
+  }
+  if (user.password !== hashPassword(password)) {
     return res
       .status(400)
       .json({ message: "Usuario o contraseña incorrectos." });

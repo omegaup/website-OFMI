@@ -5,6 +5,7 @@ import {
   ofmiRegistrationCompleteTemplate,
   signUpSuccessfulEmailTemplate,
 } from "./template";
+import config from "@/config/default";
 
 export class Emailer {
   private readonly transporter: nodemailer.Transporter;
@@ -20,7 +21,11 @@ export class Emailer {
   }
 
   public async sendEmail(mailOptions: MailOptions): Promise<void> {
-    return await this.transporter.sendMail(mailOptions);
+    if (config.OFMI_EMAIL_SEND_EMAILS) {
+      await this.transporter.sendMail(mailOptions);
+    } else {
+      console.info("INFO: Email not sent.", mailOptions);
+    }
   }
 
   public async notifyUserForSignup(email: string, url: string): Promise<void> {
