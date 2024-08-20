@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { Ofmi, SchoolStage } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import {
   UpsertParticipationRequestSchema,
@@ -12,66 +11,20 @@ import {
   validateAddressLocation,
   validateCountryState,
   validateSchoolGrade,
-  validateGraduationDate,
 } from "@/lib/validators";
 import { parseValueError } from "@/lib/typebox";
-import type { ValidationResult } from "@/lib/validators/types";
 import { emailer } from "@/lib/emailer";
-
-// Check user is able to compete in ofmi
-function validateOfmi(
-  ofmi: Ofmi,
-  {
-    birthDate,
-    schoolStage,
-    schoolGrade,
-  }: { birthDate: Date; schoolStage: SchoolStage; schoolGrade: number },
-): ValidationResult {
-  const now = new Date(Date.now());
-
-  if (ofmi.registrationOpenTime > now) {
-    return {
-      ok: false,
-      message: `Las inscripciones para esta OFMI aun no han abierto.`,
-    };
-  }
-  if (ofmi.registrationCloseTime < new Date(Date.now())) {
-    return {
-      ok: false,
-      message: "Las inscripciones para esta OFMI han finalizado.",
-    };
-  }
-
-  if (ofmi.birthDateRequirement && birthDate < ofmi.birthDateRequirement) {
-    return {
-      ok: false,
-      message: `No cumples con el requisito de haber nacido después del ${ofmi.birthDateRequirement.toDateString()}`,
-    };
-  }
-
-  // Lets be optimistic and assume contestant was in schoolGrade when Ofmi registration began.
-  // Assume also that it started on that day the schoolGrade
-  if (ofmi.studyingHighScoolDateRequirement) {
-    const result = validateGraduationDate({
-      schoolGrade,
-      schoolStage,
-      started: ofmi.registrationOpenTime,
-      highSchoolGraduationLimit: ofmi.studyingHighScoolDateRequirement,
-    });
-    if (!result.ok) {
-      return result;
-    }
-  }
-
-  return { ok: true };
-}
+import {
+  validateOFMIContestantRequirements,
+  validateOFMIOpenAndCloseTime,
+} from "@/lib/validators/ofmi";
 
 // Function to register participation in our database
 async function upsertParticipationHandler(
   req: NextApiRequest,
   res: NextApiResponse<UpsertParticipationResponse | BadRequestError>,
 ): Promise<void> {
-  const requestStartTime = Date.now();
+  const requestStartTime = new Date(Date.now());
   const { body } = req;
 
   if (!Value.Check(UpsertParticipationRequestSchema, body)) {
@@ -79,19 +32,17 @@ async function upsertParticipationHandler(
       UpsertParticipationRequestSchema,
       body,
     ).First();
-
     return res.status(400).json({
       message: `${firstError ? parseValueError(firstError) : "Invalid request body."}`,
     });
   }
 
-  const {
-    ofmiEdition: ofmiEditionInput,
-    user: userInput,
-    userParticipation: userParticipationInput,
-  } = body;
+  const { ofmiEdition: ofmiEditionInput, user: userInput } = body;
   const { mailingAddress: mailingAddressInput } = userInput;
   const birthDate = new Date(userInput.birthDate);
+  const role = body.userParticipation.role;
+  const contestantParticipationInput =
+    role === "CONTESTANT" ? body.userParticipation : undefined;
 
   // Check OFMI edition
   const ofmi = await prisma.ofmi.findUnique({
@@ -100,26 +51,6 @@ async function upsertParticipationHandler(
   if (!ofmi) {
     return res.status(400).json({
       message: `La edición de la OFMI que buscas no existe`,
-    });
-  }
-  const ofmiValidation = validateOfmi(ofmi, {
-    birthDate,
-    schoolGrade: userParticipationInput.schoolGrade,
-    schoolStage: userParticipationInput.schoolStage,
-  });
-  if (!ofmiValidation.ok) {
-    return res.status(403).json({
-      message: `No puedes competir en esta OFMI. ${ofmiValidation.message}`,
-    });
-  }
-
-  // Check role
-  const role = await prisma.participationRole.findUnique({
-    where: { name: userParticipationInput.role },
-  });
-  if (!role) {
-    return res.status(400).json({
-      message: `El rol de ${userParticipationInput.role} no existe`,
     });
   }
 
@@ -133,9 +64,8 @@ async function upsertParticipationHandler(
     });
   }
 
-  // More
-  // Validate CURP
-  const firstError = [
+  // More validations
+  const validations = [
     {
       field: "CURP",
       result: validateCURP(body.user.governmentId, {
@@ -152,126 +82,141 @@ async function upsertParticipationHandler(
       }),
     },
     {
-      field: "Lugar participación",
-      result: validateCountryState({
-        country: body.country,
-        state: body.state,
+      field: "Fechas de registro OFMI",
+      result: validateOFMIOpenAndCloseTime(ofmi, {
+        role,
+        registrationTime: requestStartTime,
       }),
     },
-    {
-      field: "Grado escolar",
-      result: validateSchoolGrade({
-        schoolGrade: body.userParticipation.schoolGrade,
-        schoolStage: body.userParticipation.schoolStage,
-      }),
-    },
-  ].find((result) => !result.result.ok);
+  ];
+
+  if (contestantParticipationInput) {
+    // Contestant participation validations
+    validations.push(
+      ...[
+        {
+          field: "Lugar participación",
+          result: validateCountryState({
+            country: contestantParticipationInput.schoolCountry,
+            state: contestantParticipationInput.schoolState,
+          }),
+        },
+        {
+          field: "Grado escolar",
+          result: validateSchoolGrade({
+            schoolGrade: contestantParticipationInput.schoolGrade,
+            schoolStage: contestantParticipationInput.schoolStage,
+          }),
+        },
+        {
+          field: "Edición OFMI",
+          result: validateOFMIContestantRequirements(ofmi, {
+            birthDate: birthDate,
+            schoolStage: contestantParticipationInput.schoolStage,
+            schoolGrade: contestantParticipationInput.schoolGrade,
+          }),
+        },
+      ],
+    );
+  }
+
+  const firstError = validations.find((result) => !result.result.ok);
   if (firstError && !firstError.result.ok) {
     return res.status(400).json({
-      message: `Invalid ${firstError.field}. ${firstError.result.message}`,
+      message: `Error: ${firstError.field}. ${firstError.result.message}`,
     });
   }
 
   // Upsert User - Mailing address
-  const userPayload = {
-    first_name: userInput.firstName,
-    last_name: userInput.lastName,
-    birth_date: userInput.birthDate,
-    government_id: userInput.governmentId,
-    preferred_name: userInput.preferredName,
+  const userInputPayload = {
+    firstName: userInput.firstName,
+    lastName: userInput.lastName,
+    birthDate,
+    governmentId: userInput.governmentId,
+    preferredName: userInput.preferredName,
     pronouns: userInput.pronouns,
-    shirt_size: userInput.shirtSize,
-    shirt_style: userInput.shirtStyle,
+    shirtSize: userInput.shirtSize,
+    shirtStyle: userInput.shirtStyle,
   };
   const mailingAddressPayload = {
     street: mailingAddressInput.street,
-    external_number: mailingAddressInput.externalNumber,
-    internal_number: mailingAddressInput.internalNumber,
-    country: mailingAddressInput.country,
+    externalNumber: mailingAddressInput.externalNumber,
+    internalNumber: mailingAddressInput.internalNumber,
+    zipcode: mailingAddressInput.zipcode,
     state: mailingAddressInput.state,
+    country: mailingAddressInput.country,
+    references: mailingAddressInput.references,
+    phone: mailingAddressInput.phone,
     county: mailingAddressInput.municipality ?? "",
     neighborhood: mailingAddressInput.locality ?? "",
-    zip_code: mailingAddressInput.zipcode,
     name:
       mailingAddressInput.recipient ??
       `${userInput.firstName} ${userInput.lastName}`,
-    phone: mailingAddressInput.phone,
-    references: mailingAddressInput.references,
   };
-
   const user = await prisma.user.upsert({
-    where: { user_auth_id: authUser.id },
+    where: { userAuthId: authUser.id },
     update: {
-      ...userPayload,
-      mailing_address: {
+      ...userInputPayload,
+      MailingAddress: {
         update: {
           ...mailingAddressPayload,
         },
       },
     },
     create: {
-      ...userPayload,
+      ...userInputPayload,
       UserAuth: {
         connect: {
           id: authUser.id,
         },
       },
-      mailing_address: {
+      MailingAddress: {
         create: { ...mailingAddressPayload },
       },
     },
   });
 
-  // Upsert User and Mailing Address
-  const participationPayload = {
-    country: body.country,
-    state: body.state,
-  };
-  const contestantParticipationPayload = {
-    school_grade: userParticipationInput.schoolGrade,
-    disqualified: false,
-  };
-  const schoolConnectOrCreate = {
-    where: {
-      name_stage: {
-        name: userParticipationInput.schoolName,
-        stage: userParticipationInput.schoolStage,
-      },
-    },
-    create: {
-      name: userParticipationInput.schoolName,
-      stage: userParticipationInput.schoolStage,
-    },
-  };
+  const contestantParticipationPayload = contestantParticipationInput
+    ? {
+        schoolGrade: contestantParticipationInput.schoolGrade,
+        disqualified: false,
+        School: {
+          connectOrCreate: {
+            where: {
+              name_stage_state_country: {
+                name: contestantParticipationInput.schoolName,
+                stage: contestantParticipationInput.schoolStage,
+                state: contestantParticipationInput.schoolState,
+                country: contestantParticipationInput.schoolCountry,
+              },
+            },
+            create: {
+              name: contestantParticipationInput.schoolName,
+              stage: contestantParticipationInput.schoolStage,
+              state: contestantParticipationInput.schoolState,
+              country: contestantParticipationInput.schoolCountry,
+            },
+          },
+        },
+      }
+    : undefined;
   const participation = await prisma.participation.upsert({
     where: {
-      user_id_ofmi_id_role_id: {
-        user_id: user.id,
-        ofmi_id: ofmi.id,
-        role_id: role.id,
+      userId_ofmiId: {
+        userId: user.id,
+        ofmiId: ofmi.id,
       },
     },
     update: {
-      ...participationPayload,
-      contestant_participation: {
-        upsert: {
-          create: {
-            ...contestantParticipationPayload,
-            school: {
-              connectOrCreate: schoolConnectOrCreate,
-            },
-          },
-          update: {
-            ...contestantParticipationPayload,
-            school: {
-              connectOrCreate: schoolConnectOrCreate,
-            },
-          },
+      role,
+      ContestantParticipation: {
+        update: {
+          ...contestantParticipationPayload,
         },
       },
     },
     create: {
-      ...participationPayload,
+      role,
       user: {
         connect: {
           id: user.id,
@@ -282,23 +227,15 @@ async function upsertParticipationHandler(
           id: ofmi.id,
         },
       },
-      role: {
-        connect: {
-          id: role.id,
-        },
-      },
-      contestant_participation: {
+      ContestantParticipation: contestantParticipationPayload && {
         create: {
           ...contestantParticipationPayload,
-          school: {
-            connectOrCreate: schoolConnectOrCreate,
-          },
         },
       },
     },
   });
 
-  if (requestStartTime <= participation.createdAt.getTime()) {
+  if (requestStartTime.getTime() <= participation.createdAt.getTime()) {
     // Participation was created
     await emailer.notifySuccessfulOfmiRegistration(userInput.email);
   }

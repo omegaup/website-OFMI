@@ -1,15 +1,10 @@
 import { Type, Static } from "@sinclair/typebox";
-import { Participation, SchoolStage } from "@prisma/client";
+import { Participation, ParticipationRole, SchoolStage } from "@prisma/client";
 import { countryReg, phoneReg, zipcodeReg } from "@/lib/validators/address";
 import { emailReg } from "@/lib/validators";
 import { ShirtSizes, ShirtStyles } from "./shirt";
 import { Pronouns } from "./pronouns";
 import { toISOStringReg } from "@/lib/validators/date";
-
-const CONTESTANT = "CONTESTANT";
-const MENTOR = "MENTOR";
-export type ContestantParticipationRole = typeof CONTESTANT;
-export type ParticipationRole = ContestantParticipationRole | typeof MENTOR;
 
 const SchoolStageSchema = Type.Enum(SchoolStage);
 
@@ -56,25 +51,35 @@ const UserInputSchema = Type.Object({
   mailingAddress: MailingAddressSchema,
 });
 
+export type ContestantParticipationInput = Static<
+  typeof ContestantParticipationInputSchema
+>;
 const ContestantParticipationInputSchema = Type.Object({
-  role: Type.Literal(CONTESTANT),
+  role: Type.Literal(ParticipationRole.CONTESTANT),
   schoolName: Type.String({ minLength: 1 }),
   schoolStage: SchoolStageSchema,
   schoolGrade: Type.Integer({ minimum: 1 }),
+  schoolCountry: Type.String({ pattern: countryReg.toString() }),
+  schoolState: Type.String({ minLength: 1 }),
 });
+
+const MentorParticipationInputSchema = Type.Object({
+  role: Type.Literal(ParticipationRole.MENTOR),
+});
+
+export type UserParticipation = Static<typeof UserParticipationSchema>;
+const UserParticipationSchema = Type.Union([
+  ContestantParticipationInputSchema,
+  MentorParticipationInputSchema,
+]);
 
 export type ParticipationRequestInput = Static<
   typeof ParticipationRequestInputSchema
 >;
 export const ParticipationRequestInputSchema = Type.Object({
-  // Ofmi edition
   ofmiEdition: Type.Integer({ minimum: 1 }),
-  // User
   user: UserInputSchema,
-  // The country code
-  country: Type.String({ pattern: countryReg.toString() }),
-  state: Type.String({ minLength: 1 }),
-  userParticipation: Type.Union([ContestantParticipationInputSchema]),
+  userParticipation: UserParticipationSchema,
 });
 
 export type UpsertParticipationRequest = Static<

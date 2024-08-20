@@ -11,8 +11,8 @@ import upsertParticipationHandler from "@/pages/api/ofmi/upsertParticipation";
 import { emailReg } from "@/lib/validators";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/hashPassword";
-import { ParticipationRole } from "@/types/participation.schema";
 import { toISOStringReg } from "@/lib/validators/date";
+import { ParticipationRole } from "@prisma/client";
 
 type ApiRequest = NextApiRequest & ReturnType<typeof createRequest>;
 type APiResponse = NextApiResponse & ReturnType<typeof createResponse>;
@@ -36,16 +36,6 @@ beforeAll(async () => {
     },
     create: {
       ...validOfmi,
-    },
-  });
-  // Rol is needed
-  await prisma.participationRole.upsert({
-    where: {
-      name: validRole,
-    },
-    update: {},
-    create: {
-      name: validRole,
     },
   });
   // Upsert the valid user Auth
@@ -121,14 +111,14 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
   const validUserParticipationInput = {
     role: validRole,
     schoolName: "Colegio Carol Baur",
+    schoolStage: "HIGH",
     schoolGrade: 3,
-    schoolStage: "High",
+    schoolCountry: "MEX",
+    schoolState: "Aguascalientes",
   };
 
   const validRequest = {
     ofmiEdition: 1,
-    country: "MEX",
-    state: "Aguascalientes",
     user: validUserInput,
     userParticipation: validUserParticipationInput,
   };
@@ -144,10 +134,9 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
     // Check update in DB
     const participationModel = await prisma.participation.findUnique({
       where: {
-        user_id_ofmi_id_role_id: {
-          user_id: participation["user_id"],
-          ofmi_id: participation["ofmi_id"],
-          role_id: participation["role_id"],
+        userId_ofmiId: {
+          userId: participation["userId"],
+          ofmiId: participation["ofmiId"],
         },
       },
     });
@@ -162,14 +151,12 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
     expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
     const participation = res._getJSONData()["participation"];
 
-    const newCountry = "USA";
     const newFirstName = "Other Name";
     const newSchool = "Other school";
     const newZipcode = "06200";
     const { req: req2, res: res2 } = mockRequestResponse({
       body: {
         ...validRequest,
-        country: newCountry,
         user: {
           ...validUserInput,
           firstName: newFirstName,
@@ -188,10 +175,8 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
     expect(res2.getHeaders()).toEqual({ "content-type": "application/json" });
     expect(res2._getJSONData()).toMatchObject({
       participation: {
-        country: newCountry,
-        user_id: participation["user_id"],
-        contestant_participation_id:
-          participation["contestant_participation_id"],
+        userId: participation["userId"],
+        contestantParticipationId: participation["contestantParticipationId"],
       },
     });
     expect(res2.statusCode).toBe(201);
@@ -201,20 +186,19 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
       include: {
         user: {
           include: {
-            mailing_address: true,
+            MailingAddress: true,
           },
         },
-        contestant_participation: {
+        ContestantParticipation: {
           include: {
-            school: true,
+            School: true,
           },
         },
       },
       where: {
-        user_id_ofmi_id_role_id: {
-          user_id: participation["user_id"],
-          ofmi_id: participation["ofmi_id"],
-          role_id: participation["role_id"],
+        userId_ofmiId: {
+          userId: participation["userId"],
+          ofmiId: participation["ofmiId"],
         },
       },
     });
@@ -223,18 +207,16 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
     }
 
     expect(participationModel).toMatchObject({
-      user_id: participation["user_id"],
-      ofmi_id: participation["ofmi_id"],
-      role_id: participation["role_id"],
-      country: newCountry,
+      userId: participation["userId"],
+      ofmiId: participation["ofmiId"],
       user: {
-        first_name: newFirstName,
-        mailing_address: {
-          zip_code: newZipcode,
+        firstName: newFirstName,
+        MailingAddress: {
+          zipcode: newZipcode,
         },
       },
-      contestant_participation: {
-        school: {
+      ContestantParticipation: {
+        School: {
           name: newSchool,
         },
       },
@@ -262,14 +244,16 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
     const { req: req2, res: res2 } = mockRequestResponse({
       body: {
         ...validRequest,
-        country: "USA",
+        userParticipation: {
+          role: ParticipationRole.MENTOR,
+        },
       },
     });
     await upsertParticipationHandler(req2, res2);
     expect(res2.getHeaders()).toEqual({ "content-type": "application/json" });
     expect(res2._getJSONData()).toMatchObject({
       participation: {
-        country: "USA",
+        role: ParticipationRole.MENTOR,
       },
     });
     expect(res2.statusCode).toBe(201);
@@ -366,7 +350,7 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
       expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
       expect(res._getJSONData()).toMatchObject({
         message:
-          "Invalid CURP. La fecha de nacimiento no coincide con la de la CURP",
+          "Error: CURP. La fecha de nacimiento no coincide con la de la CURP",
       });
       expect(res.statusCode).toBe(400);
     });
@@ -378,6 +362,7 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
           user: {
             ...validUserInput,
             birthDate: new Date("2004-12-12").toISOString(),
+            governmentId: "PELJ041212HDFXXX04",
           },
         },
       });
@@ -386,9 +371,9 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
       expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
       expect(res._getJSONData()).toMatchObject({
         message:
-          "No puedes competir en esta OFMI. No cumples con el requisito de haber nacido después del Fri Jul 01 2005",
+          "Error: Edición OFMI. No cumples con el requisito de haber nacido después del Fri Jul 01 2005",
       });
-      expect(res.statusCode).toBe(403);
+      expect(res.statusCode).toBe(400);
     });
   });
 
@@ -405,10 +390,6 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
     await upsertParticipationHandler(req, res);
 
     expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
-    expect(res._getJSONData()).toMatchObject({
-      message:
-        "El campo /userParticipation/schoolStage solo acepta los siguientes valores: [Elementary,string], [Secondary,string], [High,string]",
-    });
     expect(res.statusCode).toBe(400);
   });
 });

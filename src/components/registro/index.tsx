@@ -65,8 +65,6 @@ export default function Registro({
 
     const request: UpsertParticipationRequest = {
       ofmiEdition,
-      country: data.get(fieldIds.schoolCountry)?.toString() ?? "",
-      state: data.get(fieldIds.schoolState)?.toString() ?? "",
       user: {
         email,
         firstName: data.get(fieldIds.firstName)?.toString() ?? "",
@@ -107,6 +105,8 @@ export default function Registro({
         schoolName: data.get(fieldIds.schoolName)?.toString() ?? "",
         schoolStage,
         schoolGrade: Number(data.get(fieldIds.schoolGrade)?.toString()),
+        schoolCountry: data.get(fieldIds.schoolCountry)?.toString() ?? "",
+        schoolState: data.get(fieldIds.schoolState)?.toString() ?? "",
       },
     };
 
@@ -157,7 +157,13 @@ export default function Registro({
         {/* Mailing address */}
         <MailingAddress participation={participation} />
         {/* School */}
-        <SchoolDetails participation={participation} />
+        <SchoolDetails
+          contestantParticipation={
+            participation?.userParticipation.role === "CONTESTANT"
+              ? participation.userParticipation
+              : null
+          }
+        />
         {/* Submit form */}
         <div className="flex justify-center">
           <Button

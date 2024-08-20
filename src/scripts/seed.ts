@@ -3,17 +3,6 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-async function insertRoles(): Promise<void> {
-  const roles = ["CONTESTANT", "MENTOR", "PROBLEMSETTER"];
-  roles.forEach(async (role) => {
-    await prisma.participationRole.upsert({
-      where: { name: role },
-      update: {},
-      create: { name: role },
-    });
-  });
-}
-
 async function insertOFMI(): Promise<void> {
   await prisma.ofmi.upsert({
     where: { id: undefined, edition: 1 },
@@ -37,20 +26,20 @@ async function insertUser(): Promise<void> {
       emailVerified: new Date(Date.now()),
       User: {
         create: {
-          first_name: "Admin",
-          last_name: "OFMI",
-          birth_date: "2015-09-30T07:06:21.5663224Z",
-          government_id: "CURP",
-          preferred_name: "admin",
+          firstName: "Admin",
+          lastName: "OFMI",
+          birthDate: "2015-09-30T07:06:21.5663224Z",
+          governmentId: "CURP",
+          preferredName: "admin",
           pronouns: "they/them",
-          shirt_size: "M",
-          shirt_style: "idk",
-          mailing_address: {
+          shirtSize: "M",
+          shirtStyle: "idk",
+          MailingAddress: {
             create: {
               street: "Sesame Street",
-              external_number: "123",
-              internal_number: "A",
-              zip_code: "123123",
+              externalNumber: "123",
+              internalNumber: "A",
+              zipcode: "123123",
               neighborhood: "idk",
               county: "somewhere",
               state: "MX-MEX",
@@ -67,7 +56,6 @@ async function insertUser(): Promise<void> {
 
 export async function seed(): Promise<void> {
   await insertOFMI();
-  await insertRoles();
   await insertUser();
 }
 
