@@ -115,8 +115,7 @@ model Participation {
   state                       String
   country                     String
   mentor_participation_id     String?
-  mentor                      Participation?           @relation("MentorMentee", fields: [mentor_participation_id], references: [id])
-  mentees                     Participation[]          @relation("MentorMentee")
+  mentor                      MentorParticipation?     @relation(fields: [mentor_participation_id], references: [id])
   contestant_participation_id String?
   contestant_participation    ContestantParticipation? @relation(fields: [contestant_participation_id], references: [id])
   createdAt                   DateTime                 @default(now())
@@ -140,6 +139,13 @@ model ContestantParticipation {
   File            File[]
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
+}
+
+model MentorParticipation {
+  id            String          @id @default(uuid())
+  Participation Participation[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 }
 
 model ProblemResult {
