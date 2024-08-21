@@ -1,26 +1,31 @@
 import { Button } from "@/components/button";
-import { Alert, SuccessAlert } from "@/components/alert";
+import { Alert, SuccessAlert, WarningAlert } from "@/components/alert";
 import { MailingAddress } from "./mailingAddress";
 import { PersonalDetails } from "./personalDetails";
 import { SchoolDetails } from "./schoolDetails";
-import type {
-  ParticipationRequestInput,
-  UpsertParticipationRequest,
+import {
+  ParticipationRoleName,
+  type ParticipationRequestInput,
+  type UpsertParticipationRequest,
 } from "@/types/participation.schema";
 import { fieldIds } from "./constants";
 import { useState } from "react";
 import { PronounsOfString } from "@/types/pronouns";
 import { ShirtSizeOfString, ShirtStyleOfString } from "@/types/shirt";
-import { SchoolStage } from "@prisma/client";
+import { ParticipationRole, SchoolStage } from "@prisma/client";
 import { sendUpsertParticipation } from "./client";
 import { useSession } from "next-auth/react";
 import { undefinedIfEmpty } from "@/utils";
+import { SectionTitle } from "./sectionTitle";
+import { FloatingInput } from "../input/FloatingInput";
 
 export default function Registro({
   ofmiEdition,
+  role,
   participation,
 }: {
   ofmiEdition: number;
+  role: ParticipationRole;
   participation: ParticipationRequestInput | null;
 }): JSX.Element {
   const [showAlreadyRegistered, setShowAlreadyRedistered] = useState(
@@ -88,9 +93,8 @@ export default function Registro({
           zipcode: data.get(fieldIds.mailingZipcode)?.toString() ?? "",
           country: data.get(fieldIds.mailingCountry)?.toString() ?? "",
           state: data.get(fieldIds.mailingState)?.toString() ?? "",
-          municipality: undefinedIfEmpty(
-            data.get(fieldIds.mailingMunicipality)?.toString(),
-          ),
+          municipality:
+            data.get(fieldIds.mailingMunicipality)?.toString() ?? "",
           locality: undefinedIfEmpty(
             data.get(fieldIds.mailingLocality)?.toString(),
           ),
@@ -154,6 +158,20 @@ export default function Registro({
         Registro {ofmiEdition}
         <sup>a</sup> OFMI
       </h2>
+      {role !== "CONTESTANT" && (
+        <WarningAlert
+          title="¡Atención!"
+          text={`Este es registro para ${ParticipationRoleName(role)}`}
+        />
+      )}
+      {participation?.userParticipation.role &&
+        participation?.userParticipation.role !== role && (
+          <WarningAlert
+            text={`Ya tenemos un registro tuyo como 
+              ${ParticipationRoleName(participation.userParticipation.role)}. 
+              Este es el registro para ${ParticipationRoleName(role)}`}
+          />
+        )}
       <form
         className="mb-8"
         action="#"
@@ -164,14 +182,35 @@ export default function Registro({
         <PersonalDetails participation={participation} />
         {/* Mailing address */}
         <MailingAddress participation={participation} />
+
+        {/* CONTESTANT specific */}
         {/* School */}
-        <SchoolDetails
-          contestantParticipation={
-            participation?.userParticipation.role === "CONTESTANT"
-              ? participation.userParticipation
-              : null
-          }
-        />
+        {role === "CONTESTANT" && (
+          <SchoolDetails
+            contestantParticipation={
+              participation?.userParticipation.role === "CONTESTANT"
+                ? participation.userParticipation
+                : null
+            }
+          />
+        )}
+
+        {/* MENTOR specific */}
+        {role === "MENTOR" && (
+          <div>
+            <SectionTitle title="Calendly" />
+            <div className="grid md:grid-cols-2 md:gap-6">
+              <FloatingInput
+                type="text"
+                label="Calendly API Key"
+                defaultValue={""}
+                id={fieldIds.calendlyAPIKey}
+                required
+              />
+            </div>
+          </div>
+        )}
+
         {/* Submit form */}
         <div className="flex justify-center">
           <Button

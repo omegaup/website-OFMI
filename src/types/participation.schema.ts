@@ -5,6 +5,27 @@ import { emailReg } from "@/lib/validators";
 import { ShirtSizes, ShirtStyles } from "./shirt";
 import { Pronouns } from "./pronouns";
 import { toISOStringReg } from "@/lib/validators/date";
+import { exhaustiveMatchingGuard } from "@/utils";
+
+export const ParticipationRoleOfString = (
+  role: string,
+): ParticipationRole | undefined => {
+  return role in ParticipationRole
+    ? ParticipationRole[role as keyof typeof ParticipationRole]
+    : undefined;
+};
+
+export const ParticipationRoleName = (role: ParticipationRole): string => {
+  switch (role) {
+    case "CONTESTANT":
+      return "Participante";
+    case "MENTOR":
+      return "Mentor";
+    default: {
+      return exhaustiveMatchingGuard(role);
+    }
+  }
+};
 
 const SchoolStageSchema = Type.Enum(SchoolStage);
 
