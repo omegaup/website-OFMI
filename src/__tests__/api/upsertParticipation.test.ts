@@ -350,7 +350,7 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
       expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
       expect(res._getJSONData()).toMatchObject({
         message:
-          "Error: CURP. La fecha de nacimiento no coincide con la de la CURP",
+          "Campo: CURP. La fecha de nacimiento no coincide con la de la CURP",
       });
       expect(res.statusCode).toBe(400);
     });
@@ -371,7 +371,7 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
       expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
       expect(res._getJSONData()).toMatchObject({
         message:
-          "Error: Edición OFMI. No cumples con el requisito de haber nacido después del Fri Jul 01 2005",
+          "Campo: Edición OFMI. No cumples con el requisito de haber nacido después del Fri Jul 01 2005",
       });
       expect(res.statusCode).toBe(400);
     });

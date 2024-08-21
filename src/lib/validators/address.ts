@@ -1,9 +1,4 @@
-import {
-  MEX,
-  stateNames,
-  municipalityNames,
-  localityNames,
-} from "@/lib/address";
+import { MEX, stateNames, municipalityNames } from "@/lib/address";
 import type { ValidationResult } from "./types";
 
 export const countryReg = "^[A-Z]{3}$";
@@ -27,19 +22,21 @@ export function validateCountryState({
   return { ok: true };
 }
 
-export function validateAddressLocation({
+export function validateMailingAddressLocation({
   country,
   state,
   municipality,
-  locality,
 }: {
   country: string;
   state: string;
   municipality?: string;
-  locality?: string;
 }): ValidationResult {
   if (country !== MEX) {
-    return { ok: true };
+    return {
+      ok: false,
+      message:
+        "Lo sentimos, por el momento solo podemos hacer envíos a México.",
+    };
   }
   const stateValidation = validateCountryState({ country, state });
   if (!stateValidation.ok) {
@@ -48,10 +45,6 @@ export function validateAddressLocation({
   const municipalities = municipalityNames(country, state);
   if (!municipality || !municipalities.includes(municipality)) {
     return { ok: false, message: "Municipio inválido." };
-  }
-  const localities = localityNames(country, state, municipality);
-  if (!locality || !localities.includes(locality)) {
-    return { ok: false, message: "Localidad inválida." };
   }
   return { ok: true };
 }

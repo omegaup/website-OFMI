@@ -8,9 +8,9 @@ import { Value } from "@sinclair/typebox/value";
 import { BadRequestError } from "@/types/errors";
 import {
   validateCURP,
-  validateAddressLocation,
   validateCountryState,
   validateSchoolGrade,
+  validateMailingAddressLocation,
 } from "@/lib/validators";
 import { parseValueError } from "@/lib/typebox";
 import { emailer } from "@/lib/emailer";
@@ -74,11 +74,10 @@ async function upsertParticipationHandler(
     },
     {
       field: "Dirección de envío",
-      result: validateAddressLocation({
+      result: validateMailingAddressLocation({
         country: mailingAddressInput.country,
         state: mailingAddressInput.state,
         municipality: mailingAddressInput.municipality,
-        locality: mailingAddressInput.locality,
       }),
     },
     {
@@ -123,7 +122,7 @@ async function upsertParticipationHandler(
   const firstError = validations.find((result) => !result.result.ok);
   if (firstError && !firstError.result.ok) {
     return res.status(400).json({
-      message: `Error: ${firstError.field}. ${firstError.result.message}`,
+      message: `Campo: ${firstError.field}. ${firstError.result.message}`,
     });
   }
 

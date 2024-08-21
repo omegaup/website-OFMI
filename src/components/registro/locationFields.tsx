@@ -1,5 +1,68 @@
-import { localityNames, municipalityNames, stateNames } from "@/lib/address";
+import { municipalityNames, stateNames } from "@/lib/address";
 import { useState } from "react";
+import { FloatingInput } from "../input/FloatingInput";
+
+function SelectWithFallback({
+  id,
+  label,
+  value,
+  defaultValue,
+  options,
+  required,
+  onChange,
+}: {
+  id: string;
+  label: string;
+  value?: string;
+  defaultValue?: string;
+  options: Array<string>;
+  required?: boolean;
+  onChange?: (ev: string) => void;
+}): JSX.Element {
+  if (options.length == 0) {
+    return (
+      <FloatingInput
+        id={id}
+        value={value}
+        defaultValue={defaultValue}
+        label={label}
+        onChange={(ev) => {
+          ev.preventDefault();
+          onChange?.(ev.target.value);
+        }}
+      />
+    );
+  }
+  return (
+    <>
+      <select
+        id={id}
+        name={id}
+        className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0"
+        value={value}
+        defaultValue={defaultValue}
+        required={required}
+        onChange={(ev) => {
+          ev.preventDefault();
+          onChange?.(ev.target.value);
+        }}
+      >
+        <option value={""}></option>
+        {options.map((name) => (
+          <option value={name} key={name}>
+            {name}
+          </option>
+        ))}
+      </select>
+      <label
+        htmlFor={id}
+        className="absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4"
+      >
+        {label}
+      </label>
+    </>
+  );
+}
 
 export const LocationFields = ({
   onlyCountryState = false,
@@ -27,19 +90,10 @@ export const LocationFields = ({
   const [country, setCountry] = useState(defaultCountryValue ?? "MEX");
   const states = stateNames(country);
   const [state, setState] = useState<string | undefined>(defaultStateValue);
-  if (state && !states.includes(state)) {
+  if (state && states.length > 0 && !states.includes(state)) {
     setState(undefined);
   }
   const municipalities = state ? municipalityNames(country, state) : [];
-  const [municipality, setMunicipality] = useState(defaultMunicipalityValue);
-  if (
-    (!municipality && municipalities.length > 0) ||
-    (municipality && !municipalities.includes(municipality))
-  ) {
-    setMunicipality(municipalities.at(0));
-  }
-  const localities =
-    state && municipality ? localityNames(country, state, municipality) : [];
 
   return (
     <div
@@ -53,6 +107,7 @@ export const LocationFields = ({
           onChange={(ev) => {
             ev.preventDefault();
             setCountry(ev.target.value);
+            setState(undefined);
           }}
           className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0"
           required={required}
@@ -69,78 +124,31 @@ export const LocationFields = ({
         </label>
       </div>
       <div className="group relative z-0 mb-5 w-full">
-        <select
+        <SelectWithFallback
           id={stateFieldId}
-          name={stateFieldId}
-          className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0"
+          label="Estado"
           value={state}
-          onChange={(ev) => {
-            ev.preventDefault();
-            setState(ev.target.value);
-          }}
-          required={required}
-        >
-          <option value=""></option>
-          {states.map((name) => (
-            <option value={name} key={name}>
-              {name}
-            </option>
-          ))}
-        </select>
-        <label
-          htmlFor={stateFieldId}
-          className="absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4"
-        >
-          Estado
-        </label>
+          onChange={(ev) => setState(ev)}
+          options={states}
+        ></SelectWithFallback>
       </div>
-      {!onlyCountryState && (
+      {!onlyCountryState && municipalities.length > 0 && (
         <>
           <div className="group relative z-0 mb-5 w-full">
-            <select
-              id={municipalityFieldId}
-              name={municipalityFieldId}
-              className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0"
-              value={municipality}
-              onChange={(ev) => {
-                ev.preventDefault();
-                setMunicipality(ev.target.value);
-              }}
-              required={required}
-            >
-              {municipalities.map((name) => (
-                <option value={name} key={name}>
-                  {name}
-                </option>
-              ))}
-            </select>
-            <label
-              htmlFor={municipalityFieldId}
-              className="absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4"
-            >
-              Delegación / Municipio
-            </label>
+            <SelectWithFallback
+              id={municipalityFieldId ?? ""}
+              label="Delegación / Municipio"
+              defaultValue={defaultMunicipalityValue}
+              options={municipalities}
+            ></SelectWithFallback>
           </div>
           <div className="group relative z-0 mb-5 w-full">
-            <select
+            <FloatingInput
               id={localityFieldId}
-              name={localityFieldId}
               defaultValue={defaultLocalityValue}
-              className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0"
-            >
-              {localities.map((name) => (
-                <option value={name} key={name}>
-                  {name}
-                </option>
-              ))}
-              required={required}
-            </select>
-            <label
-              htmlFor={localityFieldId}
-              className="absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4"
-            >
-              Localidad
-            </label>
+              label="Colonia / Localidad"
+              required
+            />
           </div>
         </>
       )}

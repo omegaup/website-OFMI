@@ -140,6 +140,14 @@ export default function Registro({
     );
   }
 
+  if (successfulUpsert) {
+    return (
+      <div className="mx-auto max-w-3xl px-2 pt-4">
+        <SuccessAlert text="Hemos registrado tus datos correctamente." />
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-3xl px-2 pt-4">
       <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
@@ -176,9 +184,6 @@ export default function Registro({
         </div>
       </form>
       {error != null && <Alert errorMsg={error.message} />}
-      {error == null && successfulUpsert && (
-        <SuccessAlert text="Hemos registrado tus datos correctamente." />
-      )}
     </div>
   );
 }

@@ -38,13 +38,12 @@ export default function RegistroPage({
     );
   }
 
-  let participation: ParticipationRequestInput | null = null;
-  const body = participationJSON ? JSON.parse(participationJSON) : null;
+  const participation: ParticipationRequestInput | null = participationJSON
+    ? JSON.parse(participationJSON)
+    : null;
 
-  if (Value.Check(ParticipationRequestInputSchema, body)) {
-    participation = body;
-  } else {
-    console.info("Estan corruptos los datos");
+  if (participation !== null) {
+    Value.Check(ParticipationRequestInputSchema, participation);
   }
 
   return <Registro ofmiEdition={ofmiEdition} participation={participation} />;
