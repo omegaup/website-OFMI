@@ -28,7 +28,7 @@ const MailingAddressSchema = Type.Object({
   zipcode: Type.String({ pattern: zipcodeReg }),
   country: Type.String({ pattern: countryReg }),
   state: Type.String({ minLength: 1 }),
-  municipality: Type.Optional(Type.String({ minLength: 1 })),
+  municipality: Type.String({ minLength: 1 }),
   locality: Type.Optional(Type.String({ minLength: 1 })),
   references: Type.Optional(Type.String({ minLength: 1 })),
   phone: Type.String({ pattern: phoneReg }),
