@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import { Static, TSchema } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
 
-export async function encrypt(
+export async function jwtSign(
   payload: string | object | Buffer,
   secret: jwt.Secret,
   options?: jwt.SignOptions,
@@ -10,7 +10,7 @@ export async function encrypt(
   return await jwt.sign(payload, secret, options);
 }
 
-export async function decrypt<T extends TSchema>(
+export async function jwtVerify<T extends TSchema>(
   schema: T,
   token: string,
   secret: jwt.Secret,

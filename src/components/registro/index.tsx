@@ -16,8 +16,6 @@ import { ParticipationRole, SchoolStage } from "@prisma/client";
 import { sendUpsertParticipation } from "./client";
 import { useSession } from "next-auth/react";
 import { undefinedIfEmpty } from "@/utils";
-import { SectionTitle } from "./sectionTitle";
-import { FloatingInput } from "../input/FloatingInput";
 
 export default function Registro({
   ofmiEdition,
@@ -193,22 +191,6 @@ export default function Registro({
                 : null
             }
           />
-        )}
-
-        {/* MENTOR specific */}
-        {role === "MENTOR" && (
-          <div>
-            <SectionTitle title="Calendly" />
-            <div className="grid md:grid-cols-2 md:gap-6">
-              <FloatingInput
-                type="text"
-                label="Calendly API Key"
-                defaultValue={""}
-                id={fieldIds.calendlyAPIKey}
-                required
-              />
-            </div>
-          </div>
         )}
 
         {/* Submit form */}

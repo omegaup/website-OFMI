@@ -25,7 +25,4 @@ export const fieldIds = {
   schoolName: "school_name",
   schoolStage: "school_stage",
   schoolGrade: "school_grade",
-
-  // MENTOR specific
-  calendlyAPIKey: "calendly_api_key",
 };
