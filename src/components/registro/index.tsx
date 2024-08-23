@@ -1,26 +1,29 @@
 import { Button } from "@/components/button";
-import { Alert, SuccessAlert } from "@/components/alert";
+import { Alert, SuccessAlert, WarningAlert } from "@/components/alert";
 import { MailingAddress } from "./mailingAddress";
 import { PersonalDetails } from "./personalDetails";
 import { SchoolDetails } from "./schoolDetails";
-import type {
-  ParticipationRequestInput,
-  UpsertParticipationRequest,
+import {
+  ParticipationRoleName,
+  type ParticipationRequestInput,
+  type UpsertParticipationRequest,
 } from "@/types/participation.schema";
 import { fieldIds } from "./constants";
 import { useState } from "react";
 import { PronounsOfString } from "@/types/pronouns";
 import { ShirtSizeOfString, ShirtStyleOfString } from "@/types/shirt";
-import { SchoolStage } from "@prisma/client";
+import { ParticipationRole, SchoolStage } from "@prisma/client";
 import { sendUpsertParticipation } from "./client";
 import { useSession } from "next-auth/react";
 import { undefinedIfEmpty } from "@/utils";
 
 export default function Registro({
   ofmiEdition,
+  role,
   participation,
 }: {
   ofmiEdition: number;
+  role: ParticipationRole;
   participation: ParticipationRequestInput | null;
 }): JSX.Element {
   const [showAlreadyRegistered, setShowAlreadyRedistered] = useState(
@@ -65,8 +68,6 @@ export default function Registro({
 
     const request: UpsertParticipationRequest = {
       ofmiEdition,
-      country: data.get(fieldIds.schoolCountry)?.toString() ?? "",
-      state: data.get(fieldIds.schoolState)?.toString() ?? "",
       user: {
         email,
         firstName: data.get(fieldIds.firstName)?.toString() ?? "",
@@ -90,9 +91,8 @@ export default function Registro({
           zipcode: data.get(fieldIds.mailingZipcode)?.toString() ?? "",
           country: data.get(fieldIds.mailingCountry)?.toString() ?? "",
           state: data.get(fieldIds.mailingState)?.toString() ?? "",
-          municipality: undefinedIfEmpty(
-            data.get(fieldIds.mailingMunicipality)?.toString(),
-          ),
+          municipality:
+            data.get(fieldIds.mailingMunicipality)?.toString() ?? "",
           locality: undefinedIfEmpty(
             data.get(fieldIds.mailingLocality)?.toString(),
           ),
@@ -107,6 +107,8 @@ export default function Registro({
         schoolName: data.get(fieldIds.schoolName)?.toString() ?? "",
         schoolStage,
         schoolGrade: Number(data.get(fieldIds.schoolGrade)?.toString()),
+        schoolCountry: data.get(fieldIds.schoolCountry)?.toString() ?? "",
+        schoolState: data.get(fieldIds.schoolState)?.toString() ?? "",
       },
     };
 
@@ -140,12 +142,34 @@ export default function Registro({
     );
   }
 
+  if (successfulUpsert) {
+    return (
+      <div className="mx-auto max-w-3xl px-2 pt-4">
+        <SuccessAlert text="Hemos registrado tus datos correctamente." />
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-3xl px-2 pt-4">
       <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
         Registro {ofmiEdition}
         <sup>a</sup> OFMI
       </h2>
+      {role !== "CONTESTANT" && (
+        <WarningAlert
+          title="¡Atención!"
+          text={`Este es registro para ${ParticipationRoleName(role)}`}
+        />
+      )}
+      {participation?.userParticipation.role &&
+        participation?.userParticipation.role !== role && (
+          <WarningAlert
+            text={`Ya tenemos un registro tuyo como 
+              ${ParticipationRoleName(participation.userParticipation.role)}. 
+              Este es el registro para ${ParticipationRoleName(role)}`}
+          />
+        )}
       <form
         className="mb-8"
         action="#"
@@ -156,8 +180,19 @@ export default function Registro({
         <PersonalDetails participation={participation} />
         {/* Mailing address */}
         <MailingAddress participation={participation} />
+
+        {/* CONTESTANT specific */}
         {/* School */}
-        <SchoolDetails participation={participation} />
+        {role === "CONTESTANT" && (
+          <SchoolDetails
+            contestantParticipation={
+              participation?.userParticipation.role === "CONTESTANT"
+                ? participation.userParticipation
+                : null
+            }
+          />
+        )}
+
         {/* Submit form */}
         <div className="flex justify-center">
           <Button
@@ -170,9 +205,6 @@ export default function Registro({
         </div>
       </form>
       {error != null && <Alert errorMsg={error.message} />}
-      {error == null && successfulUpsert && (
-        <SuccessAlert text="Hemos registrado tus datos correctamente." />
-      )}
     </div>
   );
 }

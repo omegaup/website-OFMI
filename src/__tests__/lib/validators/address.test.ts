@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { validateAddressLocation } from "@/lib/validators/address";
+import { validateMailingAddressLocation } from "@/lib/validators/address";
 import {
   localityNames,
   MEX,
@@ -8,20 +8,16 @@ import {
 } from "@/lib/address";
 
 test("validate format", () => {
-  // Ok
-  expect(validateAddressLocation({ country: "USA", state: "" })).toMatchObject({
-    ok: true,
-  });
   // Invalid state
   expect(
-    validateAddressLocation({ country: "MEX", state: "Juan" }),
+    validateMailingAddressLocation({ country: "MEX", state: "Juan" }),
   ).toMatchObject({
     ok: false,
     message: "Estado inválido.",
   });
   // Municipality invalid
   expect(
-    validateAddressLocation({
+    validateMailingAddressLocation({
       country: "MEX",
       state: "Aguascalientes",
       municipality: "Juan",
@@ -30,25 +26,12 @@ test("validate format", () => {
     ok: false,
     message: "Municipio inválido.",
   });
-  // Invalid locality
-  expect(
-    validateAddressLocation({
-      country: "MEX",
-      state: "Aguascalientes",
-      municipality: "Aguascalientes",
-      locality: "Juan",
-    }),
-  ).toMatchObject({
-    ok: false,
-    message: "Localidad inválida.",
-  });
   // Valid one
   expect(
-    validateAddressLocation({
+    validateMailingAddressLocation({
       country: "MEX",
       state: "Aguascalientes",
       municipality: "Aguascalientes",
-      locality: "Aguascalientes",
     }),
   ).toMatchObject({
     ok: true,

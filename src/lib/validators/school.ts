@@ -1,14 +1,18 @@
 import type { SchoolStage } from "@prisma/client";
 import type { ValidationResult } from "./types";
+import { exhaustiveMatchingGuard } from "@/utils";
 
 function schoolGrades(schoolStage: SchoolStage): number {
   switch (schoolStage) {
-    case "Elementary":
+    case "ELEMENTARY":
       return 6;
-    case "Secondary":
+    case "SECONDARY":
       return 3;
-    case "High":
+    case "HIGH":
       return 3;
+    default: {
+      return exhaustiveMatchingGuard(schoolStage);
+    }
   }
 }
 
@@ -26,21 +30,24 @@ export function validateGraduationDate({
   function expectedGraduationYear(): number {
     const startYear = started.getFullYear();
     switch (schoolStage) {
-      case "Elementary":
+      case "ELEMENTARY":
         return (
           startYear +
-          (schoolGrades("Elementary") - schoolGrade + 1) +
-          schoolGrades("Secondary") +
-          schoolGrades("High")
+          (schoolGrades("ELEMENTARY") - schoolGrade + 1) +
+          schoolGrades("SECONDARY") +
+          schoolGrades("HIGH")
         );
-      case "Secondary":
+      case "SECONDARY":
         return (
           startYear +
-          (schoolGrades("Secondary") - schoolGrade + 1) +
-          schoolGrades("High")
+          (schoolGrades("SECONDARY") - schoolGrade + 1) +
+          schoolGrades("HIGH")
         );
-      case "High":
-        return startYear + (schoolGrades("High") - schoolGrade + 1);
+      case "HIGH":
+        return startYear + (schoolGrades("HIGH") - schoolGrade + 1);
+      default: {
+        return exhaustiveMatchingGuard(schoolStage);
+      }
     }
   }
   const expectedGraduationDate = new Date(

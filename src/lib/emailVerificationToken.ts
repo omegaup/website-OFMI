@@ -3,7 +3,7 @@ import config from "@/config/default";
 import { emailer } from "./emailer";
 import { prisma } from "@/lib/prisma";
 import { Static, Type } from "@sinclair/typebox";
-import { decrypt, encrypt } from "./jwt";
+import { jwtSign, jwtVerify } from "./jwt";
 import { Role } from "@prisma/client";
 
 export type verificationEmailToken = Static<
@@ -18,7 +18,7 @@ export default async function generateAndSendVerificationToken(
   email: string,
 ): Promise<void> {
   const payload: verificationEmailToken = { userAuthId };
-  const emailToken = await encrypt(payload, config.VERIFICATION_EMAIL_SECRET, {
+  const emailToken = await jwtSign(payload, config.VERIFICATION_EMAIL_SECRET, {
     expiresIn: config.VERIFICATION_TOKEN_EXPIRATION,
   });
 
@@ -40,7 +40,7 @@ export async function verifyEmail({ token }: { token: string }): Promise<
     }
 > {
   try {
-    const result = await decrypt(
+    const result = await jwtVerify(
       verificationEmailTokenSchema,
       token,
       process.env.VERIFICATION_EMAIL_SECRET as string,

@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import {
-  ContestantParticipationRole,
   ParticipationRequestInput,
+  UserParticipation,
 } from "@/types/participation.schema";
 import { Pronoun, PronounsOfString } from "@/types/pronouns";
 import {
@@ -26,66 +26,73 @@ export async function findParticipation(
     include: {
       user: {
         include: {
-          mailing_address: true,
+          MailingAddress: true,
         },
       },
-      contestant_participation: {
+      ContestantParticipation: {
         include: {
-          school: true,
+          School: true,
         },
       },
-      role: true,
+      MentorParticipation: true,
     },
-    where: { ofmi_id: ofmi.id, user: { UserAuth: { email: email } } },
+    where: { ofmiId: ofmi.id, user: { UserAuth: { email: email } } },
   });
 
   if (!participation) {
     return null;
   }
 
-  const { user, contestant_participation } = participation;
-  const { mailing_address } = user;
+  const {
+    user,
+    role,
+    ContestantParticipation: contestantParticipation,
+    MentorParticipation: mentorParticipation,
+  } = participation;
+  const { MailingAddress: mailingAddress } = user;
 
-  if (!contestant_participation) {
-    // TODO: Remove this once we can register others than contestants
-    return null;
-  }
+  const userParticipation: UserParticipation | null =
+    (role === "CONTESTANT" &&
+      contestantParticipation && {
+        role,
+        schoolName: contestantParticipation.School.name,
+        schoolStage: contestantParticipation.School.stage,
+        schoolGrade: contestantParticipation.schoolGrade,
+        schoolCountry: contestantParticipation.School.country,
+        schoolState: contestantParticipation.School.state,
+      }) ||
+    (role === "MENTOR" &&
+      mentorParticipation && {
+        role,
+      }) ||
+    null;
 
-  // TODO: Maybe if we call this fields exactly as in DB
-  // we can reduce this.
   return {
     ofmiEdition: ofmi.edition,
-    country: participation.country,
-    state: participation.state,
     user: {
       email: email,
-      firstName: user.first_name,
-      lastName: user.last_name,
-      preferredName: user.preferred_name,
-      birthDate: user.birth_date.toISOString(),
-      governmentId: user.government_id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      preferredName: user.preferredName,
+      birthDate: user.birthDate.toISOString(),
+      governmentId: user.governmentId,
       pronouns: PronounsOfString(user.pronouns) as Pronoun,
-      shirtSize: ShirtSizeOfString(user.shirt_size) as ShirtSize,
-      shirtStyle: ShirtStyleOfString(user.shirt_style) as ShirtStyle,
+      shirtSize: ShirtSizeOfString(user.shirtSize) as ShirtSize,
+      shirtStyle: ShirtStyleOfString(user.shirtStyle) as ShirtStyle,
       mailingAddress: {
-        recipient: mailing_address.name,
-        street: mailing_address.street,
-        externalNumber: mailing_address.external_number,
-        internalNumber: mailing_address.internal_number ?? undefined,
-        state: mailing_address.state,
-        zipcode: mailing_address.zip_code,
-        country: mailing_address.country,
-        municipality: mailing_address.county,
-        locality: mailing_address.neighborhood,
-        references: mailing_address.references ?? undefined,
-        phone: mailing_address.phone,
+        recipient: mailingAddress.name,
+        street: mailingAddress.street,
+        externalNumber: mailingAddress.externalNumber,
+        internalNumber: mailingAddress.internalNumber ?? undefined,
+        state: mailingAddress.state,
+        zipcode: mailingAddress.zipcode,
+        country: mailingAddress.country,
+        municipality: mailingAddress.county,
+        locality: mailingAddress.neighborhood,
+        references: mailingAddress.references ?? undefined,
+        phone: mailingAddress.phone,
       },
     },
-    userParticipation: {
-      role: participation.role.name as ContestantParticipationRole,
-      schoolName: contestant_participation.school.name,
-      schoolStage: contestant_participation.school.stage,
-      schoolGrade: contestant_participation.school_grade,
-    },
+    userParticipation: userParticipation as UserParticipation,
   };
 }

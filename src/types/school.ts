@@ -3,11 +3,11 @@ import { SchoolStage } from "@prisma/client";
 
 export const SchoolStageName = (schoolStage: SchoolStage): string => {
   switch (schoolStage) {
-    case "Elementary":
+    case "ELEMENTARY":
       return "Primaria";
-    case "Secondary":
+    case "SECONDARY":
       return "Secundaria";
-    case "High":
+    case "HIGH":
       return "Preparatoria / Bachillerato";
     default: {
       return exhaustiveMatchingGuard(schoolStage);

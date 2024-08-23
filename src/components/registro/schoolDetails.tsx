@@ -5,21 +5,22 @@ import { LocationFields } from "./locationFields";
 import { fieldIds } from "./constants";
 import { SchoolStage } from "@prisma/client";
 import { SchoolStageName } from "@/types/school";
-import { ParticipationRequestInput } from "@/types/participation.schema";
+import type { ContestantParticipationInput } from "@/types/participation.schema";
 
 export function SchoolDetails({
-  participation,
+  contestantParticipation,
 }: {
-  participation: ParticipationRequestInput | null;
+  contestantParticipation: ContestantParticipationInput | null;
 }): JSX.Element {
   const [schoolStageValue, setSchoolStage] = useState<string | undefined>(
-    participation?.userParticipation.schoolStage,
+    contestantParticipation?.schoolStage,
   );
   const schoolGrades = schoolStageValue
     ? schoolStageValue === "elementary"
       ? 6
       : 3
     : undefined;
+
   return (
     <div>
       <SectionTitle title="Escolaridad" />
@@ -28,14 +29,14 @@ export function SchoolDetails({
           type="text"
           label="Nombre de la escuela"
           id={fieldIds.schoolName}
-          defaultValue={participation?.userParticipation.schoolName}
+          defaultValue={contestantParticipation?.schoolName}
           required
         />
         <LocationFields
           countryFieldId={fieldIds.schoolCountry}
           stateFieldId={fieldIds.schoolState}
-          defaultCountryValue={participation?.country}
-          defaultStateValue={participation?.state}
+          defaultCountryValue={contestantParticipation?.schoolCountry}
+          defaultStateValue={contestantParticipation?.schoolState}
           onlyCountryState
           required
         />
@@ -73,7 +74,7 @@ export function SchoolDetails({
           <select
             id={fieldIds.schoolGrade}
             name={fieldIds.schoolGrade}
-            defaultValue={participation?.userParticipation.schoolGrade}
+            defaultValue={contestantParticipation?.schoolGrade}
             className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0"
             required
           >

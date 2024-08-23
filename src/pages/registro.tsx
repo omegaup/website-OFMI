@@ -11,13 +11,17 @@ import { Value } from "@sinclair/typebox/value";
 import {
   ParticipationRequestInput,
   ParticipationRequestInputSchema,
+  ParticipationRoleOfString,
 } from "@/types/participation.schema";
+import { ParticipationRole } from "@prisma/client";
 
 export default function RegistroPage({
   ofmiEdition,
   participationJSON,
   registrationClosingTime,
+  role,
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
+  console.log(role);
   if (
     ofmiEdition == null ||
     (registrationClosingTime && registrationClosingTime < Date.now())
@@ -38,23 +42,29 @@ export default function RegistroPage({
     );
   }
 
-  let participation: ParticipationRequestInput | null = null;
-  const body = participationJSON ? JSON.parse(participationJSON) : null;
+  const participation: ParticipationRequestInput | null = participationJSON
+    ? JSON.parse(participationJSON)
+    : null;
 
-  if (Value.Check(ParticipationRequestInputSchema, body)) {
-    participation = body;
-  } else {
-    console.info("Estan corruptos los datos");
+  if (participation !== null) {
+    Value.Check(ParticipationRequestInputSchema, participation);
   }
 
-  return <Registro ofmiEdition={ofmiEdition} participation={participation} />;
+  return (
+    <Registro
+      ofmiEdition={ofmiEdition}
+      role={role}
+      participation={participation}
+    />
+  );
 }
 
 export const getServerSideProps: GetServerSideProps<{
   ofmiEdition: number | null;
   registrationClosingTime: number | null;
   participationJSON: string | null;
-}> = async ({ req, res }) => {
+  role: ParticipationRole;
+}> = async ({ req, res, query }) => {
   const session = await getServerSession(req, res, authOptions);
   const email = session?.user?.email;
   if (!session?.user?.email) {
@@ -76,6 +86,10 @@ export const getServerSideProps: GetServerSideProps<{
       participationJSON: JSON.stringify(participation),
       ofmiEdition: ofmi?.edition ?? null,
       registrationClosingTime: ofmi?.registrationCloseTime.getTime() ?? null,
+      role:
+        (typeof query.role === "string"
+          ? ParticipationRoleOfString(query.role)
+          : undefined) ?? "CONTESTANT",
     },
   };
 };
