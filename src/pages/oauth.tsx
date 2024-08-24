@@ -11,11 +11,13 @@ import Oauth from "@/components/oauth";
 import { OauthProvider } from "@prisma/client";
 
 export default function OauthPage({
+  userAuthId,
   connectedProviders,
   calendlyRedirect,
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
   return (
     <Oauth
+      userAuthId={userAuthId}
       connectedProviders={connectedProviders}
       calendlyRedirect={calendlyRedirect}
     />
@@ -23,6 +25,7 @@ export default function OauthPage({
 }
 
 export const getServerSideProps: GetServerSideProps<{
+  userAuthId: string;
   connectedProviders: Array<OauthProvider>;
   calendlyRedirect: string;
 }> = async ({ req, res }) => {
@@ -47,6 +50,7 @@ export const getServerSideProps: GetServerSideProps<{
 
   return {
     props: {
+      userAuthId,
       connectedProviders,
       calendlyRedirect: Calendly.redirect(),
     },

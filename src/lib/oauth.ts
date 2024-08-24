@@ -164,3 +164,21 @@ export async function connectOauth({
   };
   return (await store(oauthInfo)) !== null;
 }
+
+export async function disconnectOauth({
+  userAuthId,
+  provider,
+}: {
+  userAuthId: string;
+  provider: OauthProvider;
+}): Promise<boolean> {
+  await prisma.userOauth.delete({
+    where: {
+      userAuthId_provider: {
+        userAuthId,
+        provider,
+      },
+    },
+  });
+  return true;
+}
