@@ -21,7 +21,6 @@ export default function RegistroPage({
   registrationClosingTime,
   role,
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
-  console.log(role);
   if (
     ofmiEdition == null ||
     (registrationClosingTime && registrationClosingTime < Date.now())
