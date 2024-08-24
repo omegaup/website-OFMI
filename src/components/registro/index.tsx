@@ -7,6 +7,7 @@ import {
   ParticipationRoleName,
   type ParticipationRequestInput,
   type UpsertParticipationRequest,
+  UserParticipation,
 } from "@/types/participation.schema";
 import { fieldIds } from "./constants";
 import { useState } from "react";
@@ -56,14 +57,43 @@ export default function Registro({
     const shirtStyle = ShirtStyleOfString(
       data.get(fieldIds.shirtStyle)?.toString() ?? "",
     );
-    const schoolStageStr = data.get(fieldIds.schoolStage)?.toString() ?? "";
-    const schoolStage =
-      schoolStageStr in SchoolStage
-        ? SchoolStage[schoolStageStr as keyof typeof SchoolStage]
-        : undefined;
 
-    if (!pronouns || !shirtSize || !birthDate || !shirtStyle || !schoolStage) {
+    if (!pronouns || !shirtSize || !birthDate || !shirtStyle) {
       return setError(new Error("Todos los campos son requeridos"));
+    }
+
+    function getUserParticipation(): UserParticipation | null {
+      if (role === "CONTESTANT") {
+        const schoolStageStr = data.get(fieldIds.schoolStage)?.toString() ?? "";
+        const schoolStage =
+          schoolStageStr in SchoolStage
+            ? SchoolStage[schoolStageStr as keyof typeof SchoolStage]
+            : undefined;
+
+        if (!schoolStage) {
+          setError(new Error("Todos los campos son requeridos"));
+          return null;
+        }
+
+        return {
+          role, // TODO: Add more roles
+          schoolName: data.get(fieldIds.schoolName)?.toString() ?? "",
+          schoolStage,
+          schoolGrade: Number(data.get(fieldIds.schoolGrade)?.toString()),
+          schoolCountry: data.get(fieldIds.schoolCountry)?.toString() ?? "",
+          schoolState: data.get(fieldIds.schoolState)?.toString() ?? "",
+        };
+      }
+      if (role === "MENTOR") {
+        return {
+          role,
+        };
+      }
+    }
+
+    const userParticipation = getUserParticipation();
+    if (!userParticipation) {
+      return;
     }
 
     const request: UpsertParticipationRequest = {
@@ -102,14 +132,7 @@ export default function Registro({
           phone: data.get(fieldIds.mailingPhone)?.toString() ?? "",
         },
       },
-      userParticipation: {
-        role: "CONTESTANT", // TODO: Add more roles
-        schoolName: data.get(fieldIds.schoolName)?.toString() ?? "",
-        schoolStage,
-        schoolGrade: Number(data.get(fieldIds.schoolGrade)?.toString()),
-        schoolCountry: data.get(fieldIds.schoolCountry)?.toString() ?? "",
-        schoolState: data.get(fieldIds.schoolState)?.toString() ?? "",
-      },
+      userParticipation: userParticipation,
     };
 
     setLoading(true);

@@ -127,16 +127,19 @@ export async function findConnectedProviders(
 export async function getAccessToken(
   userAuthId: string,
   provider: OauthProvider,
+  userOauth?: UserOauth,
 ): Promise<string> {
   // Try to retrieve the token from the db
-  let oauthInfo = await prisma.userOauth.findUnique({
-    where: {
-      userAuthId_provider: {
-        userAuthId,
-        provider,
+  let oauthInfo =
+    userOauth ||
+    (await prisma.userOauth.findUnique({
+      where: {
+        userAuthId_provider: {
+          userAuthId,
+          provider,
+        },
       },
-    },
-  });
+    }));
   if (!oauthInfo) {
     throw Error(`Tienes que conectarte con el servicio ${provider} primero`);
   }
