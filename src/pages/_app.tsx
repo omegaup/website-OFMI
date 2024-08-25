@@ -1,4 +1,5 @@
 import "@/styles/globals.css";
+import "@/styles/react-calendar.css";
 import { Provider } from "jotai";
 import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";

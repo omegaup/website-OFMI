@@ -13,3 +13,21 @@ export function nextHalfHour(date: Date): Date {
 
   return newDate;
 }
+
+export function getLocalDateTimeWithOffset(target: Date): string {
+  // Get the date in the format YYYY-MM-DD
+  const date = target.toISOString().split("T")[0];
+
+  // Get the time in the format HH:MM:SS
+  const time = target.toTimeString().split(" ")[0];
+
+  // Get the timezone offset in hours and minutes (e.g., -04:00)
+  const timezoneOffset = target.getTimezoneOffset();
+  const absOffset = Math.abs(timezoneOffset);
+  const offsetHours = String(Math.floor(absOffset / 60)).padStart(2, "0");
+  const offsetMinutes = String(absOffset % 60).padStart(2, "0");
+  const offsetSign = timezoneOffset <= 0 ? "+" : "-";
+  const offsetString = `${offsetSign}${offsetHours}:${offsetMinutes}`;
+
+  return `${date}T${time}${offsetString}`;
+}

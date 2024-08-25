@@ -2,14 +2,16 @@ import type {
   GetServerSideProps,
   InferGetServerSidePropsType,
 } from "next/types";
-import Oauth from "@/components/oauth";
 import { findMostRecentOfmi } from "@/lib/ofmi";
 import { Alert } from "@/components/alert";
 import { getAllAvailabilities } from "@/lib/mentor";
 import { nextHalfHour } from "@/utils/time";
 import { UserAvailability } from "@/types/mentor.schema";
+import Mentorias from "@/components/mentorias";
 
 export default function MentoriasPage({
+  startTime,
+  endTime,
   availabilities,
   errorMsg,
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
@@ -24,12 +26,20 @@ export default function MentoriasPage({
     );
   }
 
-  console.log(availabilities);
+  console.log({ availabilities, startTime, endTime });
 
-  return <div>Coming soon.</div>;
+  return (
+    <Mentorias
+      startTime={new Date(startTime)}
+      endTime={new Date(endTime)}
+      availabilities={availabilities}
+    />
+  );
 }
 
 export const getServerSideProps: GetServerSideProps<{
+  startTime: string;
+  endTime: string;
   availabilities: Array<UserAvailability>;
   errorMsg: string | null;
 }> = async () => {
@@ -53,6 +63,8 @@ export const getServerSideProps: GetServerSideProps<{
 
   return {
     props: {
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
       availabilities: availabilities || [],
       errorMsg,
     },

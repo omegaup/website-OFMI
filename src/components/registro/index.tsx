@@ -193,8 +193,9 @@ export default function Registro({
       )}
       {participation?.userParticipation.role &&
         participation?.userParticipation.role !== role && (
-          <WarningAlert
-            text={`Ya tenemos un registro tuyo como 
+          <Alert
+            errorTitle="¡PELIGRO!"
+            errorMsg={`Ya tenemos un registro tuyo como
               ${ParticipationRoleName(participation.userParticipation.role)}. 
               Este es el registro para ${ParticipationRoleName(role)}`}
           />
