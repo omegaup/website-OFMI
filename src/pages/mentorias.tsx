@@ -1,58 +1,60 @@
-import { Calendly } from "@/lib/oauth";
-import { getServerSession } from "next-auth/next";
 import type {
   GetServerSideProps,
   InferGetServerSidePropsType,
 } from "next/types";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
-import { findConnectedProviders } from "@/lib/oauth";
-import { getToken } from "next-auth/jwt";
 import Oauth from "@/components/oauth";
-import { OauthProvider } from "@prisma/client";
+import { findMostRecentOfmi } from "@/lib/ofmi";
+import { Alert } from "@/components/alert";
+import { getAllAvailabilities } from "@/lib/mentor";
+import { nextHalfHour } from "@/utils/time";
+import { UserAvailability } from "@/types/mentor.schema";
 
-export default function OauthPage({
-  userAuthId,
-  connectedProviders,
-  calendlyRedirect,
+export default function MentoriasPage({
+  availabilities,
+  errorMsg,
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
-  return (
-    <Oauth
-      userAuthId={userAuthId}
-      connectedProviders={connectedProviders}
-      calendlyRedirect={calendlyRedirect}
-    />
-  );
+  if (errorMsg != null) {
+    return (
+      <div className="flex w-full items-center justify-center">
+        <Alert
+          className="block w-1/2 items-center justify-center"
+          errorMsg={errorMsg}
+        />
+      </div>
+    );
+  }
+
+  console.log(availabilities);
+
+  return <div>Coming soon.</div>;
 }
 
 export const getServerSideProps: GetServerSideProps<{
-  userAuthId: string;
-  connectedProviders: Array<OauthProvider>;
-  calendlyRedirect: string;
-}> = async ({ req, res }) => {
-  const session = await getServerSession(req, res, authOptions);
-  const token = await getToken({ req });
-  const userAuthId = token?.sub;
-  if (
-    !session ||
-    !token ||
-    session.user?.email !== token.email ||
-    !userAuthId
-  ) {
-    return {
-      redirect: {
-        destination: "/login",
-        permanent: false,
-      },
-    };
-  }
+  availabilities: Array<UserAvailability>;
+  errorMsg: string | null;
+}> = async () => {
+  const ofmi = await findMostRecentOfmi();
 
-  const connectedProviders = await findConnectedProviders(userAuthId);
+  const startTime = nextHalfHour(new Date(Date.now()));
+  const endTime = new Date(startTime.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+  const availabilities =
+    ofmi &&
+    (await getAllAvailabilities({
+      ofmiEdition: ofmi.edition,
+      startTime,
+      endTime,
+    }));
+
+  let errorMsg: string | null = null;
+  if (!ofmi) {
+    errorMsg = "No hay ninguna ofmi en curso.";
+  }
 
   return {
     props: {
-      userAuthId,
-      connectedProviders,
-      calendlyRedirect: Calendly.redirect(),
+      availabilities: availabilities || [],
+      errorMsg,
     },
   };
 };
