@@ -16,7 +16,7 @@ import { ShirtSizeOfString, ShirtStyleOfString } from "@/types/shirt";
 import { ParticipationRole, SchoolStage } from "@prisma/client";
 import { sendUpsertParticipation } from "./client";
 import { useSession } from "next-auth/react";
-import { undefinedIfEmpty } from "@/utils";
+import { exhaustiveMatchingGuard, undefinedIfEmpty } from "@/utils";
 
 export default function Registro({
   ofmiEdition,
@@ -63,31 +63,37 @@ export default function Registro({
     }
 
     function getUserParticipation(): UserParticipation | null {
-      if (role === "CONTESTANT") {
-        const schoolStageStr = data.get(fieldIds.schoolStage)?.toString() ?? "";
-        const schoolStage =
-          schoolStageStr in SchoolStage
-            ? SchoolStage[schoolStageStr as keyof typeof SchoolStage]
-            : undefined;
+      switch (role) {
+        case "CONTESTANT": {
+          const schoolStageStr =
+            data.get(fieldIds.schoolStage)?.toString() ?? "";
+          const schoolStage =
+            schoolStageStr in SchoolStage
+              ? SchoolStage[schoolStageStr as keyof typeof SchoolStage]
+              : undefined;
 
-        if (!schoolStage) {
-          setError(new Error("Todos los campos son requeridos"));
-          return null;
+          if (!schoolStage) {
+            setError(new Error("Todos los campos son requeridos"));
+            return null;
+          }
+
+          return {
+            role, // TODO: Add more roles
+            schoolName: data.get(fieldIds.schoolName)?.toString() ?? "",
+            schoolStage,
+            schoolGrade: Number(data.get(fieldIds.schoolGrade)?.toString()),
+            schoolCountry: data.get(fieldIds.schoolCountry)?.toString() ?? "",
+            schoolState: data.get(fieldIds.schoolState)?.toString() ?? "",
+          };
         }
-
-        return {
-          role, // TODO: Add more roles
-          schoolName: data.get(fieldIds.schoolName)?.toString() ?? "",
-          schoolStage,
-          schoolGrade: Number(data.get(fieldIds.schoolGrade)?.toString()),
-          schoolCountry: data.get(fieldIds.schoolCountry)?.toString() ?? "",
-          schoolState: data.get(fieldIds.schoolState)?.toString() ?? "",
-        };
-      }
-      if (role === "MENTOR") {
-        return {
-          role,
-        };
+        case "MENTOR": {
+          return {
+            role,
+          };
+        }
+        default: {
+          return exhaustiveMatchingGuard(role);
+        }
       }
     }
 

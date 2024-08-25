@@ -1,8 +1,25 @@
 import type { UserAvailability } from "@/types/mentor.schema";
+import { TTLCache } from "./cache";
 
 const CALENDLY_API_BASE_URL = "https://api.calendly.com";
 
+const caches = {
+  getUserUri: new TTLCache<string>({ ttl: 300 }),
+  getEventUri: new TTLCache<{ eventUri: string; eventSchedulingUrl: string }>({
+    ttl: 300,
+  }),
+  getAvailableStartTimes: new TTLCache<Array<string>>({ ttl: 30 }),
+};
+
 async function getUserUri(token: string): Promise<string> {
+  // Check if the cache has the result
+  const ttlCache = caches["getUserUri"];
+  const cacheKey = `${token}`;
+  const cacheValue = ttlCache.get(cacheKey);
+  if (cacheValue) {
+    return cacheValue;
+  }
+
   const options = {
     method: "GET",
     headers: {
@@ -22,6 +39,8 @@ async function getUserUri(token: string): Promise<string> {
   if (!uri || typeof uri !== "string") {
     throw Error("calendly.getUserUriError. Invalid uri");
   }
+
+  ttlCache.set(cacheKey, uri);
   return uri;
 }
 
@@ -29,6 +48,14 @@ async function getEventUri(
   userUri: string,
   token: string,
 ): Promise<{ eventUri: string; eventSchedulingUrl: string }> {
+  // Check if the cache has the result
+  const ttlCache = caches["getEventUri"];
+  const cacheKey = `${userUri}`;
+  const cacheValue = ttlCache.get(cacheKey);
+  if (cacheValue) {
+    return cacheValue;
+  }
+
   const options = {
     method: "GET",
     headers: {
@@ -69,6 +96,8 @@ async function getEventUri(
   if (!eventSchedulingUrl || typeof eventSchedulingUrl !== "string") {
     throw Error("calendly.getEventUri. Invalid scheduling_url");
   }
+
+  ttlCache.set(cacheKey, { eventUri, eventSchedulingUrl });
   return {
     eventUri,
     eventSchedulingUrl,
@@ -86,6 +115,14 @@ async function getAvailableStartTimes({
   startTime: Date;
   endTime: Date;
 }): Promise<Array<string>> {
+  // Check if the cache has the result
+  const ttlCache = caches["getAvailableStartTimes"];
+  const cacheKey = `${eventUri}:${startTime}:${endTime}`;
+  const cacheValue = ttlCache.get(cacheKey);
+  if (cacheValue) {
+    return cacheValue;
+  }
+
   if (endTime.getTime() - startTime.getTime() > 7 * 24 * 60 * 60 * 1000) {
     console.error(
       "calendly.getAvailableStartTimes. Calendly do not support range more than 7 days",
@@ -117,13 +154,18 @@ async function getAvailableStartTimes({
     throw Error("calendly.getAvailableStartTimes");
   }
 
-  return json.collection.map(({ start_time }: { start_time: string }) => {
-    if (!start_time || typeof start_time !== "string") {
-      console.error("calendly.getAvailableStartTimes", json);
-      throw Error("calendly.getAvailableStartTimes. Invalid start_time");
-    }
-    return new Date(start_time).toISOString();
-  });
+  const availableStartTimes = json.collection.map(
+    ({ start_time }: { start_time: string }) => {
+      if (!start_time || typeof start_time !== "string") {
+        console.error("calendly.getAvailableStartTimes", json);
+        throw Error("calendly.getAvailableStartTimes. Invalid start_time");
+      }
+      return new Date(start_time).toISOString();
+    },
+  );
+
+  ttlCache.set(cacheKey, availableStartTimes);
+  return availableStartTimes;
 }
 
 export async function getAvailabilities({

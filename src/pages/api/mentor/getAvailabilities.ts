@@ -4,12 +4,9 @@ import { BadRequestError } from "@/types/errors";
 import {
   GetAvailabilitiesRequestSchema,
   GetAvailabilitiesResponse,
-  UserAvailability,
 } from "@/types/mentor.schema";
 import { parseValueError } from "@/lib/typebox";
-import { prisma } from "@/lib/prisma";
-import { getAccessToken } from "@/lib/oauth";
-import { getAvailabilities } from "@/lib/calendly";
+import { getAllAvailabilities } from "@/lib/mentor";
 
 const MAX_TIME_RANGE_MILLIS = 30 * 24 * 60 * 60 * 1000;
 
@@ -48,65 +45,10 @@ async function getAvailabilitiesHandler(
     });
   }
 
-  // Get all mentors that are connected with Calendly
-  const mentorsDb = await prisma.mentorParticipation.findMany({
-    where: {
-      Participation: {
-        some: {
-          ofmi: { edition: ofmiEdition },
-          role: "MENTOR",
-          user: { UserAuth: { UserOauth: { some: { provider: "CALENDLY" } } } },
-        },
-      },
-    },
-    include: {
-      Participation: {
-        include: {
-          user: {
-            include: {
-              UserAuth: {
-                include: {
-                  UserOauth: true,
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  });
-
-  const mentors = await Promise.all(
-    mentorsDb.map(async (mentor) => {
-      if (mentor.Participation.length == 0) {
-        return null;
-      }
-      const participation = mentor.Participation[0];
-      if (participation.user.UserAuth.UserOauth.length == 0) {
-        return null;
-      }
-      const userOauth = participation.user.UserAuth.UserOauth[0];
-      const userAuthId = participation.user.UserAuth.id;
-      const availabilities = await getAvailabilities({
-        token: await getAccessToken(userAuthId, userOauth.provider, userOauth),
-        startTime,
-        endTime,
-      });
-      if (!availabilities) {
-        return null;
-      }
-      return {
-        firstName: participation.user.firstName,
-        lastName: participation.user.lastName,
-        ...availabilities,
-      };
-    }),
-  );
-
-  // Filter did not work out, let's push
-  const availabilities: Array<UserAvailability> = [];
-  mentors.forEach((v) => {
-    if (v !== null) availabilities.push(v);
+  const availabilities = await getAllAvailabilities({
+    ofmiEdition,
+    startTime,
+    endTime,
   });
 
   return res.status(200).json({ availabilities });
