@@ -21,7 +21,6 @@ export default function RegistroPage({
   registrationClosingTime,
   role,
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
-  console.log(role);
   if (
     ofmiEdition == null ||
     (registrationClosingTime && registrationClosingTime < Date.now())
@@ -47,7 +46,12 @@ export default function RegistroPage({
     : null;
 
   if (participation !== null) {
-    Value.Check(ParticipationRequestInputSchema, participation);
+    if (!Value.Check(ParticipationRequestInputSchema, participation)) {
+      console.log(
+        "Error. Participation was filled but does not have correct schema",
+        participation,
+      );
+    }
   }
 
   return (

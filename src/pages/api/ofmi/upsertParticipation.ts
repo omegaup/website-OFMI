@@ -43,6 +43,8 @@ async function upsertParticipationHandler(
   const role = body.userParticipation.role;
   const contestantParticipationInput =
     role === "CONTESTANT" ? body.userParticipation : undefined;
+  const mentorParticipationInput =
+    role === "MENTOR" ? body.userParticipation : undefined;
 
   // Check OFMI edition
   const ofmi = await prisma.ofmi.findUnique({
@@ -175,6 +177,7 @@ async function upsertParticipationHandler(
     },
   });
 
+  // ContestantParticipation
   const contestantParticipationPayload = contestantParticipationInput
     ? {
         schoolGrade: contestantParticipationInput.schoolGrade,
@@ -199,6 +202,10 @@ async function upsertParticipationHandler(
         },
       }
     : undefined;
+
+  // Mentor participation
+  const mentorParticipationPayload = mentorParticipationInput ? {} : undefined;
+
   const participation = await prisma.participation.upsert({
     where: {
       userId_ofmiId: {
@@ -208,9 +215,24 @@ async function upsertParticipationHandler(
     },
     update: {
       role,
-      ContestantParticipation: {
-        update: {
-          ...contestantParticipationPayload,
+      ContestantParticipation: contestantParticipationPayload && {
+        upsert: {
+          create: {
+            ...contestantParticipationPayload,
+          },
+          update: {
+            ...contestantParticipationPayload,
+          },
+        },
+      },
+      MentorParticipation: mentorParticipationPayload && {
+        upsert: {
+          create: {
+            ...mentorParticipationPayload,
+          },
+          update: {
+            ...mentorParticipationPayload,
+          },
         },
       },
     },
@@ -230,6 +252,9 @@ async function upsertParticipationHandler(
         create: {
           ...contestantParticipationPayload,
         },
+      },
+      MentorParticipation: mentorParticipationPayload && {
+        create: { ...mentorParticipationPayload },
       },
     },
   });

@@ -67,6 +67,10 @@ export async function findParticipation(
       }) ||
     null;
 
+  if (!userParticipation) {
+    return null;
+  }
+
   return {
     ofmiEdition: ofmi.edition,
     user: {

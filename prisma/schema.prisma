@@ -13,14 +13,33 @@ datasource db {
 // Your models goes here ...
 
 model UserAuth {
-  id            String    @id @default(uuid())
-  email         String    @unique
+  id            String      @id @default(uuid())
+  email         String      @unique
   password      String
-  role          Role      @default(USER)
+  role          Role        @default(USER)
   emailVerified DateTime?
   User          User?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  UserOauth     UserOauth[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+enum OauthProvider {
+  CALENDLY
+}
+
+model UserOauth {
+  id           String        @id @default(uuid())
+  userAuthId   String
+  UserAuth     UserAuth      @relation(fields: [userAuthId], references: [id])
+  provider     OauthProvider
+  accessToken  String
+  expiresAt    DateTime
+  refreshToken String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@unique([userAuthId, provider])
 }
 
 enum Role {
