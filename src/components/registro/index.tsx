@@ -12,8 +12,8 @@ import {
 import { fieldIds } from "./constants";
 import { useState } from "react";
 import { PronounsOfString } from "@/types/pronouns";
-import { ShirtSizeOfString, ShirtStyleOfString } from "@/types/shirt";
-import { ParticipationRole, SchoolStage } from "@prisma/client";
+import { ShirtStyleOfString } from "@/types/shirt";
+import { ParticipationRole, SchoolStage, ShirtSize } from "@prisma/client";
 import { sendUpsertParticipation } from "./client";
 import { useSession } from "next-auth/react";
 import { exhaustiveMatchingGuard, undefinedIfEmpty } from "@/utils";
@@ -51,9 +51,11 @@ export default function Registro({
     const pronouns = PronounsOfString(
       data.get(fieldIds.pronouns)?.valueOf().toString() ?? "",
     );
-    const shirtSize = ShirtSizeOfString(
-      data.get(fieldIds.shirtSize)?.toString() ?? "",
-    );
+    const shirtSizeStr = data.get(fieldIds.shirtSize)?.toString() ?? "";
+    const shirtSize =
+      shirtSizeStr in ShirtSize
+        ? ShirtSize[shirtSizeStr as keyof typeof ShirtSize]
+        : undefined;
     const shirtStyle = ShirtStyleOfString(
       data.get(fieldIds.shirtStyle)?.toString() ?? "",
     );

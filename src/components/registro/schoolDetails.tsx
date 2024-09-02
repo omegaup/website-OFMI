@@ -27,7 +27,7 @@ export function SchoolDetails({
       <div className="grid md:grid-cols-2 md:gap-6">
         <FloatingInput
           type="text"
-          label="Nombre de la escuela"
+          label="Nombre de la escuela *"
           id={fieldIds.schoolName}
           defaultValue={contestantParticipation?.schoolName}
           required
@@ -67,7 +67,7 @@ export function SchoolDetails({
             htmlFor={fieldIds.schoolStage}
             className="absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4"
           >
-            Escolaridad
+            Escolaridad *
           </label>
         </div>
         <div className="group relative z-0 mb-5 w-full">
@@ -93,7 +93,7 @@ export function SchoolDetails({
             htmlFor={fieldIds.schoolGrade}
             className="absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4"
           >
-            Grado
+            Grado *
           </label>
         </div>
       </div>

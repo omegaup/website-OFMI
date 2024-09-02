@@ -18,7 +18,7 @@ export function MailingAddress({
           <FloatingInput
             type="text"
             id={fieldIds.mailingStreet}
-            label="Calle"
+            label="Calle *"
             defaultValue={address?.street}
             required
           />
@@ -26,7 +26,7 @@ export function MailingAddress({
         <div className="grid md:grid-cols-2 md:gap-6">
           <FloatingInput
             type="text"
-            label="No. Exterior"
+            label="No. Exterior *"
             id={fieldIds.mailingExternalNumber}
             defaultValue={address?.externalNumber}
             required
@@ -56,7 +56,7 @@ export function MailingAddress({
         <div className="grid md:grid-cols-2 md:gap-6">
           <FloatingInput
             type="text"
-            label="Código Postal"
+            label="Código Postal *"
             defaultValue={address?.zipcode}
             id={fieldIds.mailingZipcode}
             onChange={(ev) => {
@@ -67,7 +67,7 @@ export function MailingAddress({
           />
           <FloatingInput
             type="text"
-            label="Número de teléfono"
+            label="Número de teléfono *"
             id={fieldIds.mailingPhone}
             defaultValue={address?.phone}
             onChange={(ev) => {

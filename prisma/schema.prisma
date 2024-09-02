@@ -89,6 +89,15 @@ model MailingAddress {
   updatedAt      DateTime @updatedAt
 }
 
+enum ShirtSize {
+  XS
+  S
+  M
+  L
+  XL
+  XXL
+}
+
 model User {
   id               String          @id @default(uuid())
   userAuthId       String          @unique
@@ -99,7 +108,7 @@ model User {
   governmentId     String
   preferredName    String
   pronouns         String
-  shirtSize        String
+  shirtSize        ShirtSize
   shirtStyle       String
   MailingAddress   MailingAddress  @relation(fields: [mailingAddressId], references: [id])
   mailingAddressId String          @unique

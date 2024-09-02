@@ -1,16 +1,9 @@
 import { exhaustiveMatchingGuard } from "@/utils";
-
-export const ShirtSizes = ["XS", "S", "M", "L", "XL"] as const;
-
-export type ShirtSize = (typeof ShirtSizes)[number];
+import { ShirtSize } from "@prisma/client";
 
 export const ShirtStyles = ["STRAIGHT", "WAISTED"] as const;
 
 export type ShirtStyle = (typeof ShirtStyles)[number];
-
-export const ShirtSizeOfString = (shirtSize: string): ShirtSize | undefined => {
-  return ShirtSizes.find((value) => value === shirtSize);
-};
 
 export const ShirtStyleOfString = (
   shirtStyle: string,
@@ -26,6 +19,26 @@ export const ShirtStyleName = (shirtStyle: ShirtStyle): string => {
       return "Acinturado";
     default: {
       return exhaustiveMatchingGuard(shirtStyle);
+    }
+  }
+};
+
+export const ShirtSizeName = (shirtSize: ShirtSize): string => {
+  switch (shirtSize) {
+    case "XS":
+      return "XS (extra chica)";
+    case "S":
+      return "S (chica)";
+    case "M":
+      return "M (mediana)";
+    case "L":
+      return "L (grande)";
+    case "XL":
+      return "XL (extra grande)";
+    case "XXL":
+      return "XXL (extra extra grande)";
+    default: {
+      return exhaustiveMatchingGuard(shirtSize);
     }
   }
 };

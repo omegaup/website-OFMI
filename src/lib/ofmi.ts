@@ -4,18 +4,17 @@ import {
   UserParticipation,
 } from "@/types/participation.schema";
 import { Pronoun, PronounsOfString } from "@/types/pronouns";
-import {
-  ShirtSize,
-  ShirtSizeOfString,
-  ShirtStyle,
-  ShirtStyleOfString,
-} from "@/types/shirt";
+import { ShirtStyle, ShirtStyleOfString } from "@/types/shirt";
 import { Ofmi } from "@prisma/client";
 
 export async function findMostRecentOfmi(): Promise<Ofmi | null> {
-  return await prisma.ofmi.findFirst({
+  const ofmi = await prisma.ofmi.findFirst({
     orderBy: { edition: "desc" },
   });
+  if (!ofmi) {
+    console.error("Most recent OFMI not found.");
+  }
+  return ofmi;
 }
 
 export async function findParticipation(
@@ -81,7 +80,7 @@ export async function findParticipation(
       birthDate: user.birthDate.toISOString(),
       governmentId: user.governmentId,
       pronouns: PronounsOfString(user.pronouns) as Pronoun,
-      shirtSize: ShirtSizeOfString(user.shirtSize) as ShirtSize,
+      shirtSize: user.shirtSize,
       shirtStyle: ShirtStyleOfString(user.shirtStyle) as ShirtStyle,
       mailingAddress: {
         recipient: mailingAddress.name,

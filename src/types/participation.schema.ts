@@ -1,8 +1,13 @@
 import { Type, Static } from "@sinclair/typebox";
-import { Participation, ParticipationRole, SchoolStage } from "@prisma/client";
+import {
+  Participation,
+  ParticipationRole,
+  SchoolStage,
+  ShirtSize,
+} from "@prisma/client";
 import { countryReg, phoneReg, zipcodeReg } from "@/lib/validators/address";
 import { emailReg } from "@/lib/validators";
-import { ShirtSizes, ShirtStyles } from "./shirt";
+import { ShirtStyles } from "./shirt";
 import { Pronouns } from "./pronouns";
 import { toISOStringReg } from "@/lib/validators/date";
 import { exhaustiveMatchingGuard } from "@/utils";
@@ -33,9 +38,7 @@ const ShirtStyleSchema = Type.Union(
   ShirtStyles.map((value) => Type.Literal(value)),
 );
 
-const ShirtSizeSchema = Type.Union(
-  ShirtSizes.map((value) => Type.Literal(value)),
-);
+const ShirtSizeSchema = Type.Enum(ShirtSize);
 
 export type Pronouns = Static<typeof PronounsSchema>;
 const PronounsSchema = Type.Union(Pronouns.map((value) => Type.Literal(value)));

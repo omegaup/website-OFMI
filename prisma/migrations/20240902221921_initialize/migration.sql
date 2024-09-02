@@ -1,4 +1,7 @@
 -- CreateEnum
+CREATE TYPE "OauthProvider" AS ENUM ('CALENDLY');
+
+-- CreateEnum
 CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN');
 
 -- CreateEnum
@@ -6,6 +9,9 @@ CREATE TYPE "SchoolStage" AS ENUM ('ELEMENTARY', 'SECONDARY', 'HIGH');
 
 -- CreateEnum
 CREATE TYPE "ParticipationRole" AS ENUM ('CONTESTANT', 'MENTOR');
+
+-- CreateEnum
+CREATE TYPE "ShirtSize" AS ENUM ('XS', 'S', 'M', 'L', 'XL', 'XXL');
 
 -- CreateTable
 CREATE TABLE "UserAuth" (
@@ -18,6 +24,20 @@ CREATE TABLE "UserAuth" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "UserAuth_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "UserOauth" (
+    "id" TEXT NOT NULL,
+    "userAuthId" TEXT NOT NULL,
+    "provider" "OauthProvider" NOT NULL,
+    "accessToken" TEXT NOT NULL,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "refreshToken" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "UserOauth_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -63,7 +83,7 @@ CREATE TABLE "User" (
     "governmentId" TEXT NOT NULL,
     "preferredName" TEXT NOT NULL,
     "pronouns" TEXT NOT NULL,
-    "shirtSize" TEXT NOT NULL,
+    "shirtSize" "ShirtSize" NOT NULL,
     "shirtStyle" TEXT NOT NULL,
     "mailingAddressId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -177,6 +197,9 @@ CREATE TABLE "OmegaupUser" (
 CREATE UNIQUE INDEX "UserAuth_email_key" ON "UserAuth"("email");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "UserOauth_userAuthId_provider_key" ON "UserOauth"("userAuthId", "provider");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "School_name_stage_state_country_key" ON "School"("name", "stage", "state", "country");
 
 -- CreateIndex
@@ -193,6 +216,9 @@ CREATE UNIQUE INDEX "Participation_userId_ofmiId_key" ON "Participation"("userId
 
 -- CreateIndex
 CREATE UNIQUE INDEX "OmegaupUser_username_key" ON "OmegaupUser"("username");
+
+-- AddForeignKey
+ALTER TABLE "UserOauth" ADD CONSTRAINT "UserOauth_userAuthId_fkey" FOREIGN KEY ("userAuthId") REFERENCES "UserAuth"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "User" ADD CONSTRAINT "User_userAuthId_fkey" FOREIGN KEY ("userAuthId") REFERENCES "UserAuth"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

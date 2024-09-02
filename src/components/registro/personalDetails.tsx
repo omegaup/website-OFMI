@@ -1,5 +1,5 @@
 import {
-  ShirtSizes,
+  ShirtSizeName,
   ShirtStyle,
   ShirtStyleName,
   ShirtStyleOfString,
@@ -16,6 +16,7 @@ import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import { useState } from "react";
 import { ParticipationRequestInput } from "@/types/participation.schema";
+import { ShirtSize } from "@prisma/client";
 
 function getImageData(shirtStyle: ShirtStyle): StaticImageData {
   switch (shirtStyle) {
@@ -44,14 +45,14 @@ export function PersonalDetails({
       <div className="grid md:grid-cols-2 md:gap-6">
         <FloatingInput
           type="text"
-          label="Nombre(s)"
+          label="Nombre(s) *"
           defaultValue={user?.firstName}
           id={fieldIds.firstName}
           required
         />
         <FloatingInput
           type="text"
-          label="Apellido(s)"
+          label="Apellido(s) *"
           defaultValue={user?.lastName}
           id={fieldIds.lastName}
           required
@@ -62,7 +63,7 @@ export function PersonalDetails({
           type="text"
           id={fieldIds.preferredName}
           defaultValue={user?.preferredName}
-          label="Nombre preferido"
+          label="Nombre completo para mostrar en tu diploma"
           placeholder=" "
         />
         <div className="group relative z-0 mb-5 w-full">
@@ -71,6 +72,7 @@ export function PersonalDetails({
             name={fieldIds.pronouns}
             defaultValue={user?.pronouns}
             className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0"
+            required
           >
             {Pronouns.map((value) => {
               return (
@@ -84,7 +86,7 @@ export function PersonalDetails({
             htmlFor={fieldIds.pronouns}
             className="absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4"
           >
-            Pronombre
+            Pronombre *
           </label>
         </div>
       </div>
@@ -92,7 +94,7 @@ export function PersonalDetails({
         <FloatingInput
           type="date"
           id={fieldIds.birthDate}
-          label="Fecha de nacimiento"
+          label="Fecha de nacimiento *"
           defaultValue={user?.birthDate.substring(0, 10)}
           placeholder=" "
           required
@@ -100,7 +102,7 @@ export function PersonalDetails({
         <FloatingInput
           type="text"
           id={fieldIds.governmentId}
-          label="CURP"
+          label="CURP *"
           defaultValue={user?.governmentId}
           placeholder=" "
           required
@@ -115,12 +117,13 @@ export function PersonalDetails({
             name={fieldIds.shirtSize}
             defaultValue={user?.shirtSize}
             className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0"
+            required
           >
             <option value=""></option>
-            {ShirtSizes.map((value) => {
+            {Object.values(ShirtSize).map((value) => {
               return (
                 <option key={value} value={value}>
-                  {value}
+                  {ShirtSizeName(value)}
                 </option>
               );
             })}
@@ -129,7 +132,7 @@ export function PersonalDetails({
             htmlFor={fieldIds.shirtSize}
             className="absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4"
           >
-            Talla de playera
+            Talla de playera *
           </label>
         </div>
         <div className="group relative z-0 mb-5 w-full">
@@ -142,6 +145,7 @@ export function PersonalDetails({
               ev.preventDefault();
               setShirtStyle(ShirtStyleOfString(ev.target.value));
             }}
+            required
           >
             <option value=""></option>
             {ShirtStyles.map((value) => {
@@ -156,7 +160,7 @@ export function PersonalDetails({
             htmlFor={fieldIds.shirtStyle}
             className="absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4"
           >
-            Estilo de playera
+            Estilo de playera *
           </label>
         </div>
         {shirtStyle && (

@@ -120,13 +120,13 @@ export const LocationFields = ({
           htmlFor={countryFieldId}
           className="absolute top-3 -z-10 origin-[0] -translate-y-6 scale-75 transform text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:start-0 peer-focus:-translate-y-6 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-blue-600 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4"
         >
-          País
+          País *
         </label>
       </div>
       <div className="group relative z-0 mb-5 w-full">
         <SelectWithFallback
           id={stateFieldId}
-          label="Estado"
+          label="Estado *"
           value={state}
           onChange={(ev) => setState(ev)}
           options={states}
@@ -137,7 +137,7 @@ export const LocationFields = ({
           <div className="group relative z-0 mb-5 w-full">
             <SelectWithFallback
               id={municipalityFieldId ?? ""}
-              label="Delegación / Municipio"
+              label="Delegación / Municipio *"
               defaultValue={defaultMunicipalityValue}
               options={municipalities}
             ></SelectWithFallback>
@@ -146,7 +146,7 @@ export const LocationFields = ({
             <FloatingInput
               id={localityFieldId}
               defaultValue={defaultLocalityValue}
-              label="Colonia / Localidad"
+              label="Colonia / Localidad *"
               required
             />
           </div>

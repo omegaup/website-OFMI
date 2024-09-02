@@ -33,7 +33,7 @@ export default function RegistroPage({
           errorMsg={errorMsg}
         >
           <p>
-            Si tienes alguna duda por favor envía un correo a
+            Si tienes alguna duda por favor envía un correo a &nbsp;
             <a href="mailto:ofmi@omegaup.com">ofmi@omegaup.com</a>
           </p>
         </Alert>
