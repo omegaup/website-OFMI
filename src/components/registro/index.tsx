@@ -158,7 +158,7 @@ export default function Registro({
       <div className="mx-auto max-w-3xl px-2 pt-4">
         <SuccessAlert
           title="Ya estas registrada!"
-          text="Quieres modificar tu registro?"
+          text="Quieres ver y/o modificar tu registro?"
         />
         <div className="text-center">
           <Button
@@ -166,7 +166,7 @@ export default function Registro({
             buttonType="secondary"
             onClick={() => setShowAlreadyRedistered(false)}
           >
-            Modificar
+            Ver
           </Button>
         </div>
       </div>
@@ -232,7 +232,7 @@ export default function Registro({
             className="min-w-full md:w-64 md:min-w-0"
             disabled={loading}
           >
-            Enviar
+            {participation !== null ? "Guardar cambios" : "Enviar"}
           </Button>
         </div>
       </form>
