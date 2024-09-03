@@ -16,7 +16,7 @@ import type { StaticImageData } from "next/image";
 import Image from "next/image";
 import { useState } from "react";
 import { ParticipationRequestInput } from "@/types/participation.schema";
-import { ShirtSize } from "@prisma/client";
+import { ParticipationRole, ShirtSize } from "@prisma/client";
 
 function getImageData(shirtStyle: ShirtStyle): StaticImageData {
   switch (shirtStyle) {
@@ -32,8 +32,10 @@ function getImageData(shirtStyle: ShirtStyle): StaticImageData {
 
 export function PersonalDetails({
   participation,
+  role,
 }: {
   participation: ParticipationRequestInput | null;
+  role: ParticipationRole;
 }): JSX.Element {
   const user = participation?.user;
   const [shirtStyle, setShirtStyle] = useState<ShirtStyle | undefined>(
@@ -63,7 +65,11 @@ export function PersonalDetails({
           type="text"
           id={fieldIds.preferredName}
           defaultValue={user?.preferredName}
-          label="Nombre completo para mostrar en tu diploma"
+          label={
+            role === "CONTESTANT"
+              ? "Nombre completo para mostrar en tu diploma"
+              : "Nombre preferido"
+          }
           placeholder=" "
         />
         <div className="group relative z-0 mb-5 w-full">

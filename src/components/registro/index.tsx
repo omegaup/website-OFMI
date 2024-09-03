@@ -80,7 +80,7 @@ export default function Registro({
           }
 
           return {
-            role, // TODO: Add more roles
+            role,
             schoolName: data.get(fieldIds.schoolName)?.toString() ?? "",
             schoolStage,
             schoolGrade: Number(data.get(fieldIds.schoolGrade)?.toString()),
@@ -88,9 +88,16 @@ export default function Registro({
             schoolState: data.get(fieldIds.schoolState)?.toString() ?? "",
           };
         }
-        case "MENTOR": {
+        case "VOLUNTEER": {
           return {
             role,
+            // TODO: Fill these
+            educationalLinkageOptIn: false,
+            fundraisingOptIn: false,
+            communityOptIn: false,
+            trainerOptIn: false,
+            problemSetterOptIn: false,
+            mentorOptIn: false,
           };
         }
         default: {
@@ -209,7 +216,7 @@ export default function Registro({
         onSubmit={(ev) => handleSubmit(ev)}
       >
         {/* Personal information */}
-        <PersonalDetails participation={participation} />
+        <PersonalDetails participation={participation} role={role} />
         {/* Mailing address */}
         <MailingAddress participation={participation} />
 

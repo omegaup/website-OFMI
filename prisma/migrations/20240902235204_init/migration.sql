@@ -8,7 +8,7 @@ CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN');
 CREATE TYPE "SchoolStage" AS ENUM ('ELEMENTARY', 'SECONDARY', 'HIGH');
 
 -- CreateEnum
-CREATE TYPE "ParticipationRole" AS ENUM ('CONTESTANT', 'MENTOR');
+CREATE TYPE "ParticipationRole" AS ENUM ('CONTESTANT', 'VOLUNTEER');
 
 -- CreateEnum
 CREATE TYPE "ShirtSize" AS ENUM ('XS', 'S', 'M', 'L', 'XL', 'XXL');
@@ -113,7 +113,7 @@ CREATE TABLE "Participation" (
     "userId" TEXT NOT NULL,
     "ofmiId" TEXT NOT NULL,
     "role" "ParticipationRole" NOT NULL,
-    "mentorParticipationId" TEXT,
+    "volunteerParticipationId" TEXT,
     "contestantParticipationId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -137,12 +137,18 @@ CREATE TABLE "ContestantParticipation" (
 );
 
 -- CreateTable
-CREATE TABLE "MentorParticipation" (
+CREATE TABLE "VolunteerParticipation" (
     "id" TEXT NOT NULL,
+    "educationalLinkageOptIn" BOOLEAN NOT NULL,
+    "fundraisingOptIn" BOOLEAN NOT NULL,
+    "communityOptIn" BOOLEAN NOT NULL,
+    "trainerOptIn" BOOLEAN NOT NULL,
+    "problemSetterOptIn" BOOLEAN NOT NULL,
+    "mentorOptIn" BOOLEAN NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "MentorParticipation_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "VolunteerParticipation_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -186,7 +192,6 @@ CREATE TABLE "OmegaupContest" (
 CREATE TABLE "OmegaupUser" (
     "id" TEXT NOT NULL,
     "username" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -233,7 +238,7 @@ ALTER TABLE "Participation" ADD CONSTRAINT "Participation_userId_fkey" FOREIGN K
 ALTER TABLE "Participation" ADD CONSTRAINT "Participation_ofmiId_fkey" FOREIGN KEY ("ofmiId") REFERENCES "Ofmi"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Participation" ADD CONSTRAINT "Participation_mentorParticipationId_fkey" FOREIGN KEY ("mentorParticipationId") REFERENCES "MentorParticipation"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Participation" ADD CONSTRAINT "Participation_volunteerParticipationId_fkey" FOREIGN KEY ("volunteerParticipationId") REFERENCES "VolunteerParticipation"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Participation" ADD CONSTRAINT "Participation_contestantParticipationId_fkey" FOREIGN KEY ("contestantParticipationId") REFERENCES "ContestantParticipation"("id") ON DELETE SET NULL ON UPDATE CASCADE;

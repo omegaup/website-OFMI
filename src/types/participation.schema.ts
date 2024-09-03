@@ -24,8 +24,8 @@ export const ParticipationRoleName = (role: ParticipationRole): string => {
   switch (role) {
     case "CONTESTANT":
       return "Participante";
-    case "MENTOR":
-      return "Mentor";
+    case "VOLUNTEER":
+      return "Voluntario";
     default: {
       return exhaustiveMatchingGuard(role);
     }
@@ -87,14 +87,20 @@ const ContestantParticipationInputSchema = Type.Object({
   schoolState: Type.String({ minLength: 1 }),
 });
 
-const MentorParticipationInputSchema = Type.Object({
-  role: Type.Literal(ParticipationRole.MENTOR),
+const VolunteerParticipationInputSchema = Type.Object({
+  role: Type.Literal(ParticipationRole.VOLUNTEER),
+  educationalLinkageOptIn: Type.Boolean(),
+  fundraisingOptIn: Type.Boolean(),
+  communityOptIn: Type.Boolean(),
+  trainerOptIn: Type.Boolean(),
+  problemSetterOptIn: Type.Boolean(),
+  mentorOptIn: Type.Boolean(),
 });
 
 export type UserParticipation = Static<typeof UserParticipationSchema>;
 const UserParticipationSchema = Type.Union([
   ContestantParticipationInputSchema,
-  MentorParticipationInputSchema,
+  VolunteerParticipationInputSchema,
 ]);
 
 export type ParticipationRequestInput = Static<

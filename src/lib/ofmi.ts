@@ -33,7 +33,7 @@ export async function findParticipation(
           School: true,
         },
       },
-      MentorParticipation: true,
+      VolunteerParticipation: true,
     },
     where: { ofmiId: ofmi.id, user: { UserAuth: { email: email } } },
   });
@@ -46,7 +46,7 @@ export async function findParticipation(
     user,
     role,
     ContestantParticipation: contestantParticipation,
-    MentorParticipation: mentorParticipation,
+    VolunteerParticipation: volunteerParticipation,
   } = participation;
   const { MailingAddress: mailingAddress } = user;
 
@@ -60,9 +60,15 @@ export async function findParticipation(
         schoolCountry: contestantParticipation.School.country,
         schoolState: contestantParticipation.School.state,
       }) ||
-    (role === "MENTOR" &&
-      mentorParticipation && {
+    (role === "VOLUNTEER" &&
+      volunteerParticipation && {
         role,
+        educationalLinkageOptIn: volunteerParticipation.educationalLinkageOptIn,
+        fundraisingOptIn: volunteerParticipation.fundraisingOptIn,
+        communityOptIn: volunteerParticipation.communityOptIn,
+        trainerOptIn: volunteerParticipation.trainerOptIn,
+        problemSetterOptIn: volunteerParticipation.problemSetterOptIn,
+        mentorOptIn: volunteerParticipation.mentorOptIn,
       }) ||
     null;
 

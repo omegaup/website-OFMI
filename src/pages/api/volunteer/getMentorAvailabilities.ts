@@ -6,11 +6,11 @@ import {
   GetAvailabilitiesResponse,
 } from "@/types/mentor.schema";
 import { parseValueError } from "@/lib/typebox";
-import { getAllAvailabilities } from "@/lib/mentor";
+import { getAllAvailabilities } from "@/lib/volunteer/mentor";
 
 const MAX_TIME_RANGE_MILLIS = 30 * 24 * 60 * 60 * 1000;
 
-async function getAvailabilitiesHandler(
+async function getMentorAvailabilitiesHandler(
   req: NextApiRequest,
   res: NextApiResponse<GetAvailabilitiesResponse | BadRequestError>,
 ): Promise<void> {
@@ -59,7 +59,7 @@ export default async function handle(
   res: NextApiResponse<GetAvailabilitiesResponse | BadRequestError>,
 ): Promise<void> {
   if (req.method === "GET") {
-    await getAvailabilitiesHandler(req, res);
+    await getMentorAvailabilitiesHandler(req, res);
   } else {
     return res.status(405).json({ message: "Method Not allowed" });
   }

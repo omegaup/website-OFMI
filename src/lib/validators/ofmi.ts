@@ -15,7 +15,7 @@ export function validateOFMIOpenAndCloseTime(
       message: `Las inscripciones para esta OFMI aun no han abierto.`,
     };
   }
-  if (role === "MENTOR") {
+  if (role === "VOLUNTEER") {
     // Vamos a darles todo el año para registrarse
     if (
       ofmi.registrationCloseTime.getFullYear() < registrationTime.getFullYear()

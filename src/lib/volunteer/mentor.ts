@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import { getAvailabilities } from "./calendly";
-import { getAccessToken } from "./oauth";
+import { getAvailabilities } from "@/lib/calendly";
+import { getAccessToken } from "@/lib/oauth";
 import { UserAvailability } from "@/types/mentor.schema";
 
 export async function getAllAvailabilities({
@@ -16,7 +16,8 @@ export async function getAllAvailabilities({
   const mentorsDb = await prisma.participation.findMany({
     where: {
       ofmi: { edition: ofmiEdition },
-      role: "MENTOR",
+      role: "VOLUNTEER",
+      VolunteerParticipation: { mentorOptIn: true },
       user: { UserAuth: { UserOauth: { some: { provider: "CALENDLY" } } } },
     },
     include: {

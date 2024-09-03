@@ -245,17 +245,13 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
       body: {
         ...validRequest,
         userParticipation: {
-          role: ParticipationRole.MENTOR,
+          ...validUserParticipationInput,
+          schoolName: "Colegio nuevo",
         },
       },
     });
     await upsertParticipationHandler(req2, res2);
     expect(res2.getHeaders()).toEqual({ "content-type": "application/json" });
-    expect(res2._getJSONData()).toMatchObject({
-      participation: {
-        role: ParticipationRole.MENTOR,
-      },
-    });
     expect(res2.statusCode).toBe(201);
 
     expect(mockEmailer.getSentEmails()).toMatchObject([]);
