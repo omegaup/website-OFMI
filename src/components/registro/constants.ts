@@ -25,4 +25,12 @@ export const fieldIds = {
   schoolName: "school_name",
   schoolStage: "school_stage",
   schoolGrade: "school_grade",
+
+  // VOLUNTEER specific
+  communityOptIn: "community_opt_in",
+  educationalLinkageOptIn: "educational_linkage_opt_in",
+  fundraisingOptIn: "fundraising_opt_in",
+  mentorOptIn: "mentor_opt_in",
+  problemSetterOptIn: "problem_setter_opt_in",
+  trainerOptIn: "trainer_opt_in",
 };

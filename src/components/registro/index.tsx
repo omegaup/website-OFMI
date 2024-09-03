@@ -17,6 +17,7 @@ import { ParticipationRole, SchoolStage, ShirtSize } from "@prisma/client";
 import { sendUpsertParticipation } from "./client";
 import { useSession } from "next-auth/react";
 import { exhaustiveMatchingGuard, undefinedIfEmpty } from "@/utils";
+import { VolunteerDetails } from "./volunteerDetails";
 
 export default function Registro({
   ofmiEdition,
@@ -91,13 +92,16 @@ export default function Registro({
         case "VOLUNTEER": {
           return {
             role,
-            // TODO: Fill these
-            educationalLinkageOptIn: false,
-            fundraisingOptIn: false,
-            communityOptIn: false,
-            trainerOptIn: false,
-            problemSetterOptIn: false,
-            mentorOptIn: false,
+            educationalLinkageOptIn:
+              data.get(fieldIds.educationalLinkageOptIn)?.toString() === "on",
+            fundraisingOptIn:
+              data.get(fieldIds.fundraisingOptIn)?.toString() === "on",
+            communityOptIn:
+              data.get(fieldIds.communityOptIn)?.toString() === "on",
+            trainerOptIn: data.get(fieldIds.trainerOptIn)?.toString() === "on",
+            problemSetterOptIn:
+              data.get(fieldIds.problemSetterOptIn)?.toString() === "on",
+            mentorOptIn: data.get(fieldIds.mentorOptIn)?.toString() === "on",
           };
         }
         default: {
@@ -230,6 +234,11 @@ export default function Registro({
                 : null
             }
           />
+        )}
+
+        {/* VOLUNTEER specific */}
+        {role === "VOLUNTEER" && (
+          <VolunteerDetails participation={participation} />
         )}
 
         {/* Submit form */}
