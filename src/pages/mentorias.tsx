@@ -4,7 +4,7 @@ import type {
 } from "next/types";
 import { findMostRecentOfmi } from "@/lib/ofmi";
 import { Alert } from "@/components/alert";
-import { getAllAvailabilities } from "@/lib/mentor";
+import { getAllAvailabilities } from "@/lib/volunteer/mentor";
 import { nextHalfHour } from "@/utils/time";
 import { UserAvailability } from "@/types/mentor.schema";
 import Mentorias from "@/components/mentorias";
@@ -25,8 +25,6 @@ export default function MentoriasPage({
       </div>
     );
   }
-
-  console.log({ availabilities, startTime, endTime });
 
   return (
     <Mentorias

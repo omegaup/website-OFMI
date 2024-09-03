@@ -43,8 +43,8 @@ async function upsertParticipationHandler(
   const role = body.userParticipation.role;
   const contestantParticipationInput =
     role === "CONTESTANT" ? body.userParticipation : undefined;
-  const mentorParticipationInput =
-    role === "MENTOR" ? body.userParticipation : undefined;
+  const volunteerParticipationInput =
+    role === "VOLUNTEER" ? body.userParticipation : undefined;
 
   // Check OFMI edition
   const ofmi = await prisma.ofmi.findUnique({
@@ -203,8 +203,18 @@ async function upsertParticipationHandler(
       }
     : undefined;
 
-  // Mentor participation
-  const mentorParticipationPayload = mentorParticipationInput ? {} : undefined;
+  // Volunteer participation
+  const volunteerParticipationPayload = volunteerParticipationInput
+    ? {
+        educationalLinkageOptIn:
+          volunteerParticipationInput.educationalLinkageOptIn,
+        fundraisingOptIn: volunteerParticipationInput.fundraisingOptIn,
+        communityOptIn: volunteerParticipationInput.communityOptIn,
+        trainerOptIn: volunteerParticipationInput.trainerOptIn,
+        problemSetterOptIn: volunteerParticipationInput.problemSetterOptIn,
+        mentorOptIn: volunteerParticipationInput.mentorOptIn,
+      }
+    : undefined;
 
   const participation = await prisma.participation.upsert({
     where: {
@@ -225,13 +235,13 @@ async function upsertParticipationHandler(
           },
         },
       },
-      MentorParticipation: mentorParticipationPayload && {
+      VolunteerParticipation: volunteerParticipationPayload && {
         upsert: {
           create: {
-            ...mentorParticipationPayload,
+            ...volunteerParticipationPayload,
           },
           update: {
-            ...mentorParticipationPayload,
+            ...volunteerParticipationPayload,
           },
         },
       },
@@ -253,8 +263,8 @@ async function upsertParticipationHandler(
           ...contestantParticipationPayload,
         },
       },
-      MentorParticipation: mentorParticipationPayload && {
-        create: { ...mentorParticipationPayload },
+      VolunteerParticipation: volunteerParticipationPayload && {
+        create: { ...volunteerParticipationPayload },
       },
     },
   });

@@ -84,16 +84,20 @@ export const getServerSideProps: GetServerSideProps<{
   const participation =
     ofmi && email ? await findParticipation(ofmi, email) : null;
 
+  const roleRequested =
+    typeof query.role === "string"
+      ? ParticipationRoleOfString(query.role)
+      : undefined;
+  const role =
+    roleRequested || participation?.userParticipation.role || "CONTESTANT";
+
   return {
     props: {
       session,
       participationJSON: JSON.stringify(participation),
       ofmiEdition: ofmi?.edition ?? null,
       registrationClosingTime: ofmi?.registrationCloseTime.getTime() ?? null,
-      role:
-        (typeof query.role === "string"
-          ? ParticipationRoleOfString(query.role)
-          : undefined) ?? "CONTESTANT",
+      role,
     },
   };
 };

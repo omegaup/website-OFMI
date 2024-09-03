@@ -17,6 +17,7 @@ import { ParticipationRole, SchoolStage, ShirtSize } from "@prisma/client";
 import { sendUpsertParticipation } from "./client";
 import { useSession } from "next-auth/react";
 import { exhaustiveMatchingGuard, undefinedIfEmpty } from "@/utils";
+import { VolunteerDetails } from "./volunteerDetails";
 
 export default function Registro({
   ofmiEdition,
@@ -80,7 +81,7 @@ export default function Registro({
           }
 
           return {
-            role, // TODO: Add more roles
+            role,
             schoolName: data.get(fieldIds.schoolName)?.toString() ?? "",
             schoolStage,
             schoolGrade: Number(data.get(fieldIds.schoolGrade)?.toString()),
@@ -88,9 +89,19 @@ export default function Registro({
             schoolState: data.get(fieldIds.schoolState)?.toString() ?? "",
           };
         }
-        case "MENTOR": {
+        case "VOLUNTEER": {
           return {
             role,
+            educationalLinkageOptIn:
+              data.get(fieldIds.educationalLinkageOptIn)?.toString() === "on",
+            fundraisingOptIn:
+              data.get(fieldIds.fundraisingOptIn)?.toString() === "on",
+            communityOptIn:
+              data.get(fieldIds.communityOptIn)?.toString() === "on",
+            trainerOptIn: data.get(fieldIds.trainerOptIn)?.toString() === "on",
+            problemSetterOptIn:
+              data.get(fieldIds.problemSetterOptIn)?.toString() === "on",
+            mentorOptIn: data.get(fieldIds.mentorOptIn)?.toString() === "on",
           };
         }
         default: {
@@ -158,7 +169,7 @@ export default function Registro({
       <div className="mx-auto max-w-3xl px-2 pt-4">
         <SuccessAlert
           title="Ya estas registrada!"
-          text="Quieres modificar tu registro?"
+          text="Quieres ver y/o modificar tu registro?"
         />
         <div className="text-center">
           <Button
@@ -166,7 +177,7 @@ export default function Registro({
             buttonType="secondary"
             onClick={() => setShowAlreadyRedistered(false)}
           >
-            Modificar
+            Ver
           </Button>
         </div>
       </div>
@@ -209,7 +220,7 @@ export default function Registro({
         onSubmit={(ev) => handleSubmit(ev)}
       >
         {/* Personal information */}
-        <PersonalDetails participation={participation} />
+        <PersonalDetails participation={participation} role={role} />
         {/* Mailing address */}
         <MailingAddress participation={participation} />
 
@@ -225,6 +236,11 @@ export default function Registro({
           />
         )}
 
+        {/* VOLUNTEER specific */}
+        {role === "VOLUNTEER" && (
+          <VolunteerDetails participation={participation} />
+        )}
+
         {/* Submit form */}
         <div className="flex justify-center">
           <Button
@@ -232,7 +248,7 @@ export default function Registro({
             className="min-w-full md:w-64 md:min-w-0"
             disabled={loading}
           >
-            Enviar
+            {participation !== null ? "Guardar cambios" : "Enviar"}
           </Button>
         </div>
       </form>

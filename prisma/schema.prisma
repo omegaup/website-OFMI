@@ -68,7 +68,7 @@ model School {
 
 enum ParticipationRole {
   CONTESTANT
-  MENTOR
+  VOLUNTEER
 }
 
 model MailingAddress {
@@ -138,8 +138,8 @@ model Participation {
   ofmi                      Ofmi                     @relation(fields: [ofmiId], references: [id])
   ofmiId                    String
   role                      ParticipationRole
-  mentorParticipationId     String?
-  MentorParticipation       MentorParticipation?     @relation(fields: [mentorParticipationId], references: [id])
+  volunteerParticipationId  String?
+  VolunteerParticipation    VolunteerParticipation?  @relation(fields: [volunteerParticipationId], references: [id])
   contestantParticipationId String?
   ContestantParticipation   ContestantParticipation? @relation(fields: [contestantParticipationId], references: [id])
   createdAt                 DateTime                 @default(now())
@@ -165,11 +165,17 @@ model ContestantParticipation {
   updatedAt      DateTime        @updatedAt
 }
 
-model MentorParticipation {
-  id            String          @id @default(uuid())
-  Participation Participation[]
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+model VolunteerParticipation {
+  id                      String          @id @default(uuid())
+  educationalLinkageOptIn Boolean
+  fundraisingOptIn        Boolean
+  communityOptIn          Boolean
+  trainerOptIn            Boolean
+  problemSetterOptIn      Boolean
+  mentorOptIn             Boolean
+  Participation           Participation[]
+  createdAt               DateTime        @default(now())
+  updatedAt               DateTime        @updatedAt
 }
 
 model ProblemResult {
@@ -206,7 +212,6 @@ model OmegaupContest {
 model OmegaupUser {
   id                      String                    @id @default(uuid())
   username                String                    @unique
-  password                String
   ContestantParticipation ContestantParticipation[]
   createdAt               DateTime                  @default(now())
   updatedAt               DateTime                  @updatedAt
