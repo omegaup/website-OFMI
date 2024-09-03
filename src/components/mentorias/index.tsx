@@ -63,9 +63,6 @@ export default function Mentorias({
       .sort()
       .map((v) => new Date(v));
 
-  console.log({ availableLocalDates, availableLocalStartTimes });
-
-  console.log(showFilterCalendar);
   return (
     <div className="mx-auto max-w-4xl px-2 pt-4">
       {/* Filter calendar */}
@@ -75,17 +72,15 @@ export default function Mentorias({
           hidden={!showFilterCalendar}
         >
           <Calendar
-            defaultView="month"
+            defaultView="year" // TODO: Somehow the default view mess up the class name first rendering.
             minDate={startTime}
             maxDate={endTime}
             onClickDay={(value, event) => {
               event.preventDefault();
               if (selectedDay?.getTime() === value.getTime()) {
-                console.log(undefined);
                 setSelectedDay(undefined);
                 setSelectedStartTime(undefined);
               } else {
-                console.log(value);
                 setSelectedDay(value);
                 setSelectedStartTime(undefined);
               }

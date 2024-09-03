@@ -26,8 +26,6 @@ export default function MentoriasPage({
     );
   }
 
-  console.log({ availabilities, startTime, endTime });
-
   return (
     <Mentorias
       startTime={new Date(startTime)}
