@@ -55,12 +55,12 @@ export function validateOFMIContestantRequirements(
 
   // Lets be optimistic and assume contestant was in schoolGrade when Ofmi registration began.
   // Assume also that it started on that day the schoolGrade
-  if (ofmi.studyingHighScoolDateRequirement) {
+  if (ofmi.highSchoolGraduationDateLimit) {
     const result = validateGraduationDate({
       schoolGrade,
       schoolStage,
       started: ofmi.registrationOpenTime,
-      highSchoolGraduationLimit: ofmi.studyingHighScoolDateRequirement,
+      highSchoolGraduationLimit: ofmi.highSchoolGraduationDateLimit,
     });
     if (!result.ok) {
       return result;

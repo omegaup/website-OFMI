@@ -13,7 +13,7 @@ async function insertOFMI(): Promise<void> {
       registrationOpenTime: new Date("2024-09-08"),
       registrationCloseTime: new Date("2024-10-19"),
       birthDateRequirement: new Date("2005-07-01"),
-      studyingHighScoolDateRequirement: new Date("2025-04-01"),
+      highSchoolGraduationDateLimit: new Date("2025-04-01"),
     },
   });
 }

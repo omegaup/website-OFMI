@@ -118,17 +118,17 @@ model User {
 }
 
 model Ofmi {
-  id                               String           @id @default(uuid())
-  edition                          Int              @unique
-  year                             Int
-  registrationOpenTime             DateTime
-  registrationCloseTime            DateTime
-  birthDateRequirement             DateTime?
-  studyingHighScoolDateRequirement DateTime?
-  Participation                    Participation[]
-  OmegaupContest                   OmegaupContest[]
-  createdAt                        DateTime         @default(now())
-  updatedAt                        DateTime         @updatedAt
+  id                            String           @id @default(uuid())
+  edition                       Int              @unique
+  year                          Int
+  registrationOpenTime          DateTime
+  registrationCloseTime         DateTime
+  birthDateRequirement          DateTime?
+  highSchoolGraduationDateLimit DateTime?
+  Participation                 Participation[]
+  OmegaupContest                OmegaupContest[]
+  createdAt                     DateTime         @default(now())
+  updatedAt                     DateTime         @updatedAt
 }
 
 model Participation {

@@ -100,7 +100,7 @@ CREATE TABLE "Ofmi" (
     "registrationOpenTime" TIMESTAMP(3) NOT NULL,
     "registrationCloseTime" TIMESTAMP(3) NOT NULL,
     "birthDateRequirement" TIMESTAMP(3),
-    "studyingHighScoolDateRequirement" TIMESTAMP(3),
+    "highSchoolGraduationDateLimit" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
