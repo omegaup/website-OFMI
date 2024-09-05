@@ -1,0 +1,36 @@
+export const fieldIds = {
+  firstName: "first_name",
+  lastName: "last_name",
+  preferredName: "preferred_name",
+  birthDate: "birth_date",
+  governmentId: "government_id",
+  pronouns: "pronouns",
+  shirtSize: "shirt_size",
+  shirtStyle: "shirt_style",
+  mailingRecipient: "recipient",
+  mailingStreet: "street",
+  mailingExternalNumber: "external_number",
+  mailingInternalNumber: "internal_number",
+  mailingZipcode: "zipcode",
+  mailingCountry: "mailing_country",
+  mailingState: "mailing_state",
+  mailingMunicipality: "mailing_municipality",
+  mailingLocality: "mailing_locality",
+  mailingReferences: "references",
+  mailingPhone: "phone",
+
+  // CONTESTANT specific
+  schoolCountry: "school_country",
+  schoolState: "school_state",
+  schoolName: "school_name",
+  schoolStage: "school_stage",
+  schoolGrade: "school_grade",
+
+  // VOLUNTEER specific
+  communityOptIn: "community_opt_in",
+  educationalLinkageOptIn: "educational_linkage_opt_in",
+  fundraisingOptIn: "fundraising_opt_in",
+  mentorOptIn: "mentor_opt_in",
+  problemSetterOptIn: "problem_setter_opt_in",
+  trainerOptIn: "trainer_opt_in",
+};

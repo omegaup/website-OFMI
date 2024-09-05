@@ -1,5 +1,18 @@
-version: "3.8"
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ofmi_app
+    command: npm run dev
+    env_file: ".env.dev"
+    volumes:
+      - .:/app
+      - /app/node_modules # this one
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
   db:
     image: postgres:14.1-alpine
     container_name: ofmi_db
@@ -9,23 +22,22 @@ services:
       - POSTGRES_PASSWORD=ofmi
       - POSTGRES_DB=ofmi
     ports:
-      - "5050:5432"
+      - "5432:5432"
     volumes:
       - db:/var/lib/postgresql/data
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: ofmi_pgadmin
+  studio:
+    image: ofmi_app
     restart: always
-    ports:
-      - "5051:80"
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@ofmi.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+    command: npm run studio
+    env_file: ".env.dev"
     volumes:
-      - pgadmin-data:/var/lib/pgadmin
-      - ./pgadmin-servers.json:/pgadmin4/servers.json
+      - .:/app
+      - /app/node_modules # this one
+    ports:
+      - "5555:5555"
+    depends_on:
+      - app
 
 volumes:
   db:
     driver: local
-  pgadmin-data:

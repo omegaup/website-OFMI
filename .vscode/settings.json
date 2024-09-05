@@ -3,5 +3,8 @@
     "source.fixAll.eslint": "explicit",
     "source.fixAll": "explicit"
   },
-  "standard.enable": false
+  "standard.enable": false,
+  "prettier.prettierPath": "./node_modules/prettier",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "tailwindCSS.codeActions": false
 }

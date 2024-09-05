@@ -4,6 +4,7 @@ import type { NextApiHandler } from "next/types";
 import { LoginUserRequest, LoginUserResponse } from "@/types/auth.schema";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
+import config from "@/config/default";
 
 const prisma = new PrismaClient();
 
@@ -26,16 +27,13 @@ export const authOptions: AuthOptions = {
           password: credentials.password,
         };
 
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/api/user/auth`,
-          {
-            method: "POST",
-            body: JSON.stringify(userCredentials),
-            headers: {
-              "Content-Type": "application/json",
-            },
+        const res = await fetch(`${config.BASE_URL}/api/user/auth`, {
+          method: "POST",
+          body: JSON.stringify(userCredentials),
+          headers: {
+            "Content-Type": "application/json",
           },
-        );
+        });
 
         if (res.status == 401) {
           throw new Error("EmailNotVerified");
@@ -56,6 +54,7 @@ export const authOptions: AuthOptions = {
         }
 
         const response: LoginUserResponse = await res.json();
+
         return response.user;
       },
     }),
@@ -78,13 +77,28 @@ export const authOptions: AuthOptions = {
 
   callbacks: {
     async session({ session, user }) {
-      if (user !== null) {
-        session.user = user;
+      if (user) {
+        session.user = {
+          ...session.user,
+          ...user,
+        };
+      }
+      // For safety serialization
+      if (session.user) {
+        session.user.email = session.user.email ?? null;
+        session.user.image = session.user.image ?? null;
+        session.user.name = session.user.name ?? null;
       }
       return await session;
     },
 
-    async jwt({ token }) {
+    async jwt({ token, user }) {
+      if (user) {
+        token = {
+          ...token,
+          user,
+        };
+      }
       return await token;
     },
   },
