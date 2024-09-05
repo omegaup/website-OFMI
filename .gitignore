@@ -1,3 +1,5 @@
+.env.prod
+
 # Replit global yarn
 .local/**
 .breakpoints
