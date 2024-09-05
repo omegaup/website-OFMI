@@ -10,8 +10,10 @@ async function insertOFMI(): Promise<void> {
     create: {
       edition: 4,
       year: 2024,
-      registrationOpenTime: new Date(Date.now()),
-      registrationCloseTime: new Date("2050-08-08"),
+      registrationOpenTime: new Date("2024-09-08"),
+      registrationCloseTime: new Date("2024-10-19"),
+      birthDateRequirement: new Date("2005-07-01"),
+      studyingHighScoolDateRequirement: new Date("2025-04-01"),
     },
   });
 }
