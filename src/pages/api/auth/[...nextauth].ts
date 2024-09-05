@@ -4,6 +4,7 @@ import type { NextApiHandler } from "next/types";
 import { LoginUserRequest, LoginUserResponse } from "@/types/auth.schema";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
+import config from "@/config/default";
 
 const prisma = new PrismaClient();
 
@@ -26,16 +27,13 @@ export const authOptions: AuthOptions = {
           password: credentials.password,
         };
 
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/api/user/auth`,
-          {
-            method: "POST",
-            body: JSON.stringify(userCredentials),
-            headers: {
-              "Content-Type": "application/json",
-            },
+        const res = await fetch(`${config.BASE_URL}/api/user/auth`, {
+          method: "POST",
+          body: JSON.stringify(userCredentials),
+          headers: {
+            "Content-Type": "application/json",
           },
-        );
+        });
 
         if (res.status == 401) {
           throw new Error("EmailNotVerified");

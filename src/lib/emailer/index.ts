@@ -14,8 +14,8 @@ export class Emailer {
     this.transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: process.env.OFMI_EMAIL_SMTP_USER,
-        pass: process.env.OFMI_EMAIL_SMTP_PASSWORD,
+        user: config.OFMI_EMAIL_SMTP_USER,
+        pass: config.OFMI_EMAIL_SMTP_PASSWORD,
       },
     });
   }

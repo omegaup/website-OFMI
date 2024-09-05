@@ -22,7 +22,7 @@ export default async function generateAndSendVerificationToken(
     expiresIn: config.VERIFICATION_TOKEN_EXPIRATION,
   });
 
-  const url: string = `${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/login?verifyToken=${emailToken}`;
+  const url: string = `${config.BASE_URL}/login?verifyToken=${emailToken}`;
 
   await emailer.notifyUserForSignup(email, url);
 }

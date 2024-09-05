@@ -1,3 +1,4 @@
+import config from "@/config/default";
 import type { MailOptions } from "nodemailer/lib/json-transport";
 
 export const newUserEmailTemplate = (
@@ -5,7 +6,7 @@ export const newUserEmailTemplate = (
   url: string,
 ): MailOptions => {
   return {
-    from: process.env.OFMI_EMAIL_SMTP_USER,
+    from: config.OFMI_EMAIL_SMTP_USER,
     to: email,
     subject: "Verifica tu cuenta de la página de la OFMI",
     text: "Verifica tu cuenta de la página de la OFMI",
@@ -23,14 +24,14 @@ export const newUserEmailTemplate = (
 
 export const signUpSuccessfulEmailTemplate = (email: string): MailOptions => {
   return {
-    from: process.env.OFMI_EMAIL_SMTP_USER,
+    from: config.OFMI_EMAIL_SMTP_USER,
     to: email,
     subject: "La página de la OFMI te da la bienvenida",
     text: "La página de la OFMI te da la bienvenida",
     html: `
         <p>Ahora ya tienes un login para usar la página de la OFMI.</p>
         <p>Es muy importante que recuerdes que este login no significa que ya estés participando en la OFMI, para ese registro tienes que ir a la liga de 
-        <a href="https://ofmi.omegaup.com/registro">Registro</a> </p>
+        <a href="${config.BASE_URL}/registro">Registro</a> </p>
         <p>Si tienes alguna duda por favor envía un correo a
         <a href="mailto:ofmi@omegaup.com">ofmi@omegaup.com</a></p>
         <br />
@@ -43,7 +44,7 @@ export const ofmiRegistrationCompleteTemplate = (
   email: string,
 ): MailOptions => {
   return {
-    from: process.env.OFMI_EMAIL_SMTP_USER,
+    from: config.OFMI_EMAIL_SMTP_USER,
     to: email,
     subject: "Te has registrado exitosamente a la OFMI",
     text: "Te has registrado exitosamente a la OFMI",
