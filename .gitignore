@@ -1,5 +1,6 @@
 # Replit global yarn
 .local/**
+.breakpoints
 
 # Yarn
 .pnp.*
