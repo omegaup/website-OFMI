@@ -1,4 +1,4 @@
-import Results from "./index_.mdx";
+import Results from "./_index.mdx";
 import styles from "./index.module.css";
 
 function CustomTable({
