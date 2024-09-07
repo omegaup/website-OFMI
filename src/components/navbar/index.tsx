@@ -7,9 +7,10 @@ import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 
 const navigation = {
-  Material: "/material",
   Convocatoria: "/convocatoria",
+  Material: "/material",
   FAQ: "/faq",
+  Donaciones: "/dona",
 };
 
 export type NavigationItem = keyof typeof navigation;
