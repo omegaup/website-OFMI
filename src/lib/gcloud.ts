@@ -6,9 +6,14 @@ import { findParticipants } from "./ofmi";
 import { PronounName } from "@/types/pronouns";
 import { jsonToCsv } from "@/utils";
 import config from "@/config/default";
+import { TTLCache } from "./cache";
 
 const FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
 const SPREADSHEETS_MIME_TYPE = "application/vnd.google-apps.spreadsheet";
+
+const caches = {
+  findOrCreateResource: new TTLCache<string>(),
+};
 
 async function findOrCreateResource({
   mimeType,
@@ -21,6 +26,14 @@ async function findOrCreateResource({
   parentFolderId: string;
   service: google.drive_v3.Drive;
 }): Promise<string> {
+  // Check if the cache has the result
+  const ttlCache = caches["findOrCreateResource"];
+  const cacheKey = `${name}:${parentFolderId}:${mimeType}`;
+  const cacheValue = ttlCache.get(cacheKey);
+  if (cacheValue) {
+    return cacheValue;
+  }
+
   const { data } = await service.files.list({
     q: `trashed=false and name='${name}' and '${parentFolderId}' in parents and mimeType = '${mimeType}'`,
   });
@@ -52,6 +65,7 @@ async function findOrCreateResource({
     );
   }
 
+  ttlCache.set(cacheKey, id);
   return id;
 }
 

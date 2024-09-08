@@ -8,8 +8,6 @@ import { getAllAvailabilities } from "@/lib/volunteer/mentor";
 import { nextHalfHour } from "@/utils/time";
 import { UserAvailability } from "@/types/mentor.schema";
 import Mentorias from "@/components/mentorias";
-import { getServerSession } from "next-auth";
-import { authOptions } from "./api/auth/[...nextauth]";
 
 export default function MentoriasPage({
   startTime,
