@@ -42,18 +42,7 @@ export const getServerSideProps: GetServerSideProps<{
   endTime: string;
   availabilities: Array<UserAvailability>;
   errorMsg: string | null;
-}> = async ({ req, res }) => {
-  const session = await getServerSession(req, res, authOptions);
-
-  if (!session) {
-    return {
-      redirect: {
-        destination: "/login",
-        permanent: false,
-      },
-    };
-  }
-
+}> = async () => {
   const ofmi = await findMostRecentOfmi();
 
   const startTime = nextHalfHour(new Date(Date.now()));
