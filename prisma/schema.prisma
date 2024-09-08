@@ -26,6 +26,7 @@ model UserAuth {
 
 enum OauthProvider {
   CALENDLY
+  GCLOUD
 }
 
 model UserOauth {

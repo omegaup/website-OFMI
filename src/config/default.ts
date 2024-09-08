@@ -12,7 +12,9 @@ const config = {
 
   CALENDLY_CLIENT_ID: process.env.CALENDLY_CLIENT_ID ?? "",
   CALENDLY_CLIENT_SECRET: process.env.CALENDLY_CLIENT_SECRET ?? "",
-  CALENDLY_REDIRECT_URI: process.env.CALENDLY_REDIRECT_URI ?? "",
+
+  GCLOUD_CLIENT_ID: process.env.GCLOUD_CLIENT_ID ?? "",
+  GCLOUD_CLIENT_SECRET: process.env.GCLOUD_CLIENT_SECRET ?? "",
 };
 
 export default config;

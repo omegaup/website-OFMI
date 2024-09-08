@@ -8,13 +8,49 @@ type UserOauthInput = Omit<UserOauth, "id" | "createdAt" | "updatedAt">;
 type OauthInput = Omit<UserOauthInput, "userAuthId">;
 const OAUTH_REDIRECT_BASE_URL = `${config.BASE_URL}/__/oauth`;
 
+export class Intf {
+  static async refreshToken(
+    oauthInput: UserOauthInput,
+  ): Promise<UserOauthInput> {
+    throw Error(`Not implemented intf for ${oauthInput.provider}`);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  static async connect(_authorizationCode: string): Promise<OauthInput> {
+    throw Error("Not implemented");
+  }
+}
+
+export class GCloud {
+  static REDIRECT_URI = `${OAUTH_REDIRECT_BASE_URL}/gcloud`;
+  static REDIRECT_TO = `https://accounts.google.com/o/oauth2/v2/auth?${new URLSearchParams(
+    {
+      client_id: config.GCLOUD_CLIENT_ID,
+      redirect_uri: GCloud.REDIRECT_URI,
+      response_type: "token",
+      scope:
+        "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.appdata",
+      include_granted_scopes: "true",
+      state: "pass-through value",
+    },
+  ).toString()}`;
+
+  static async refreshToken(
+    oauthInput: UserOauthInput,
+  ): Promise<UserOauthInput> {
+    throw Error(`Not implemented intf for ${oauthInput.provider}`);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  static async connect(_authorizationCode: string): Promise<OauthInput> {
+    throw Error("Not implemented");
+  }
+}
+
 export class Calendly {
   static AUTH_URL = "https://auth.calendly.com";
   static REDIRECT_URI = `${OAUTH_REDIRECT_BASE_URL}/calendly`;
-
-  static redirect(): string {
-    return `${this.AUTH_URL}/oauth/authorize?client_id=${config.CALENDLY_CLIENT_ID}&response_type=code&redirect_uri=${Calendly.REDIRECT_URI}`;
-  }
+  static REDIRECT_TO = `${Calendly.AUTH_URL}/oauth/authorize?client_id=${config.CALENDLY_CLIENT_ID}&response_type=code&redirect_uri=${Calendly.REDIRECT_URI}`;
 
   static async parseOauthResponse(response: Response): Promise<OauthInput> {
     const json = await response.json();
@@ -101,10 +137,12 @@ async function store(userOauth: UserOauthInput): Promise<UserOauth> {
   });
 }
 
-function providerIntf(provider: OauthProvider): typeof Calendly {
+function providerIntf(provider: OauthProvider): typeof Intf {
   switch (provider) {
     case "CALENDLY":
       return Calendly;
+    case "GCLOUD":
+      return GCloud;
     default:
       return exhaustiveMatchingGuard(provider);
   }
