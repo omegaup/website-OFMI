@@ -21,10 +21,10 @@ async function insertOFMI(): Promise<void> {
 
 async function insertUser(): Promise<void> {
   await prisma.userAuth.upsert({
-    where: { email: config.OFMI_EMAIL },
+    where: { email: config.OFMI_USER_EMAIL },
     update: {},
     create: {
-      email: config.OFMI_EMAIL,
+      email: config.OFMI_USER_EMAIL,
       password: hashPassword("password"),
       role: "ADMIN",
       emailVerified: new Date(Date.now()),
