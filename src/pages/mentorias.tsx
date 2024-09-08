@@ -8,8 +8,6 @@ import { getAllAvailabilities } from "@/lib/volunteer/mentor";
 import { nextHalfHour } from "@/utils/time";
 import { UserAvailability } from "@/types/mentor.schema";
 import Mentorias from "@/components/mentorias";
-import { getServerSession } from "next-auth";
-import { authOptions } from "./api/auth/[...nextauth]";
 
 export default function MentoriasPage({
   startTime,
@@ -42,18 +40,7 @@ export const getServerSideProps: GetServerSideProps<{
   endTime: string;
   availabilities: Array<UserAvailability>;
   errorMsg: string | null;
-}> = async ({ req, res }) => {
-  const session = await getServerSession(req, res, authOptions);
-
-  if (!session) {
-    return {
-      redirect: {
-        destination: "/login",
-        permanent: false,
-      },
-    };
-  }
-
+}> = async () => {
   const ofmi = await findMostRecentOfmi();
 
   const startTime = nextHalfHour(new Date(Date.now()));

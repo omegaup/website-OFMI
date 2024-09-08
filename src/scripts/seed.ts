@@ -1,3 +1,4 @@
+import config from "@/config/default";
 import { hashPassword } from "@/lib/hashPassword";
 import { PrismaClient } from "@prisma/client";
 
@@ -20,10 +21,10 @@ async function insertOFMI(): Promise<void> {
 
 async function insertUser(): Promise<void> {
   await prisma.userAuth.upsert({
-    where: { email: "ofmi@omegaup.com" },
+    where: { email: config.OFMI_USER_EMAIL },
     update: {},
     create: {
-      email: "ofmi@omegaup.com",
+      email: config.OFMI_USER_EMAIL,
       password: hashPassword("password"),
       role: "ADMIN",
       emailVerified: new Date(Date.now()),

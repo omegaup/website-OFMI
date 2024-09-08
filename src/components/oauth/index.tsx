@@ -7,16 +7,16 @@ function Provider({
   userAuthId,
   name,
   connected,
-  redirect,
+  redirect_to,
 }: {
   userAuthId: string;
   name: OauthProvider;
   connected: boolean;
-  redirect: string;
+  redirect_to: string;
 }): JSX.Element {
   const [isConnected, setConnected] = useState(connected);
   return (
-    <div className="grid md:grid-cols-2 md:gap-6">
+    <div className="mb-4 grid md:grid-cols-2 md:gap-6">
       {name}
       {isConnected ? (
         <Button
@@ -45,7 +45,7 @@ function Provider({
         </Button>
       ) : (
         <Button>
-          <a href={redirect}>Connect</a>
+          <a href={redirect_to}>Connect</a>
         </Button>
       )}
     </div>
@@ -56,22 +56,29 @@ function Provider({
 export default function Oauth({
   userAuthId,
   connectedProviders,
-  calendlyRedirect,
+  calendlyRedirectTo,
+  gCloudRedirectTo,
 }: {
   userAuthId: string;
   connectedProviders: Array<OauthProvider>;
-  calendlyRedirect: string;
+  calendlyRedirectTo: string;
+  gCloudRedirectTo: string;
 }): JSX.Element {
   const isProviderConnected = (provider: OauthProvider): boolean =>
     connectedProviders.find((v) => v === provider) !== undefined;
   return (
     <div className="mx-auto max-w-3xl px-2 pt-4">
-      {/* Calendly */}
       <Provider
         userAuthId={userAuthId}
         name="CALENDLY"
         connected={isProviderConnected("CALENDLY")}
-        redirect={calendlyRedirect}
+        redirect_to={calendlyRedirectTo}
+      />
+      <Provider
+        userAuthId={userAuthId}
+        name="GCLOUD"
+        connected={isProviderConnected("GCLOUD")}
+        redirect_to={gCloudRedirectTo}
       />
     </div>
   );

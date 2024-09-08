@@ -31,7 +31,7 @@ export const Alert = ({
 export interface SuccessAlertProps
   extends React.HTMLAttributes<HTMLDivElement> {
   title?: string;
-  text: string;
+  text?: string;
 }
 
 export const SuccessAlert = ({
@@ -58,7 +58,7 @@ export const SuccessAlert = ({
         </div>
         <div>
           <p className="font-bold">{title ?? "¡Listo!"}</p>
-          <p className="text-sm">{text}</p>
+          {text && <p className="text-sm">{text}</p>}
           {children}
         </div>
       </div>

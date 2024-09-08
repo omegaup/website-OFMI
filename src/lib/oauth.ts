@@ -3,17 +3,113 @@ import { basicAuth } from "@/utils/http";
 import { OauthProvider, UserOauth } from "@prisma/client";
 import config from "@/config/default";
 import { exhaustiveMatchingGuard } from "@/utils";
+import { getSecretOrError } from "./secret";
 
 type UserOauthInput = Omit<UserOauth, "id" | "createdAt" | "updatedAt">;
 type OauthInput = Omit<UserOauthInput, "userAuthId">;
+const OAUTH_REDIRECT_BASE_URL = `${config.BASE_URL}/__/oauth`;
+
+export class Intf {
+  static async refreshToken(
+    oauthInput: UserOauthInput,
+  ): Promise<UserOauthInput> {
+    throw Error(`Not implemented intf for ${oauthInput.provider}`);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  static async connect(_authorizationCode: string): Promise<OauthInput> {
+    throw Error("Not implemented");
+  }
+}
+
+export class GCloud {
+  static GCLOUD_CLIENT_ID_KEY = "GCLOUD_CLIENT_ID";
+  static GCLOUD_CLIENT_SECRET_KEY = "GCLOUD_CLIENT_SECRET";
+  static REDIRECT_URI = `${OAUTH_REDIRECT_BASE_URL}/gcloud`;
+  static REDIRECT_TO = `https://accounts.google.com/o/oauth2/v2/auth?${new URLSearchParams(
+    {
+      client_id: GCloud.GCLOUD_CLIENT_ID_KEY,
+      redirect_uri: GCloud.REDIRECT_URI,
+      response_type: "code",
+      scope:
+        "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.appdata",
+      access_type: "offline",
+    },
+  ).toString()}`;
+
+  static async parseOauthResponse(
+    refreshToken: string | null,
+    response: Response,
+  ): Promise<OauthInput> {
+    const json = await response.json();
+    if (response.status !== 200) {
+      console.error("GCloud API error", json);
+      throw new Error("GCloud API error");
+    }
+    const expiresInSeconds = Number(json["expires_in"]);
+    return {
+      provider: OauthProvider.GCLOUD,
+      accessToken: json["access_token"] as string,
+      refreshToken: refreshToken || (json["refresh_token"] as string),
+      expiresAt: new Date(Date.now() + expiresInSeconds * 1000),
+    };
+  }
+
+  static async sendRequest(
+    grantType:
+      | {
+          grant_type: "authorization_code";
+          code: string;
+        }
+      | {
+          grant_type: "refresh_token";
+          refresh_token: string;
+        },
+  ): Promise<OauthInput> {
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        client_id: getSecretOrError(GCloud.GCLOUD_CLIENT_ID_KEY),
+        client_secret: getSecretOrError(GCloud.GCLOUD_CLIENT_SECRET_KEY),
+        redirect_uri: GCloud.REDIRECT_URI,
+        ...grantType,
+      }),
+    };
+    const res = await fetch("https://oauth2.googleapis.com/token", options);
+    const refreshToken =
+      grantType.grant_type === "refresh_token" ? grantType.refresh_token : null;
+    return await GCloud.parseOauthResponse(refreshToken, res);
+  }
+
+  static async refreshToken(
+    userOauth: UserOauthInput,
+  ): Promise<UserOauthInput> {
+    return {
+      userAuthId: userOauth.userAuthId,
+      ...(await GCloud.sendRequest({
+        grant_type: "refresh_token",
+        refresh_token: userOauth.refreshToken,
+      })),
+    };
+  }
+
+  static async connect(authorizationCode: string): Promise<OauthInput> {
+    return await GCloud.sendRequest({
+      grant_type: "authorization_code",
+      code: authorizationCode,
+    });
+  }
+}
 
 export class Calendly {
+  static CALENDLY_CLIENT_SECRET_KEY = "CALENDLY_CLIENT_SECRET";
+  static CALENDLY_CLIENT_ID_KEY = "CALENDLY_CLIENT_ID";
   static AUTH_URL = "https://auth.calendly.com";
-  static PROVIDER = OauthProvider.CALENDLY;
-
-  static redirect(): string {
-    return `${this.AUTH_URL}/oauth/authorize?client_id=${config.CALENDLY_CLIENT_ID}&response_type=code&redirect_uri=${config.CALENDLY_REDIRECT_URI}`;
-  }
+  static REDIRECT_URI = `${OAUTH_REDIRECT_BASE_URL}/calendly`;
+  static REDIRECT_TO = `${Calendly.AUTH_URL}/oauth/authorize?client_id=${getSecretOrError(Calendly.CALENDLY_CLIENT_ID_KEY)}&response_type=code&redirect_uri=${Calendly.REDIRECT_URI}`;
 
   static async parseOauthResponse(response: Response): Promise<OauthInput> {
     const json = await response.json();
@@ -23,7 +119,7 @@ export class Calendly {
     }
     const expiresInSeconds = Number(json["expires_in"]);
     return {
-      provider: Calendly.PROVIDER,
+      provider: OauthProvider.CALENDLY,
       accessToken: json["access_token"] as string,
       refreshToken: json["refresh_token"] as string,
       expiresAt: new Date(Date.now() + expiresInSeconds * 1000),
@@ -38,8 +134,8 @@ export class Calendly {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
         Authorization: basicAuth(
-          config.CALENDLY_CLIENT_ID,
-          config.CALENDLY_CLIENT_SECRET,
+          getSecretOrError(Calendly.CALENDLY_CLIENT_ID_KEY),
+          getSecretOrError(Calendly.CALENDLY_CLIENT_SECRET_KEY),
         ),
       },
       body: new URLSearchParams({
@@ -60,14 +156,14 @@ export class Calendly {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
         Authorization: basicAuth(
-          config.CALENDLY_CLIENT_ID,
-          config.CALENDLY_CLIENT_SECRET,
+          getSecretOrError(Calendly.CALENDLY_CLIENT_ID_KEY),
+          getSecretOrError(Calendly.CALENDLY_CLIENT_SECRET_KEY),
         ),
       },
       body: new URLSearchParams({
         grant_type: "authorization_code",
         code: authorizationCode,
-        redirect_uri: config.CALENDLY_REDIRECT_URI,
+        redirect_uri: Calendly.REDIRECT_URI,
       }),
     };
     const res = await fetch(`${Calendly.AUTH_URL}/oauth/token`, options);
@@ -100,10 +196,12 @@ async function store(userOauth: UserOauthInput): Promise<UserOauth> {
   });
 }
 
-function providerIntf(provider: OauthProvider): typeof Calendly {
+function providerIntf(provider: OauthProvider): typeof Intf {
   switch (provider) {
     case "CALENDLY":
       return Calendly;
+    case "GCLOUD":
+      return GCloud;
     default:
       return exhaustiveMatchingGuard(provider);
   }

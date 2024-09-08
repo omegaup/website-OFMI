@@ -1,20 +1,118 @@
 import { prisma } from "@/lib/prisma";
 import {
   ParticipationRequestInput,
+  ParticipationRequestInputSchema,
   UserParticipation,
 } from "@/types/participation.schema";
 import { Pronoun, PronounsOfString } from "@/types/pronouns";
 import { ShirtStyle, ShirtStyleOfString } from "@/types/shirt";
+import { filterNull } from "@/utils";
 import { Ofmi } from "@prisma/client";
+import { Value } from "@sinclair/typebox/value";
+import { TTLCache } from "./cache";
 
-export async function findMostRecentOfmi(): Promise<Ofmi | null> {
+const caches = {
+  findMostRecentOfmi: new TTLCache<Ofmi>(),
+};
+
+export async function findMostRecentOfmi(): Promise<Ofmi> {
+  // Check if the cache has the result
+  const ttlCache = caches["findMostRecentOfmi"];
+  const cacheKey = "findMostRecentOfmi";
+  const cacheValue = ttlCache.get(cacheKey);
+  if (cacheValue) {
+    return cacheValue;
+  }
+
   const ofmi = await prisma.ofmi.findFirst({
     orderBy: { edition: "desc" },
   });
   if (!ofmi) {
-    console.error("Most recent OFMI not found.");
+    throw Error("Most recent OFMI not found.");
   }
+
+  ttlCache.set(cacheKey, ofmi);
   return ofmi;
+}
+
+export async function findParticipants(
+  ofmi: Ofmi,
+): Promise<Array<ParticipationRequestInput>> {
+  const participants = await prisma.participation.findMany({
+    where: { ofmiId: ofmi.id },
+    include: {
+      user: {
+        include: {
+          MailingAddress: true,
+          UserAuth: {
+            select: { email: true },
+          },
+        },
+      },
+      ContestantParticipation: {
+        include: {
+          School: true,
+        },
+      },
+      VolunteerParticipation: true,
+    },
+  });
+
+  const res = participants.map((participation) => {
+    // TODO: Share code with findParticipation
+    const {
+      user,
+      role,
+      ContestantParticipation: contestantParticipation,
+      VolunteerParticipation: volunteerParticipation,
+    } = participation;
+    const { MailingAddress: mailingAddress } = user;
+
+    const userParticipation: UserParticipation | null =
+      (role === "CONTESTANT" &&
+        contestantParticipation && {
+          role,
+          schoolName: contestantParticipation.School.name,
+          schoolStage: contestantParticipation.School.stage,
+          schoolGrade: contestantParticipation.schoolGrade,
+          schoolCountry: contestantParticipation.School.country,
+          schoolState: contestantParticipation.School.state,
+        }) ||
+      (role === "VOLUNTEER" &&
+        volunteerParticipation && {
+          role,
+          ...volunteerParticipation,
+        }) ||
+      null;
+
+    if (!userParticipation) {
+      return null;
+    }
+
+    const payload: ParticipationRequestInput = {
+      ofmiEdition: ofmi.edition,
+      user: {
+        ...user,
+        email: user.UserAuth.email,
+        birthDate: user.birthDate.toISOString(),
+        pronouns: PronounsOfString(user.pronouns) as Pronoun,
+        shirtStyle: ShirtStyleOfString(user.shirtStyle) as ShirtStyle,
+        mailingAddress: {
+          ...mailingAddress,
+          recipient: mailingAddress.name,
+          internalNumber: mailingAddress.internalNumber ?? undefined,
+          municipality: mailingAddress.county,
+          locality: mailingAddress.neighborhood,
+          references: mailingAddress.references ?? undefined,
+        },
+      },
+      userParticipation: userParticipation as UserParticipation,
+    };
+
+    return Value.Cast(ParticipationRequestInputSchema, payload);
+  });
+
+  return filterNull(res);
 }
 
 export async function findParticipation(
@@ -26,6 +124,9 @@ export async function findParticipation(
       user: {
         include: {
           MailingAddress: true,
+          UserAuth: {
+            select: { email: true },
+          },
         },
       },
       ContestantParticipation: {
@@ -63,12 +164,7 @@ export async function findParticipation(
     (role === "VOLUNTEER" &&
       volunteerParticipation && {
         role,
-        educationalLinkageOptIn: volunteerParticipation.educationalLinkageOptIn,
-        fundraisingOptIn: volunteerParticipation.fundraisingOptIn,
-        communityOptIn: volunteerParticipation.communityOptIn,
-        trainerOptIn: volunteerParticipation.trainerOptIn,
-        problemSetterOptIn: volunteerParticipation.problemSetterOptIn,
-        mentorOptIn: volunteerParticipation.mentorOptIn,
+        ...volunteerParticipation,
       }) ||
     null;
 
@@ -76,32 +172,25 @@ export async function findParticipation(
     return null;
   }
 
-  return {
+  const payload: ParticipationRequestInput = {
     ofmiEdition: ofmi.edition,
     user: {
-      email: email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      preferredName: user.preferredName,
+      ...user,
+      email: user.UserAuth.email,
       birthDate: user.birthDate.toISOString(),
-      governmentId: user.governmentId,
       pronouns: PronounsOfString(user.pronouns) as Pronoun,
-      shirtSize: user.shirtSize,
       shirtStyle: ShirtStyleOfString(user.shirtStyle) as ShirtStyle,
       mailingAddress: {
+        ...mailingAddress,
         recipient: mailingAddress.name,
-        street: mailingAddress.street,
-        externalNumber: mailingAddress.externalNumber,
         internalNumber: mailingAddress.internalNumber ?? undefined,
-        state: mailingAddress.state,
-        zipcode: mailingAddress.zipcode,
-        country: mailingAddress.country,
         municipality: mailingAddress.county,
         locality: mailingAddress.neighborhood,
         references: mailingAddress.references ?? undefined,
-        phone: mailingAddress.phone,
       },
     },
     userParticipation: userParticipation as UserParticipation,
   };
+
+  return Value.Cast(ParticipationRequestInputSchema, payload);
 }

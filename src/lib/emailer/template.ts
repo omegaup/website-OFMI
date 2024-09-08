@@ -1,12 +1,15 @@
 import config from "@/config/default";
 import type { MailOptions } from "nodemailer/lib/json-transport";
+import { getSecretOrError } from "../secret";
+
+export const OFMI_EMAIL_SMTP_USER_KEY = "OFMI_EMAIL_SMTP_USER";
 
 export const newUserEmailTemplate = (
   email: string,
   url: string,
 ): MailOptions => {
   return {
-    from: config.OFMI_EMAIL_SMTP_USER,
+    from: getSecretOrError(OFMI_EMAIL_SMTP_USER_KEY),
     to: email,
     subject: "Verifica tu cuenta de la página de la OFMI",
     text: "Verifica tu cuenta de la página de la OFMI",
@@ -24,7 +27,7 @@ export const newUserEmailTemplate = (
 
 export const signUpSuccessfulEmailTemplate = (email: string): MailOptions => {
   return {
-    from: config.OFMI_EMAIL_SMTP_USER,
+    from: getSecretOrError(OFMI_EMAIL_SMTP_USER_KEY),
     to: email,
     subject: "La página de la OFMI te da la bienvenida",
     text: "La página de la OFMI te da la bienvenida",
@@ -44,7 +47,7 @@ export const ofmiRegistrationCompleteTemplate = (
   email: string,
 ): MailOptions => {
   return {
-    from: config.OFMI_EMAIL_SMTP_USER,
+    from: getSecretOrError(OFMI_EMAIL_SMTP_USER_KEY),
     to: email,
     subject: "Te has registrado exitosamente a la OFMI",
     text: "Te has registrado exitosamente a la OFMI",
