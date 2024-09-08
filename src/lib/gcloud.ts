@@ -1,11 +1,11 @@
 import path from "path";
 import * as google from "googleapis";
-import { prisma } from "@/lib/prisma";
 import { getAccessToken } from "./oauth";
-import { OauthProvider, ParticipationRole } from "@prisma/client";
-import { findMostRecentOfmi, findParticipants } from "./ofmi";
+import { OauthProvider, Ofmi, ParticipationRole } from "@prisma/client";
+import { findParticipants } from "./ofmi";
 import { PronounName } from "@/types/pronouns";
 import { jsonToCsv } from "@/utils";
+import config from "@/config/default";
 
 const FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
 const SPREADSHEETS_MIME_TYPE = "application/vnd.google-apps.spreadsheet";
@@ -57,15 +57,15 @@ async function findOrCreateResource({
 
 async function getOrCreateFolder({
   dir,
-  parentId,
   service,
+  parentFolderId = config.GDRIVE_ROOT_FOLDER,
 }: {
-  parentId: string;
   dir: string;
   service: google.drive_v3.Drive;
+  parentFolderId?: string;
 }): Promise<string> {
   if (!dir) {
-    return parentId;
+    return parentFolderId;
   }
   const parts = dir.split("/");
   const base = parts[0];
@@ -74,30 +74,34 @@ async function getOrCreateFolder({
   const folderId = await findOrCreateResource({
     mimeType: FOLDER_MIME_TYPE,
     name: base,
-    parentFolderId: parentId,
+    parentFolderId: parentFolderId,
     service,
   });
 
-  return await getOrCreateFolder({ dir: rest, parentId: folderId, service });
+  return await getOrCreateFolder({
+    dir: rest,
+    parentFolderId: folderId,
+    service,
+  });
 }
 
 async function getOrCreateFile({
   filepath,
-  rootFolderId,
   service,
   mimeType,
+  parentFolderId = config.GDRIVE_ROOT_FOLDER,
 }: {
   filepath: string;
-  rootFolderId: string;
   service: google.drive_v3.Drive;
   mimeType: string;
+  parentFolderId?: string;
 }): Promise<string> {
   const filename = path.basename(filepath);
   const dir = path.dirname(filepath);
   const folderId = await getOrCreateFolder({
     dir,
-    parentId: rootFolderId,
     service,
+    parentFolderId,
   });
   return await findOrCreateResource({
     mimeType,
@@ -159,20 +163,14 @@ async function getOrCreateSheets({
   });
 }
 
-export async function listOFMIFolders(): Promise<void> {
-  const oauth = await prisma.userOauth.findFirst({
-    where: {
-      UserAuth: { email: "ofmi@omegaup.com" },
-    },
-    include: {
-      UserAuth: true,
-    },
-  });
-  const userAuthId = oauth?.UserAuth.id;
-  if (!userAuthId) {
-    return;
-  }
-  const token = await getAccessToken(userAuthId, OauthProvider.GCLOUD, oauth);
+export async function exportParticipants({
+  userAuthId,
+  ofmi,
+}: {
+  userAuthId: string;
+  ofmi: Ofmi;
+}): Promise<string> {
+  const token = await getAccessToken(userAuthId, OauthProvider.GCLOUD);
 
   const auth = new google.Auth.OAuth2Client({
     credentials: {
@@ -185,7 +183,6 @@ export async function listOFMIFolders(): Promise<void> {
 
   const spreadsheetId = await getOrCreateFile({
     filepath: "4ta-ofmi/registro-participantes",
-    rootFolderId: "1Jrpl6n5zhdCdhXLXehHlNoaxtDvo51Sd",
     service,
     mimeType: SPREADSHEETS_MIME_TYPE,
   });
@@ -204,11 +201,10 @@ export async function listOFMIFolders(): Promise<void> {
   const contestantSheetId = sheetIds.at(0);
   const volunteerSheetId = sheetIds.at(1);
   if (contestantSheetId === undefined || volunteerSheetId === undefined) {
-    throw Error("Sheet id do not coincide");
+    throw Error("Bug: Sheet id do not coincide");
   }
 
   // Retrieve data
-  const ofmi = await findMostRecentOfmi();
   const participants = await findParticipants(ofmi);
 
   const createData = (role: ParticipationRole): string => {
@@ -267,5 +263,5 @@ export async function listOFMIFolders(): Promise<void> {
     },
   });
 
-  console.log({ spreadsheetId, sheetNames, sheetIds });
+  return spreadsheetId;
 }
