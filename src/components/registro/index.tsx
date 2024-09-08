@@ -195,7 +195,8 @@ export default function Registro({
   return (
     <div className="mx-auto max-w-3xl px-2 pt-4">
       <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-        Registro {ofmiEdition}
+        Registro de {ParticipationRoleName(role).toLocaleLowerCase()} para la{" "}
+        {ofmiEdition}
         <sup>a</sup> OFMI
       </h2>
       {role !== "CONTESTANT" && (
