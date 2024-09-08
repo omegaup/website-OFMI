@@ -6,13 +6,14 @@ import { exhaustiveMatchingGuard } from "@/utils";
 
 type UserOauthInput = Omit<UserOauth, "id" | "createdAt" | "updatedAt">;
 type OauthInput = Omit<UserOauthInput, "userAuthId">;
+const OAUTH_REDIRECT_BASE_URL = `${config.BASE_URL}/__/oauth`;
 
 export class Calendly {
   static AUTH_URL = "https://auth.calendly.com";
-  static PROVIDER = OauthProvider.CALENDLY;
+  static REDIRECT_URI = `${OAUTH_REDIRECT_BASE_URL}/calendly`;
 
   static redirect(): string {
-    return `${this.AUTH_URL}/oauth/authorize?client_id=${config.CALENDLY_CLIENT_ID}&response_type=code&redirect_uri=${config.CALENDLY_REDIRECT_URI}`;
+    return `${this.AUTH_URL}/oauth/authorize?client_id=${config.CALENDLY_CLIENT_ID}&response_type=code&redirect_uri=${Calendly.REDIRECT_URI}`;
   }
 
   static async parseOauthResponse(response: Response): Promise<OauthInput> {
@@ -23,7 +24,7 @@ export class Calendly {
     }
     const expiresInSeconds = Number(json["expires_in"]);
     return {
-      provider: Calendly.PROVIDER,
+      provider: OauthProvider.CALENDLY,
       accessToken: json["access_token"] as string,
       refreshToken: json["refresh_token"] as string,
       expiresAt: new Date(Date.now() + expiresInSeconds * 1000),
@@ -67,7 +68,7 @@ export class Calendly {
       body: new URLSearchParams({
         grant_type: "authorization_code",
         code: authorizationCode,
-        redirect_uri: config.CALENDLY_REDIRECT_URI,
+        redirect_uri: Calendly.REDIRECT_URI,
       }),
     };
     const res = await fetch(`${Calendly.AUTH_URL}/oauth/token`, options);
