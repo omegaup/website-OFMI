@@ -5,6 +5,9 @@ import { prisma } from "@/lib/prisma";
 import { Static, Type } from "@sinclair/typebox";
 import { jwtSign, jwtVerify } from "./jwt";
 import { Role } from "@prisma/client";
+import { getSecretOrError } from "./secret";
+
+const VERIFICATION_EMAIL_SECRET_KEY = "VERIFICATION_EMAIL_SECRET";
 
 export type verificationEmailToken = Static<
   typeof verificationEmailTokenSchema
@@ -18,9 +21,13 @@ export default async function generateAndSendVerificationToken(
   email: string,
 ): Promise<void> {
   const payload: verificationEmailToken = { userAuthId };
-  const emailToken = await jwtSign(payload, config.VERIFICATION_EMAIL_SECRET, {
-    expiresIn: config.VERIFICATION_TOKEN_EXPIRATION,
-  });
+  const emailToken = await jwtSign(
+    payload,
+    getSecretOrError(VERIFICATION_EMAIL_SECRET_KEY),
+    {
+      expiresIn: config.VERIFICATION_TOKEN_EXPIRATION,
+    },
+  );
 
   const url: string = `${config.BASE_URL}/login?verifyToken=${emailToken}`;
 
@@ -43,7 +50,7 @@ export async function verifyEmail({ token }: { token: string }): Promise<
     const result = await jwtVerify(
       verificationEmailTokenSchema,
       token,
-      process.env.VERIFICATION_EMAIL_SECRET as string,
+      getSecretOrError(VERIFICATION_EMAIL_SECRET_KEY),
     );
 
     const user = await prisma.userAuth.findFirstOrThrow({

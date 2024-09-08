@@ -10,7 +10,7 @@ export type CustomMiddleware = (
 ) => NextMiddlewareResult | Promise<NextMiddlewareResult>;
 
 function withAuthRoles(roles?: Array<Role>): CustomMiddleware {
-  return async (request: NextRequest) => {
+  return async (request) => {
     const user = await getUser(request);
     if (!user) {
       return NextResponse.redirect(new URL("/login", request.url));

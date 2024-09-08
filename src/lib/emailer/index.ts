@@ -4,8 +4,12 @@ import {
   newUserEmailTemplate,
   ofmiRegistrationCompleteTemplate,
   signUpSuccessfulEmailTemplate,
+  OFMI_EMAIL_SMTP_USER_KEY,
 } from "./template";
 import config from "@/config/default";
+import { getSecretOrError } from "../secret";
+
+const OFMI_EMAIL_SMTP_PASSWORD_KEY = "OFMI_EMAIL_SMTP_PASSWORD";
 
 export class Emailer {
   private readonly transporter: nodemailer.Transporter;
@@ -14,8 +18,8 @@ export class Emailer {
     this.transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: config.OFMI_EMAIL_SMTP_USER,
-        pass: config.OFMI_EMAIL_SMTP_PASSWORD,
+        user: getSecretOrError(OFMI_EMAIL_SMTP_USER_KEY),
+        pass: getSecretOrError(OFMI_EMAIL_SMTP_PASSWORD_KEY),
       },
     });
   }

@@ -3,6 +3,7 @@ import { basicAuth } from "@/utils/http";
 import { OauthProvider, UserOauth } from "@prisma/client";
 import config from "@/config/default";
 import { exhaustiveMatchingGuard } from "@/utils";
+import { getSecretOrError } from "./secret";
 
 type UserOauthInput = Omit<UserOauth, "id" | "createdAt" | "updatedAt">;
 type OauthInput = Omit<UserOauthInput, "userAuthId">;
@@ -22,10 +23,12 @@ export class Intf {
 }
 
 export class GCloud {
+  static GCLOUD_CLIENT_ID_KEY = "GCLOUD_CLIENT_ID";
+  static GCLOUD_CLIENT_SECRET_KEY = "GCLOUD_CLIENT_SECRET";
   static REDIRECT_URI = `${OAUTH_REDIRECT_BASE_URL}/gcloud`;
   static REDIRECT_TO = `https://accounts.google.com/o/oauth2/v2/auth?${new URLSearchParams(
     {
-      client_id: config.GCLOUD_CLIENT_ID,
+      client_id: GCloud.GCLOUD_CLIENT_ID_KEY,
       redirect_uri: GCloud.REDIRECT_URI,
       response_type: "code",
       scope:
@@ -69,8 +72,8 @@ export class GCloud {
         "Content-Type": "application/x-www-form-urlencoded",
       },
       body: new URLSearchParams({
-        client_id: config.GCLOUD_CLIENT_ID,
-        client_secret: config.GCLOUD_CLIENT_SECRET,
+        client_id: getSecretOrError(GCloud.GCLOUD_CLIENT_ID_KEY),
+        client_secret: getSecretOrError(GCloud.GCLOUD_CLIENT_SECRET_KEY),
         redirect_uri: GCloud.REDIRECT_URI,
         ...grantType,
       }),
@@ -102,9 +105,11 @@ export class GCloud {
 }
 
 export class Calendly {
+  static CALENDLY_CLIENT_SECRET_KEY = "CALENDLY_CLIENT_SECRET";
+  static CALENDLY_CLIENT_ID_KEY = "CALENDLY_CLIENT_ID";
   static AUTH_URL = "https://auth.calendly.com";
   static REDIRECT_URI = `${OAUTH_REDIRECT_BASE_URL}/calendly`;
-  static REDIRECT_TO = `${Calendly.AUTH_URL}/oauth/authorize?client_id=${config.CALENDLY_CLIENT_ID}&response_type=code&redirect_uri=${Calendly.REDIRECT_URI}`;
+  static REDIRECT_TO = `${Calendly.AUTH_URL}/oauth/authorize?client_id=${getSecretOrError(Calendly.CALENDLY_CLIENT_ID_KEY)}&response_type=code&redirect_uri=${Calendly.REDIRECT_URI}`;
 
   static async parseOauthResponse(response: Response): Promise<OauthInput> {
     const json = await response.json();
@@ -129,8 +134,8 @@ export class Calendly {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
         Authorization: basicAuth(
-          config.CALENDLY_CLIENT_ID,
-          config.CALENDLY_CLIENT_SECRET,
+          getSecretOrError(Calendly.CALENDLY_CLIENT_ID_KEY),
+          getSecretOrError(Calendly.CALENDLY_CLIENT_SECRET_KEY),
         ),
       },
       body: new URLSearchParams({
@@ -151,8 +156,8 @@ export class Calendly {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
         Authorization: basicAuth(
-          config.CALENDLY_CLIENT_ID,
-          config.CALENDLY_CLIENT_SECRET,
+          getSecretOrError(Calendly.CALENDLY_CLIENT_ID_KEY),
+          getSecretOrError(Calendly.CALENDLY_CLIENT_SECRET_KEY),
         ),
       },
       body: new URLSearchParams({
