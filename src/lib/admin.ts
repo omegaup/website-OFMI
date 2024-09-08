@@ -5,7 +5,6 @@ import config from "@/config/default";
 import { getOrCreateDriveFolder } from "./gcloud";
 import path from "path";
 import { friendlyOfmiName } from "./ofmi";
-import { ParticipationRole } from "@prisma/client";
 
 const ACT_AS_OFMI_TOKEN_KEY = "ACT_AS_OFMI_TOKEN";
 
