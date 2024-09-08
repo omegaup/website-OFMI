@@ -9,14 +9,29 @@ import { ShirtStyle, ShirtStyleOfString } from "@/types/shirt";
 import { filterNull } from "@/utils";
 import { Ofmi } from "@prisma/client";
 import { Value } from "@sinclair/typebox/value";
+import { TTLCache } from "./cache";
+
+const caches = {
+  findMostRecentOfmi: new TTLCache<Ofmi>(),
+};
 
 export async function findMostRecentOfmi(): Promise<Ofmi> {
+  // Check if the cache has the result
+  const ttlCache = caches["findMostRecentOfmi"];
+  const cacheKey = "findMostRecentOfmi";
+  const cacheValue = ttlCache.get(cacheKey);
+  if (cacheValue) {
+    return cacheValue;
+  }
+
   const ofmi = await prisma.ofmi.findFirst({
     orderBy: { edition: "desc" },
   });
   if (!ofmi) {
     throw Error("Most recent OFMI not found.");
   }
+
+  ttlCache.set(cacheKey, ofmi);
   return ofmi;
 }
 

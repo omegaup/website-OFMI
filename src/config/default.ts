@@ -10,6 +10,8 @@ const config = {
 
   GDRIVE_OFMI_ROOT_FOLDER:
     process.env.GDRIVE_OFMI_ROOT_FOLDER ?? "1_IQiMLZGEDvbXedZPIK3LTYLzZptGZPu",
+
+  OFMI_USER_EMAIL: process.env.OFMI_USER_EMAIL ?? "ofmi@omegaup.com",
 };
 
 export default config;
