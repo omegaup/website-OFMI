@@ -21,7 +21,7 @@ type TTLCacheOptions = {
    * @default false
    * @type {boolean}
    */
-  disabled: boolean;
+  disabled?: boolean;
 };
 
 /**

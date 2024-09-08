@@ -40,8 +40,11 @@ export class Emailer {
     await this.sendEmail(signUpSuccessfulEmailTemplate(email));
   }
 
-  public async notifySuccessfulOfmiRegistration(email: string): Promise<void> {
-    await this.sendEmail(ofmiRegistrationCompleteTemplate(email));
+  public async notifySuccessfulOfmiRegistration(
+    email: string,
+    gDriveFolder?: string,
+  ): Promise<void> {
+    await this.sendEmail(ofmiRegistrationCompleteTemplate(email, gDriveFolder));
   }
 }
 

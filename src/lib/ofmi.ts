@@ -15,6 +15,10 @@ const caches = {
   findMostRecentOfmi: new TTLCache<Ofmi>(),
 };
 
+export function friendlyOfmiName(ofmiEdition: number): string {
+  return `${ofmiEdition}a-ofmi`;
+}
+
 export async function findMostRecentOfmi(): Promise<Ofmi> {
   // Check if the cache has the result
   const ttlCache = caches["findMostRecentOfmi"];

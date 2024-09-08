@@ -1,6 +1,6 @@
 import type { GetServerSideProps } from "next/types";
 import { getUser } from "@/lib/auth";
-import { findMostRecentOfmi } from "@/lib/ofmi";
+import { findMostRecentOfmi, friendlyOfmiName } from "@/lib/ofmi";
 import { exportParticipants } from "@/lib/gcloud";
 import { SuccessAlert } from "@/components/alert";
 import { Link } from "@/components/link";
@@ -38,13 +38,12 @@ export const getServerSideProps: GetServerSideProps<{
   }
 
   const ofmi = await findMostRecentOfmi();
-  const friendlyOfmiName = `${ofmi.edition}a-ofmi`;
   const spreadsheetId = await exportParticipants({
     userAuthId: user.id,
     ofmi,
     spreadsheetName: path.join(
-      friendlyOfmiName,
-      `Registro ${friendlyOfmiName} (Respuestas)`,
+      friendlyOfmiName(ofmi.edition),
+      `Registro ${friendlyOfmiName(ofmi.edition)} (Respuestas)`,
     ),
   });
   return {

@@ -8,13 +8,26 @@ import { jsonToCsv } from "@/utils";
 import config from "@/config/default";
 import { TTLCache } from "./cache";
 
-const FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
+export const FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
 const SPREADSHEETS_MIME_TYPE = "application/vnd.google-apps.spreadsheet";
 
 const caches = {
   findOrCreateResource: new TTLCache<string>(),
 };
 
+export async function getGoogleAuth(
+  userAuthId: string,
+): Promise<google.Auth.OAuth2Client> {
+  const token = await getAccessToken(userAuthId, OauthProvider.GCLOUD);
+
+  return new google.Auth.OAuth2Client({
+    credentials: {
+      access_token: token,
+    },
+  });
+}
+
+// Returns the id of the resource
 async function findOrCreateResource({
   mimeType,
   name,
@@ -177,6 +190,28 @@ async function getOrCreateSheets({
   });
 }
 
+// Returns the URL of the Drive Folder
+export async function getOrCreateDriveFolder({
+  userAuthId,
+  dir,
+  rootFolderId,
+}: {
+  userAuthId: string;
+  dir: string;
+  rootFolderId: string;
+}): Promise<string> {
+  const auth = await getGoogleAuth(userAuthId);
+  const service = new google.drive_v3.Drive({
+    auth,
+  });
+  const id = await getOrCreateFolder({
+    dir,
+    service,
+    parentFolderId: rootFolderId,
+  });
+  return `https://drive.google.com/drive/folders/${id}`;
+}
+
 export async function exportParticipants({
   userAuthId,
   ofmi,
@@ -186,13 +221,7 @@ export async function exportParticipants({
   ofmi: Ofmi;
   spreadsheetName: string;
 }): Promise<string> {
-  const token = await getAccessToken(userAuthId, OauthProvider.GCLOUD);
-
-  const auth = new google.Auth.OAuth2Client({
-    credentials: {
-      access_token: token,
-    },
-  });
+  const auth = await getGoogleAuth(userAuthId);
   const service = new google.drive_v3.Drive({
     auth,
   });
