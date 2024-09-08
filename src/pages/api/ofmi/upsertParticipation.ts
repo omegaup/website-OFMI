@@ -18,6 +18,7 @@ import {
   validateOFMIContestantRequirements,
   validateOFMIOpenAndCloseTime,
 } from "@/lib/validators/ofmi";
+import { findOrCreateDriveFolderForParticipant } from "@/lib/admin";
 
 // Function to register participation in our database
 async function upsertParticipationHandler(
@@ -269,10 +270,25 @@ async function upsertParticipationHandler(
     },
   });
 
+  // Create participant folder
+  let gDriveFolderUrl = "";
+  try {
+    gDriveFolderUrl = await findOrCreateDriveFolderForParticipant({
+      email: userInput.email,
+      ofmiEdition: ofmi.edition,
+    });
+  } catch (e) {
+    console.error("Error findOrCreateDriveFolderForParticipant", e);
+  }
+
   if (requestStartTime.getTime() <= participation.createdAt.getTime()) {
     // Participation was created
-    await emailer.notifySuccessfulOfmiRegistration(userInput.email);
+    await emailer.notifySuccessfulOfmiRegistration(
+      userInput.email,
+      gDriveFolderUrl,
+    );
   }
+
   return res.status(201).json({ participation });
 }
 

@@ -15,6 +15,13 @@ type TTLCacheOptions = {
    * @type {number}
    */
   ttl: number;
+  /**
+   * Disable the cache (useful for testing purposes)
+   *
+   * @default false
+   * @type {boolean}
+   */
+  disabled?: boolean;
 };
 
 /**
@@ -22,6 +29,7 @@ type TTLCacheOptions = {
  */
 const defaults: TTLCacheOptions = {
   ttl: 180,
+  disabled: false,
 };
 
 type WithTTL<V = unknown> = {
@@ -97,6 +105,7 @@ export class TTLCache<V = unknown> {
    * @memberof TTLCache
    */
   get = (key: string): V | null => {
+    if (this.options.disabled) return null;
     if (this.hasExpired(key)) return null;
     return this.cache.get(key)?.value || null;
   };
@@ -109,6 +118,9 @@ export class TTLCache<V = unknown> {
    * @memberof TTLCache
    */
   set = (key: string, value: V): void => {
+    if (this.options.disabled) {
+      return;
+    }
     const expiry = addSeconds(new Date(), this.options.ttl).toISOString();
 
     this.cache.set(key, { value, expiresAt: expiry });

@@ -2,6 +2,9 @@ import { TTLCache } from "./cache";
 import { prisma } from "./prisma";
 import { getSecretOrError } from "./secret";
 import config from "@/config/default";
+import { getOrCreateDriveFolder } from "./gcloud";
+import path from "path";
+import { friendlyOfmiName } from "./ofmi";
 
 const ACT_AS_OFMI_TOKEN_KEY = "ACT_AS_OFMI_TOKEN";
 
@@ -9,7 +12,7 @@ const caches = {
   ofmiUserAuthId: new TTLCache<string>(),
 };
 
-export async function ofmiUserAuthId(): Promise<string> {
+async function ofmiUserAuthId(): Promise<string> {
   // Check if the cache has the result
   const ttlCache = caches["ofmiUserAuthId"];
   const cacheKey = "ofmiUserAuthId";
@@ -34,4 +37,19 @@ export async function assertCanIActAsOfmiUser(token: string): Promise<string> {
     throw Error(`You can not act as ${config.OFMI_USER_EMAIL}`);
   }
   return await ofmiUserAuthId();
+}
+
+export async function findOrCreateDriveFolderForParticipant({
+  email,
+  ofmiEdition,
+}: {
+  email: string;
+  ofmiEdition: number;
+}): Promise<string> {
+  const userAuthId = await ofmiUserAuthId();
+  return await getOrCreateDriveFolder({
+    dir: path.join(friendlyOfmiName(ofmiEdition), `Assets`, email, "shared"),
+    userAuthId,
+    rootFolderId: config.GDRIVE_OFMI_ROOT_FOLDER,
+  });
 }

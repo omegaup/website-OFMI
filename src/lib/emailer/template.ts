@@ -45,6 +45,7 @@ export const signUpSuccessfulEmailTemplate = (email: string): MailOptions => {
 
 export const ofmiRegistrationCompleteTemplate = (
   email: string,
+  gDriveFolder?: string,
 ): MailOptions => {
   return {
     from: getSecretOrError(OFMI_EMAIL_SMTP_USER_KEY),
@@ -53,6 +54,22 @@ export const ofmiRegistrationCompleteTemplate = (
     text: "Te has registrado exitosamente a la OFMI",
     html: `
         <p>Ahora ya tienes un lugar en la OFMI.</p>
+        ${
+          gDriveFolder
+            ? `<p> ¿Nos puedes compartir una foto tuya? 
+                  Es para mostrar durante la ceremonia virtual de clausura. 
+                  Lo recomendado es que sea en un fondo liso que se vea tu cara y tus hombros :) 
+                  La puedes subir a <a href="${gDriveFolder}">este folder</a>
+               </p>
+               <p>Por favor envíala junto con este formato de autorización de imagen:</p>
+               <p><a href="https://drive.google.com/file/d/1VpJ08JoYcy1rYCLEVrJ16-hg_q8H6KIS/view?usp=sharing">
+                  Formato de autorización de uso de imagen para menores de edad
+               </a></p>
+               <p><a href="https://drive.google.com/file/d/1rEn7vLgh1U3ecaoea4GixX6goi-1rEi4/view?usp=sharing">
+                  Formato de autorización de uso de imagen para mayores de edad
+               </a></p>`
+            : ""
+        }
         <p>Si tienes alguna duda por favor envía un correo a
         <a href="mailto:ofmi@omegaup.com">ofmi@omegaup.com</a></p>
         <br />
