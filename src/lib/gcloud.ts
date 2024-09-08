@@ -166,9 +166,11 @@ async function getOrCreateSheets({
 export async function exportParticipants({
   userAuthId,
   ofmi,
+  spreadsheetName,
 }: {
   userAuthId: string;
   ofmi: Ofmi;
+  spreadsheetName: string;
 }): Promise<string> {
   const token = await getAccessToken(userAuthId, OauthProvider.GCLOUD);
 
@@ -182,7 +184,7 @@ export async function exportParticipants({
   });
 
   const spreadsheetId = await getOrCreateFile({
-    filepath: "4ta-ofmi/registro-participantes",
+    filepath: spreadsheetName,
     service,
     mimeType: SPREADSHEETS_MIME_TYPE,
   });

@@ -4,6 +4,7 @@ import { findMostRecentOfmi } from "@/lib/ofmi";
 import { exportParticipants } from "@/lib/gcloud";
 import { SuccessAlert } from "@/components/alert";
 import { Link } from "@/components/link";
+import path from "path";
 
 export default function ExportPage({
   spreadsheetId,
@@ -37,7 +38,15 @@ export const getServerSideProps: GetServerSideProps<{
   }
 
   const ofmi = await findMostRecentOfmi();
-  const spreadsheetId = await exportParticipants({ userAuthId: user.id, ofmi });
+  const friendlyOfmiName = `${ofmi.edition}a-ofmi`;
+  const spreadsheetId = await exportParticipants({
+    userAuthId: user.id,
+    ofmi,
+    spreadsheetName: path.join(
+      friendlyOfmiName,
+      `Registro ${friendlyOfmiName} (Respuestas)`,
+    ),
+  });
   return {
     props: {
       spreadsheetId,
