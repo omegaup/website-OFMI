@@ -58,11 +58,11 @@ async function findOrCreateResource({
 async function getOrCreateFolder({
   dir,
   service,
-  parentFolderId = config.GDRIVE_ROOT_FOLDER,
+  parentFolderId,
 }: {
   dir: string;
   service: google.drive_v3.Drive;
-  parentFolderId?: string;
+  parentFolderId: string;
 }): Promise<string> {
   if (!dir) {
     return parentFolderId;
@@ -89,12 +89,12 @@ async function getOrCreateFile({
   filepath,
   service,
   mimeType,
-  parentFolderId = config.GDRIVE_ROOT_FOLDER,
+  parentFolderId,
 }: {
   filepath: string;
   service: google.drive_v3.Drive;
   mimeType: string;
-  parentFolderId?: string;
+  parentFolderId: string;
 }): Promise<string> {
   const filename = path.basename(filepath);
   const dir = path.dirname(filepath);
@@ -187,6 +187,7 @@ export async function exportParticipants({
     filepath: spreadsheetName,
     service,
     mimeType: SPREADSHEETS_MIME_TYPE,
+    parentFolderId: config.GDRIVE_OFMI_ROOT_FOLDER,
   });
 
   const sheets = new google.sheets_v4.Sheets({ auth });

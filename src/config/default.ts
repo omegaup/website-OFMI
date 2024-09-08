@@ -17,8 +17,8 @@ const config = {
   GCLOUD_CLIENT_ID: process.env.GCLOUD_CLIENT_ID ?? "",
   GCLOUD_CLIENT_SECRET: process.env.GCLOUD_CLIENT_SECRET ?? "",
 
-  GDRIVE_ROOT_FOLDER:
-    process.env.GDRIVE_ROOT_FOLDER ?? "1Jrpl6n5zhdCdhXLXehHlNoaxtDvo51Sd",
+  GDRIVE_OFMI_ROOT_FOLDER:
+    process.env.GDRIVE_OFMI_ROOT_FOLDER ?? "1_IQiMLZGEDvbXedZPIK3LTYLzZptGZPu",
 };
 
 export default config;
