@@ -1,0 +1,11 @@
+.mdx_table tbody tr:nth-child(-n + 6) {
+  background-color: #ffecb3;
+}
+
+.mdx_table tbody tr:nth-child(n + 7):nth-child(-n + 22) {
+  background-color: #c9c9c9;
+}
+
+.mdx_table tbody tr:nth-child(n + 23):nth-child(-n + 37) {
+  background-color: #d6a071;
+}
