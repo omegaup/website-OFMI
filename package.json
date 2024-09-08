@@ -37,6 +37,7 @@
     "crypto-js": "^4.2.0",
     "eslint": "8.48.0",
     "eslint-config-next": "13.4.19",
+    "googleapis": "^144.0.0",
     "jotai": "^2.6.1",
     "jsonwebtoken": "^9.0.2",
     "ms": "^2.1.3",

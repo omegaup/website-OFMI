@@ -8,6 +8,7 @@ import { Calendly, GCloud, findConnectedProviders } from "@/lib/oauth";
 import { getToken } from "next-auth/jwt";
 import Oauth from "@/components/oauth";
 import { OauthProvider } from "@prisma/client";
+import { listOFMIFolders } from "@/lib/gcloud";
 
 export default function OauthPage({
   userAuthId,
@@ -49,6 +50,7 @@ export const getServerSideProps: GetServerSideProps<{
   }
 
   const connectedProviders = await findConnectedProviders(userAuthId);
+  await listOFMIFolders();
 
   return {
     props: {
