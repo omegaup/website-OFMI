@@ -1,4 +1,5 @@
 import { UserAuth } from "@prisma/client";
+import type { GetServerSidePropsContext, NextApiRequest } from "next";
 import { getToken } from "next-auth/jwt";
 import { NextRequest } from "next/server";
 
@@ -7,7 +8,7 @@ import { NextRequest } from "next/server";
   (such /admin /registro) should use this
 */
 export const getUser = async (
-  request: NextRequest,
+  request: NextRequest | NextApiRequest | GetServerSidePropsContext["req"],
 ): Promise<UserAuth | null> => {
   const token = await getToken({
     req: request,
