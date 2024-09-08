@@ -4,7 +4,7 @@ import type {
   InferGetServerSidePropsType,
 } from "next/types";
 import { authOptions } from "@/pages/api/auth/[...nextauth]";
-import { GCloud, findConnectedProviders } from "@/lib/oauth";
+import { Calendly, GCloud, findConnectedProviders } from "@/lib/oauth";
 import { getToken } from "next-auth/jwt";
 import Oauth from "@/components/oauth";
 import { OauthProvider } from "@prisma/client";
@@ -12,15 +12,24 @@ import { OauthProvider } from "@prisma/client";
 export default function OauthPage({
   userAuthId,
   connectedProviders,
+  calendlyRedirectTo,
+  gCloudRedirectTo,
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
   return (
-    <Oauth userAuthId={userAuthId} connectedProviders={connectedProviders} />
+    <Oauth
+      userAuthId={userAuthId}
+      connectedProviders={connectedProviders}
+      calendlyRedirectTo={calendlyRedirectTo}
+      gCloudRedirectTo={gCloudRedirectTo}
+    />
   );
 }
 
 export const getServerSideProps: GetServerSideProps<{
   userAuthId: string;
   connectedProviders: Array<OauthProvider>;
+  calendlyRedirectTo: string;
+  gCloudRedirectTo: string;
 }> = async ({ req, res }) => {
   const session = await getServerSession(req, res, authOptions);
   const token = await getToken({ req });
@@ -45,6 +54,8 @@ export const getServerSideProps: GetServerSideProps<{
     props: {
       userAuthId,
       connectedProviders,
+      calendlyRedirectTo: Calendly.REDIRECT_TO,
+      gCloudRedirectTo: GCloud.REDIRECT_TO,
     },
   };
 };

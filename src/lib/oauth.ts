@@ -27,23 +27,77 @@ export class GCloud {
     {
       client_id: config.GCLOUD_CLIENT_ID,
       redirect_uri: GCloud.REDIRECT_URI,
-      response_type: "token",
+      response_type: "code",
       scope:
         "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.appdata",
-      include_granted_scopes: "true",
-      state: "pass-through value",
+      access_type: "offline",
     },
   ).toString()}`;
 
-  static async refreshToken(
-    oauthInput: UserOauthInput,
-  ): Promise<UserOauthInput> {
-    throw Error(`Not implemented intf for ${oauthInput.provider}`);
+  static async parseOauthResponse(
+    refreshToken: string | null,
+    response: Response,
+  ): Promise<OauthInput> {
+    const json = await response.json();
+    if (response.status !== 200) {
+      console.error("GCloud API error", json);
+      throw new Error("GCloud API error");
+    }
+    const expiresInSeconds = Number(json["expires_in"]);
+    return {
+      provider: OauthProvider.GCLOUD,
+      accessToken: json["access_token"] as string,
+      refreshToken: refreshToken || (json["refresh_token"] as string),
+      expiresAt: new Date(Date.now() + expiresInSeconds * 1000),
+    };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  static async connect(_authorizationCode: string): Promise<OauthInput> {
-    throw Error("Not implemented");
+  static async sendRequest(
+    grantType:
+      | {
+          grant_type: "authorization_code";
+          code: string;
+        }
+      | {
+          grant_type: "refresh_token";
+          refresh_token: string;
+        },
+  ): Promise<OauthInput> {
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        client_id: config.GCLOUD_CLIENT_ID,
+        client_secret: config.GCLOUD_CLIENT_SECRET,
+        redirect_uri: GCloud.REDIRECT_URI,
+        ...grantType,
+      }),
+    };
+    const res = await fetch("https://oauth2.googleapis.com/token", options);
+    const refreshToken =
+      grantType.grant_type === "refresh_token" ? grantType.refresh_token : null;
+    return await GCloud.parseOauthResponse(refreshToken, res);
+  }
+
+  static async refreshToken(
+    userOauth: UserOauthInput,
+  ): Promise<UserOauthInput> {
+    return {
+      userAuthId: userOauth.userAuthId,
+      ...(await GCloud.sendRequest({
+        grant_type: "refresh_token",
+        refresh_token: userOauth.refreshToken,
+      })),
+    };
+  }
+
+  static async connect(authorizationCode: string): Promise<OauthInput> {
+    return await GCloud.sendRequest({
+      grant_type: "authorization_code",
+      code: authorizationCode,
+    });
   }
 }
 

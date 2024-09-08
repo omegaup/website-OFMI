@@ -2,7 +2,6 @@ import { OauthProvider } from "@prisma/client";
 import { Button } from "@/components/button";
 import { DisconnectOauthProviderRequest } from "@/types/oauth.schema";
 import { useState } from "react";
-import { Calendly, GCloud } from "@/lib/oauth";
 
 function Provider({
   userAuthId,
@@ -57,9 +56,13 @@ function Provider({
 export default function Oauth({
   userAuthId,
   connectedProviders,
+  calendlyRedirectTo,
+  gCloudRedirectTo,
 }: {
   userAuthId: string;
   connectedProviders: Array<OauthProvider>;
+  calendlyRedirectTo: string;
+  gCloudRedirectTo: string;
 }): JSX.Element {
   const isProviderConnected = (provider: OauthProvider): boolean =>
     connectedProviders.find((v) => v === provider) !== undefined;
@@ -69,13 +72,13 @@ export default function Oauth({
         userAuthId={userAuthId}
         name="CALENDLY"
         connected={isProviderConnected("CALENDLY")}
-        redirect_to={Calendly.REDIRECT_TO}
+        redirect_to={calendlyRedirectTo}
       />
       <Provider
         userAuthId={userAuthId}
         name="GCLOUD"
         connected={isProviderConnected("GCLOUD")}
-        redirect_to={GCloud.REDIRECT_TO}
+        redirect_to={gCloudRedirectTo}
       />
     </div>
   );
