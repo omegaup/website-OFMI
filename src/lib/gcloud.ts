@@ -1,8 +1,11 @@
+import path from "path";
+import * as google from "googleapis";
 import { prisma } from "@/lib/prisma";
 import { getAccessToken } from "./oauth";
 import { OauthProvider, ParticipationRole } from "@prisma/client";
-import path from "path";
-import * as google from "googleapis";
+import { findMostRecentOfmi, findParticipants } from "./ofmi";
+import { PronounName } from "@/types/pronouns";
+import { jsonToCsv } from "@/utils";
 
 const FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
 const SPREADSHEETS_MIME_TYPE = "application/vnd.google-apps.spreadsheet";
@@ -189,11 +192,79 @@ export async function listOFMIFolders(): Promise<void> {
 
   const sheets = new google.sheets_v4.Sheets({ auth });
 
-  const sheetNames = Object.keys(ParticipationRole);
+  const sheetNames = [
+    ParticipationRole.CONTESTANT,
+    ParticipationRole.VOLUNTEER,
+  ];
   const sheetIds = await getOrCreateSheets({
     names: sheetNames,
     spreadsheetId,
     service: sheets,
+  });
+  const contestantSheetId = sheetIds.at(0);
+  const volunteerSheetId = sheetIds.at(1);
+  if (contestantSheetId === undefined || volunteerSheetId === undefined) {
+    throw Error("Sheet id do not coincide");
+  }
+
+  // Retrieve data
+  const ofmi = await findMostRecentOfmi();
+  const participants = await findParticipants(ofmi);
+
+  const createData = (role: ParticipationRole): string => {
+    const json = participants
+      .filter((v) => v.userParticipation.role === role)
+      .map((participation) => {
+        let data: Record<string, string> = {
+          "Nombre completo": `${participation.user.firstName} ${participation.user.lastName}`,
+          Email: participation.user.email,
+          Pronombre: PronounName(participation.user.pronouns),
+        };
+        const { userParticipation } = participation;
+        if (userParticipation.role === "CONTESTANT") {
+          data = {
+            ...data,
+            Estado: userParticipation.schoolState,
+            Escuela: userParticipation.schoolName,
+            "Fecha de nacimiento": participation.user.birthDate,
+          };
+        }
+        return data;
+      });
+    return jsonToCsv(json);
+  };
+
+  // Paste data
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId,
+    requestBody: {
+      requests: [
+        // Update CONTESTANT sheet
+        {
+          pasteData: {
+            coordinate: {
+              sheetId: contestantSheetId,
+              rowIndex: 0,
+              columnIndex: 0,
+            },
+            data: createData(ParticipationRole.CONTESTANT),
+            delimiter: ",",
+          },
+        },
+        // Update VOLUNTEER sheet
+        {
+          pasteData: {
+            coordinate: {
+              sheetId: volunteerSheetId,
+              rowIndex: 0,
+              columnIndex: 0,
+            },
+            data: createData(ParticipationRole.VOLUNTEER),
+            delimiter: ",",
+          },
+        },
+      ],
+    },
   });
 
   console.log({ spreadsheetId, sheetNames, sheetIds });
