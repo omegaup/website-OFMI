@@ -17,6 +17,14 @@ describe("jsonToCsv", () => {
     );
   });
 
+  it("complex json object", () => {
+    const json = [{ key: 'This has a "2006-06-07" date' }];
+    const csv = jsonToCsv(json);
+    expect(csv.split("\n").map((line) => line.trim().split(","))).toMatchObject(
+      [["key"], ['"This has a ""2006-06-07"" date"']],
+    );
+  });
+
   it("empty", () => {
     const csv = jsonToCsv([]);
     expect(csv.split("\n").map((line) => line.trim().split(","))).toMatchObject(

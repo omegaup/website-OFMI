@@ -215,6 +215,7 @@ export async function exportParticipants({
           "Nombre completo": `${participation.user.firstName} ${participation.user.lastName}`,
           Email: participation.user.email,
           Pronombre: PronounName(participation.user.pronouns),
+          "Fecha de nacimiento": `=DATEVALUE(MID("${participation.user.birthDate}",1,10))+TIMEVALUE(MID("${participation.user.birthDate}",12,8))`,
         };
         const { userParticipation } = participation;
         if (userParticipation.role === "CONTESTANT") {
@@ -222,7 +223,6 @@ export async function exportParticipants({
             ...data,
             Estado: userParticipation.schoolState,
             Escuela: userParticipation.schoolName,
-            "Fecha de nacimiento": participation.user.birthDate,
           };
         }
         return data;

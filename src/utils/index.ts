@@ -18,22 +18,23 @@ export function filterNull<T>(arr: Array<T | null>): Array<T> {
     });
 }
 
-export function jsonToCsv(items: Array<object>): string {
+export function jsonToCsv(items: Array<Record<string, string>>): string {
   if (items.length === 0) {
     return "";
   }
   const header = Object.keys(items[0]);
   const headerString = header.join(",");
   // handle null or undefined values here
-  const replacer = (key: unknown, value: string): string => value ?? "";
-  const rowItems = items.map((row) =>
+  // const replacer = (key: unknown, value: string): string => value ?? "";
+  const csvContent = items.map((obj) =>
     header
-      .map((fieldName) =>
-        JSON.stringify(row[fieldName as keyof typeof row], replacer),
-      )
+      .map((key) => {
+        const value = obj[key] || "";
+        return `"${value.replace(/"/g, '""')}"`;
+      })
       .join(","),
   );
   // join header and body, and break into separate lines
-  const csv = [headerString, ...rowItems].join("\r\n");
+  const csv = [headerString, ...csvContent].join("\r\n");
   return csv;
 }
