@@ -63,7 +63,7 @@ const UserInputSchema = Type.Object({
   email: Type.String({ pattern: emailReg }),
   firstName: Type.String({ minLength: 1 }),
   lastName: Type.String({ minLength: 1 }),
-  preferredName: Type.String({ minLength: 1 }),
+  preferredName: Type.Optional(Type.String({ minLength: 1 })),
   // Type.Date is unsupported for JSON serialization/deserialization
   // Lets use Date.toISOString to send Dates and make sure the format
   // comes from toISOString

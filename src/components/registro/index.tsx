@@ -121,7 +121,9 @@ export default function Registro({
         email,
         firstName: data.get(fieldIds.firstName)?.toString() ?? "",
         lastName: data.get(fieldIds.lastName)?.toString() ?? "",
-        preferredName: data.get(fieldIds.preferredName)?.toString() ?? "",
+        preferredName: undefinedIfEmpty(
+          data.get(fieldIds.preferredName)?.toString(),
+        ),
         birthDate: new Date(birthDate).toISOString(),
         governmentId: data.get(fieldIds.governmentId)?.toString() ?? "",
         pronouns,

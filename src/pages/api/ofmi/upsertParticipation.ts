@@ -129,13 +129,15 @@ async function upsertParticipationHandler(
     });
   }
 
+  const fullName = `${userInput.firstName} ${userInput.lastName}`;
+
   // Upsert User - Mailing address
   const userInputPayload = {
     firstName: userInput.firstName,
     lastName: userInput.lastName,
     birthDate,
     governmentId: userInput.governmentId,
-    preferredName: userInput.preferredName,
+    preferredName: userInput.preferredName ?? fullName,
     pronouns: userInput.pronouns,
     shirtSize: userInput.shirtSize,
     shirtStyle: userInput.shirtStyle,
@@ -151,9 +153,7 @@ async function upsertParticipationHandler(
     phone: mailingAddressInput.phone,
     county: mailingAddressInput.municipality ?? "",
     neighborhood: mailingAddressInput.locality ?? "",
-    name:
-      mailingAddressInput.recipient ??
-      `${userInput.firstName} ${userInput.lastName}`,
+    name: mailingAddressInput.recipient ?? fullName,
   };
   const user = await prisma.user.upsert({
     where: { userAuthId: authUser.id },
