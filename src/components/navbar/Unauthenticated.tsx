@@ -5,12 +5,12 @@ export const Unauthenticated = (): JSX.Element => {
     <div className="space-x-2">
       <a href="/login">
         <Button buttonSize="sm" buttonType="primary">
-          Iniciar sesión
+          Inicia sesión
         </Button>
       </a>
       <a href="/signup">
         <Button buttonType="secondary" buttonSize="sm">
-          Regístrate
+          Crea tu cuenta
         </Button>
       </a>
     </div>

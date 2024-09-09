@@ -171,7 +171,7 @@ export default function Login({
                 href="/signup"
                 className="font-medium text-blue-500 hover:text-blue-700 hover:underline"
               >
-                Regístrate
+                Crea una cuenta
               </a>
             </p>
           </div>
