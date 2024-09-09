@@ -18,11 +18,23 @@ function CustomLi({
   return <li className="text-justify">{children}</li>;
 }
 
+function CustomA({
+  children,
+  ...props
+}: React.AnchorHTMLAttributes<HTMLAnchorElement>): JSX.Element {
+  return (
+    <a className="text-justify hover:text-blue-700" {...props}>
+      {children}
+    </a>
+  );
+}
+
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
     h1: CustomH1,
     p: CustomP,
     li: CustomLi,
+    a: CustomA,
     wrapper: ({ children }) => (
       <div className="relative flex min-h-screen flex-col overflow-hidden bg-gray-50 py-8 lg:py-12">
         <article className="prose prose-slate mx-auto mt-8 lg:prose-lg">
