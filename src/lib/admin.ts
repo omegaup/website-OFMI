@@ -48,7 +48,12 @@ export async function findOrCreateDriveFolderForParticipant({
 }): Promise<string> {
   const userAuthId = await ofmiUserAuthId();
   return await getOrCreateDriveFolder({
-    dir: path.join(friendlyOfmiName(ofmiEdition), `Assets`, email, "shared"),
+    dir: path.join(
+      friendlyOfmiName(ofmiEdition),
+      "Assets",
+      "Participants",
+      email,
+    ),
     userAuthId,
     rootFolderId: config.GDRIVE_OFMI_ROOT_FOLDER,
   });
