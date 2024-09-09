@@ -28,7 +28,7 @@ export class GCloud {
   static REDIRECT_URI = `${OAUTH_REDIRECT_BASE_URL}/gcloud`;
   static REDIRECT_TO = `https://accounts.google.com/o/oauth2/v2/auth?${new URLSearchParams(
     {
-      client_id: GCloud.GCLOUD_CLIENT_ID_KEY,
+      client_id: getSecretOrError(GCloud.GCLOUD_CLIENT_ID_KEY),
       redirect_uri: GCloud.REDIRECT_URI,
       response_type: "code",
       scope:
