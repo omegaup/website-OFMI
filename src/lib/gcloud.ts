@@ -258,8 +258,8 @@ export async function exportParticipants({
       .filter((v) => v.userParticipation.role === role)
       .map((participation) => {
         let data: Record<string, string> = {
-          "Nombre completo": `${participation.user.firstName} ${participation.user.lastName}`,
-          Email: participation.user.email,
+          "Nombre completo": `${participation.user.firstName.trim()} ${participation.user.lastName.trim()}`,
+          Email: participation.user.email.trim(),
           Pronombre: PronounName(participation.user.pronouns),
           "Fecha de nacimiento": `=DATEVALUE(MID("${participation.user.birthDate}",1,10))+TIMEVALUE(MID("${participation.user.birthDate}",12,8))`,
         };
@@ -268,7 +268,7 @@ export async function exportParticipants({
           data = {
             ...data,
             Estado: userParticipation.schoolState,
-            Escuela: userParticipation.schoolName,
+            Escuela: userParticipation.schoolName.trim(),
           };
         }
         return data;

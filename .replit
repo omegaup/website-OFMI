@@ -1,4 +1,4 @@
-run = "yarn dev"
+run = "npm run dev"
 hidden = [".config", "package-lock.json", "tsconfig.json"]
 modules = ["nodejs-18:v27-20240117-0bd73cd"]
 disableGuessImports = true
@@ -10,9 +10,9 @@ channel = "stable-22_11"
 NEXT_TELEMETRY_DISABLED = "1"
 
 [deployment]
-build = ["sh", "-c", "npm run deploy"]
-run = ["npm", "run", "start"]
-deploymentTarget = "cloudrun"
+build = ["sh", "-c", "npm run generate"]
+run = ["sh", "-c", "tsx src/scripts/exportParticipants.ts"]
+deploymentTarget = "scheduled"
 
 [[ports]]
 localPort = 3000

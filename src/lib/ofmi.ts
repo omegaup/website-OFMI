@@ -10,6 +10,7 @@ import { filterNull } from "@/utils";
 import { Ofmi } from "@prisma/client";
 import { Value } from "@sinclair/typebox/value";
 import { TTLCache } from "./cache";
+import path from "path";
 
 const caches = {
   findMostRecentOfmi: new TTLCache<Ofmi>(),
@@ -17,6 +18,13 @@ const caches = {
 
 export function friendlyOfmiName(ofmiEdition: number): string {
   return `${ofmiEdition}a-ofmi`;
+}
+
+export function registrationSpreadsheetsPath(ofmiEdition: number): string {
+  return path.join(
+    friendlyOfmiName(ofmiEdition),
+    `Registro ${friendlyOfmiName(ofmiEdition)} (Respuestas)`,
+  );
 }
 
 export async function findMostRecentOfmi(): Promise<Ofmi> {

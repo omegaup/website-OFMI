@@ -8,8 +8,7 @@ const config = {
 
   OFMI_EMAIL_SEND_EMAILS: process.env.OFMI_EMAIL_SEND_EMAILS !== "false",
 
-  GDRIVE_OFMI_ROOT_FOLDER:
-    process.env.GDRIVE_OFMI_ROOT_FOLDER ?? "1_IQiMLZGEDvbXedZPIK3LTYLzZptGZPu",
+  GDRIVE_OFMI_ROOT_FOLDER: process.env.GDRIVE_OFMI_ROOT_FOLDER ?? "",
 
   OFMI_USER_EMAIL: process.env.OFMI_USER_EMAIL ?? "ofmi@omegaup.com",
 };
