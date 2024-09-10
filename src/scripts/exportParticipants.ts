@@ -6,11 +6,15 @@ import { findMostRecentOfmi, registrationSpreadsheetsPath } from "@/lib/ofmi";
 async function main(): Promise<void> {
   const userAuthId = await ofmiUserAuthId();
   const ofmi = await findMostRecentOfmi();
-  await exportParticipants({
+  const spreadsheetId = await exportParticipants({
     userAuthId,
     ofmi,
     spreadsheetName: registrationSpreadsheetsPath(ofmi.edition),
   });
+
+  console.log(
+    `Spreadsheet: https://docs.google.com/spreadsheets/d/${spreadsheetId}`,
+  );
 }
 
 main()
