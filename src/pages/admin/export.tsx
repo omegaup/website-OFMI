@@ -1,10 +1,9 @@
 import type { GetServerSideProps } from "next/types";
 import { getUser } from "@/lib/auth";
-import { findMostRecentOfmi, friendlyOfmiName } from "@/lib/ofmi";
+import { findMostRecentOfmi, registrationSpreadsheetsPath } from "@/lib/ofmi";
 import { exportParticipants } from "@/lib/gcloud";
 import { SuccessAlert } from "@/components/alert";
 import { Link } from "@/components/link";
-import path from "path";
 
 export default function ExportPage({
   spreadsheetId,
@@ -41,10 +40,7 @@ export const getServerSideProps: GetServerSideProps<{
   const spreadsheetId = await exportParticipants({
     userAuthId: user.id,
     ofmi,
-    spreadsheetName: path.join(
-      friendlyOfmiName(ofmi.edition),
-      `Registro ${friendlyOfmiName(ofmi.edition)} (Respuestas)`,
-    ),
+    spreadsheetName: registrationSpreadsheetsPath(ofmi.edition),
   });
   return {
     props: {
