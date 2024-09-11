@@ -15,13 +15,16 @@ function Provider({
   redirect_to: string;
 }): JSX.Element {
   const [isConnected, setConnected] = useState(connected);
+  const [isLoading, setIsLoading] = useState(false);
   return (
     <div className="mb-4 grid md:grid-cols-2 md:gap-6">
       {name}
       {isConnected ? (
         <Button
+          disabled={isLoading}
           onClick={async (ev) => {
             ev.preventDefault();
+            setIsLoading(true);
             const payload: DisconnectOauthProviderRequest = {
               userAuthId,
               provider: name,
@@ -39,6 +42,7 @@ function Provider({
                 setConnected(false);
               }
             }
+            setIsLoading(false);
           }}
         >
           Disconnect

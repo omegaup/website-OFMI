@@ -20,6 +20,11 @@ export class Intf {
   static async connect(_authorizationCode: string): Promise<OauthInput> {
     throw Error("Not implemented");
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  static async revoke(_oauthInput: UserOauthInput): Promise<boolean> {
+    throw Error("Not implemented");
+  }
 }
 
 export class GCloud {
@@ -102,6 +107,24 @@ export class GCloud {
       code: authorizationCode,
     });
   }
+
+  static async revoke(userOauth: OauthInput): Promise<boolean> {
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        token: userOauth.refreshToken,
+      }),
+    };
+    const res = await fetch("https://oauth2.googleapis.com/revoke", options);
+    if (res.status === 200) {
+      return true;
+    }
+    console.error("GCloud API error", await res.json());
+    return false;
+  }
 }
 
 export class Calendly {
@@ -169,6 +192,10 @@ export class Calendly {
     const res = await fetch(`${Calendly.AUTH_URL}/oauth/token`, options);
     return await Calendly.parseOauthResponse(res);
   }
+
+  static async revoke(): Promise<boolean> {
+    return true;
+  }
 }
 
 export function OauthProviderOfString(
@@ -222,22 +249,27 @@ export async function findConnectedProviders(
   return userAuth.UserOauth.map((oauthInfo) => oauthInfo.provider);
 }
 
+async function findUserOauth(
+  userAuthId: string,
+  provider: OauthProvider,
+): Promise<UserOauth | null> {
+  return await prisma.userOauth.findUnique({
+    where: {
+      userAuthId_provider: {
+        userAuthId,
+        provider,
+      },
+    },
+  });
+}
+
 export async function getAccessToken(
   userAuthId: string,
   provider: OauthProvider,
   userOauth?: UserOauth,
 ): Promise<string> {
   // Try to retrieve the token from the db
-  let oauthInfo =
-    userOauth ||
-    (await prisma.userOauth.findUnique({
-      where: {
-        userAuthId_provider: {
-          userAuthId,
-          provider,
-        },
-      },
-    }));
+  let oauthInfo = userOauth || (await findUserOauth(userAuthId, provider));
   if (!oauthInfo) {
     throw Error(`Tienes que conectarte con el servicio ${provider} primero`);
   }
@@ -273,6 +305,12 @@ export async function disconnectOauth({
   userAuthId: string;
   provider: OauthProvider;
 }): Promise<boolean> {
+  const oauthInfo = await findUserOauth(userAuthId, provider);
+  if (!oauthInfo) {
+    return false;
+  }
+  const intf = providerIntf(provider);
+  const res = await intf.revoke(oauthInfo);
   await prisma.userOauth.delete({
     where: {
       userAuthId_provider: {
@@ -281,5 +319,5 @@ export async function disconnectOauth({
       },
     },
   });
-  return true;
+  return res;
 }
