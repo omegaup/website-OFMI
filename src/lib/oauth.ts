@@ -20,6 +20,11 @@ export class Intf {
   static async connect(_authorizationCode: string): Promise<OauthInput> {
     throw Error("Not implemented");
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  static async revoke(_oauthInput: UserOauthInput): Promise<boolean> {
+    throw Error("Not implemented");
+  }
 }
 
 export class GCloud {
@@ -102,6 +107,24 @@ export class GCloud {
       code: authorizationCode,
     });
   }
+
+  static async revoke(userOauth: OauthInput): Promise<boolean> {
+    const options = {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        token: userOauth.refreshToken,
+      }),
+    };
+    const res = await fetch("https://oauth2.googleapis.com/revoke", options);
+    if (res.status === 200) {
+      return true;
+    }
+    console.error("GCloud API error", await res.json());
+    return false;
+  }
 }
 
 export class Calendly {
@@ -168,6 +191,10 @@ export class Calendly {
     };
     const res = await fetch(`${Calendly.AUTH_URL}/oauth/token`, options);
     return await Calendly.parseOauthResponse(res);
+  }
+
+  static async revoke(): Promise<boolean> {
+    return true;
   }
 }
 
@@ -273,7 +300,7 @@ export async function disconnectOauth({
   userAuthId: string;
   provider: OauthProvider;
 }): Promise<boolean> {
-  await prisma.userOauth.delete({
+  const oauthInfo = await prisma.userOauth.delete({
     where: {
       userAuthId_provider: {
         userAuthId,
@@ -281,5 +308,6 @@ export async function disconnectOauth({
       },
     },
   });
-  return true;
+  const intf = providerIntf(provider);
+  return await intf.revoke(oauthInfo);
 }
