@@ -122,7 +122,12 @@ export class GCloud {
     if (res.status === 200) {
       return true;
     }
-    console.error("GCloud API error", await res.json());
+    const json = await res.json();
+    const error = json["error_description"];
+    if (typeof error === "string" && error.includes("expired or revoked")) {
+      return true;
+    }
+    console.error("GCloud API error", json);
     return false;
   }
 }
