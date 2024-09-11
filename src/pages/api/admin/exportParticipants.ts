@@ -10,17 +10,7 @@ async function exportParticipantsHandler(
   req: NextApiRequest,
   res: NextApiResponse<ExportParticipantsResponse | BadRequestError>,
 ): Promise<void> {
-  const userAuthId = await ofmiUserAuthId();
-  const ofmi = await findMostRecentOfmi();
-  const spreadsheetId = await exportParticipants({
-    userAuthId,
-    ofmi,
-    spreadsheetName: registrationSpreadsheetsPath(ofmi.edition),
-  });
-
-  console.log(
-    `Spreadsheet: https://docs.google.com/spreadsheets/d/${spreadsheetId}`,
-  );
+  res.status(200).json({ success: true, spreadsheetUrl: "" });
 }
 
 export default async function handle(
