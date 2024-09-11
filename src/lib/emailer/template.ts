@@ -66,11 +66,11 @@ export const ofmiRegistrationCompleteTemplate = (
                <p>Por favor súbela junto con este formato de autorización de 
                   imagen:</p>
                <p>
-                  <a href="https://drive.google.com/file/d/1VpJ08JoYcy1rYCLEVrJ16-hg_q8H6KIS/view?usp=sharing">
+                  <a href="https://drive.google.com/file/d/14iOtI2OQnd3gkPBdUNdX1m0DCv3u7iP0/view?usp=sharing">
                   Formato de autorización de uso de imagen para menores de edad</a>
                </p>
                <p>
-                  <a href="https://drive.google.com/file/d/1rEn7vLgh1U3ecaoea4GixX6goi-1rEi4/view?usp=sharing">
+                  <a href="https://drive.google.com/file/d/1TPzcGYJ9Mt0xWq-u_PcicwJTgs0YJYfG/view?usp=sharing">
                   Formato de autorización de uso de imagen para mayores de edad</a>
                </p>`
             : ""
