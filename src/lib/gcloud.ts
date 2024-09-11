@@ -11,6 +11,9 @@ import { TTLCache } from "./cache";
 export const FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
 const SPREADSHEETS_MIME_TYPE = "application/vnd.google-apps.spreadsheet";
 
+export const spreadsheetURL = (id: string): string =>
+  `https://docs.google.com/spreadsheets/d/${id}`;
+
 const caches = {
   findOrCreateResource: new TTLCache<string>(),
 };

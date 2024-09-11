@@ -1,9 +1,7 @@
-import { getServerSession } from "next-auth/next";
 import type {
   GetServerSideProps,
   InferGetServerSidePropsType,
 } from "next/types";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import Registro from "@/components/registro";
 import { findMostRecentOfmi, findParticipation } from "@/lib/ofmi";
 import { Alert } from "@/components/alert";
@@ -14,6 +12,7 @@ import {
   ParticipationRoleOfString,
 } from "@/types/participation.schema";
 import { ParticipationRole } from "@prisma/client";
+import { X_USER_AUTH_EMAIL_HEADER } from "@/lib/auth";
 
 export default function RegistroPage({
   ofmiEdition,
@@ -68,10 +67,9 @@ export const getServerSideProps: GetServerSideProps<{
   registrationClosingTime: number | null;
   participationJSON: string | null;
   role: ParticipationRole;
-}> = async ({ req, res, query }) => {
-  const session = await getServerSession(req, res, authOptions);
-  const email = session?.user?.email;
-  if (!session?.user?.email) {
+}> = async ({ req, query }) => {
+  const email = req.headers[X_USER_AUTH_EMAIL_HEADER];
+  if (!email || typeof email !== "string") {
     return {
       redirect: {
         destination: "/login",
@@ -93,7 +91,6 @@ export const getServerSideProps: GetServerSideProps<{
 
   return {
     props: {
-      session,
       participationJSON: JSON.stringify(participation),
       ofmiEdition: ofmi?.edition ?? null,
       registrationClosingTime: ofmi?.registrationCloseTime.getTime() ?? null,
