@@ -1,11 +1,8 @@
-import { getServerSession } from "next-auth/next";
 import type {
   GetServerSideProps,
   InferGetServerSidePropsType,
 } from "next/types";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
 import { Calendly, GCloud, findConnectedProviders } from "@/lib/oauth";
-import { getToken } from "next-auth/jwt";
 import Oauth from "@/components/oauth";
 import { OauthProvider } from "@prisma/client";
 import { X_USER_AUTH_ID_HEADER } from "@/lib/auth";
