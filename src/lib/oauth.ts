@@ -249,22 +249,27 @@ export async function findConnectedProviders(
   return userAuth.UserOauth.map((oauthInfo) => oauthInfo.provider);
 }
 
+async function findUserOauth(
+  userAuthId: string,
+  provider: OauthProvider,
+): Promise<UserOauth | null> {
+  return await prisma.userOauth.findUnique({
+    where: {
+      userAuthId_provider: {
+        userAuthId,
+        provider,
+      },
+    },
+  });
+}
+
 export async function getAccessToken(
   userAuthId: string,
   provider: OauthProvider,
   userOauth?: UserOauth,
 ): Promise<string> {
   // Try to retrieve the token from the db
-  let oauthInfo =
-    userOauth ||
-    (await prisma.userOauth.findUnique({
-      where: {
-        userAuthId_provider: {
-          userAuthId,
-          provider,
-        },
-      },
-    }));
+  let oauthInfo = userOauth || (await findUserOauth(userAuthId, provider));
   if (!oauthInfo) {
     throw Error(`Tienes que conectarte con el servicio ${provider} primero`);
   }
@@ -300,7 +305,13 @@ export async function disconnectOauth({
   userAuthId: string;
   provider: OauthProvider;
 }): Promise<boolean> {
-  const oauthInfo = await prisma.userOauth.delete({
+  const oauthInfo = await findUserOauth(userAuthId, provider);
+  if (!oauthInfo) {
+    return false;
+  }
+  const intf = providerIntf(provider);
+  const res = await intf.revoke(oauthInfo);
+  await prisma.userOauth.delete({
     where: {
       userAuthId_provider: {
         userAuthId,
@@ -308,6 +319,5 @@ export async function disconnectOauth({
       },
     },
   });
-  const intf = providerIntf(provider);
-  return await intf.revoke(oauthInfo);
+  return res;
 }
