@@ -4,8 +4,9 @@ import { getToken } from "next-auth/jwt";
 import { NextRequest } from "next/server";
 import { getSecretOrError } from "./secret";
 
-export const X_USER_AUTH_ID_HEADER = "X-USER-AUTH-ID";
-export const X_USER_AUTH_ROLE_HEADER = "X-USER-AUTH-ROLE";
+export const X_USER_AUTH_ID_HEADER = "x-user-auth-id";
+export const X_USER_AUTH_EMAIL_HEADER = "x-user-auth-email";
+export const X_USER_AUTH_ROLE_HEADER = "x-user-auth-role";
 
 const OFMI_USER_TOKEN_KEY = "OFMI_USER_TOKEN";
 

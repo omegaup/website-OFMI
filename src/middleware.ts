@@ -4,11 +4,15 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { Role } from "@prisma/client";
 import {
+  X_USER_AUTH_EMAIL_HEADER,
   X_USER_AUTH_ID_HEADER,
   X_USER_AUTH_ROLE_HEADER,
   getUser,
   isImpersonatingOfmiUser,
 } from "@/lib/auth";
+
+// Prefix routes that requires only to be log in
+const withAuthPaths = ["/mentorias", "/registro", "/oauth"];
 
 export type CustomMiddleware = (
   request: NextRequest,
@@ -25,6 +29,7 @@ function withAuthRoles(roles?: Array<Role>): CustomMiddleware {
     }
     request.headers.set(X_USER_AUTH_ID_HEADER, user.id);
     request.headers.set(X_USER_AUTH_ROLE_HEADER, user.role);
+    request.headers.set(X_USER_AUTH_EMAIL_HEADER, user.email);
     return NextResponse.next({ request });
   };
 }
@@ -51,12 +56,13 @@ export const middleware: CustomMiddleware = async (
     return asAdmin(request);
   }
 
-  if (request.nextUrl.pathname.startsWith("/mentorias")) {
+  // Pages that requires just to be login
+  if (withAuthPaths.some((path) => request.nextUrl.pathname.startsWith(path))) {
     return withAuth(request);
   }
 
   // Allow
-  return NextResponse.next();
+  return NextResponse.next({ request });
 };
 
 export const config = {
