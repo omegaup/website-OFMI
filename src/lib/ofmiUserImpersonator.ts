@@ -1,15 +1,15 @@
 import config from "@/config/default";
 import { TTLCache } from "./cache";
-import { UserAuth, prisma } from "./prisma";
+import { prisma } from "./prisma";
 
 const caches = {
-  ofmiUserAuth: new TTLCache<UserAuth>(),
+  ofmiUserAuthId: new TTLCache<string>(),
 };
 
-export async function ofmiUserAuth(): Promise<UserAuth> {
+export async function ofmiUserAuthId(): Promise<string> {
   // Check if the cache has the result
-  const ttlCache = caches["ofmiUserAuth"];
-  const cacheKey = "ofmiUserAuth";
+  const ttlCache = caches["ofmiUserAuthId"];
+  const cacheKey = "ofmiUserAuthId";
   const cacheValue = ttlCache.get(cacheKey);
   if (cacheValue) {
     return cacheValue;
@@ -22,11 +22,6 @@ export async function ofmiUserAuth(): Promise<UserAuth> {
     throw Error(`There is no user ${config.OFMI_USER_EMAIL}`);
   }
 
-  ttlCache.set(cacheKey, user);
-  return user;
-}
-
-export async function ofmiUserAuthId(): Promise<string> {
-  // Check if the cache has the result
-  return (await ofmiUserAuth()).id;
+  ttlCache.set(cacheKey, user.id);
+  return user.id;
 }

@@ -3,11 +3,16 @@ import type { GetServerSidePropsContext, NextApiRequest } from "next";
 import { getToken } from "next-auth/jwt";
 import { NextRequest } from "next/server";
 import { getSecretOrError } from "./secret";
-import { ofmiUserAuth } from "./ofmiUserImpersonator";
+
+export const X_USER_AUTH_ID_HEADER = "X-USER-AUTH-ID";
+export const X_USER_AUTH_ROLE_HEADER = "X-USER-AUTH-ROLE";
 
 const OFMI_USER_TOKEN_KEY = "OFMI_USER_TOKEN";
 
-type Request = NextRequest | NextApiRequest | GetServerSidePropsContext["req"];
+export type Request =
+  | NextRequest
+  | NextApiRequest
+  | GetServerSidePropsContext["req"];
 
 function getAuthorizationHeader(request: Request): string | null {
   if (!("headers" in request)) {
@@ -27,24 +32,22 @@ function getAuthorizationHeader(request: Request): string | null {
   return null;
 }
 
-/* 
-  TODO: Let's catch this (?). Also all individual requests
-  (such /admin /registro) should use this
-*/
-export const getUser = async (request: Request): Promise<UserAuth | null> => {
+export const isImpersonatingOfmiUser = (request: Request): boolean => {
   // Check if auth is via Bearer
   const authorizationHeader = getAuthorizationHeader(request);
-  if (authorizationHeader) {
-    if (!authorizationHeader.toLowerCase().startsWith("bearer ")) {
-      return null;
-    }
-    const bearerToken = authorizationHeader.split(" ")[1];
-    // Currently we only have the token set for admin
-    if (bearerToken === getSecretOrError(OFMI_USER_TOKEN_KEY)) {
-      return await ofmiUserAuth();
-    }
+  if (!authorizationHeader) return false;
+  if (!authorizationHeader.toLowerCase().startsWith("bearer ")) {
+    return false;
   }
+  const bearerToken = authorizationHeader.split(" ")[1];
+  // Currently we only have the token set for admin
+  if (bearerToken !== getSecretOrError(OFMI_USER_TOKEN_KEY)) {
+    return false;
+  }
+  return true;
+};
 
+export const getUser = async (request: Request): Promise<UserAuth | null> => {
   const token = await getToken({
     req: request,
     secret: process.env.NEXTAUTH_SECRET,

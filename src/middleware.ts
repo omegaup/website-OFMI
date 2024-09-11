@@ -3,7 +3,12 @@ import type { NextMiddlewareResult } from "next/dist/server/web/types";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { Role } from "@prisma/client";
-import { getUser } from "@/lib/auth";
+import {
+  X_USER_AUTH_ID_HEADER,
+  X_USER_AUTH_ROLE_HEADER,
+  getUser,
+  isImpersonatingOfmiUser,
+} from "@/lib/auth";
 
 export type CustomMiddleware = (
   request: NextRequest,
@@ -18,22 +23,31 @@ function withAuthRoles(roles?: Array<Role>): CustomMiddleware {
     if (roles && !roles.find((v) => v === user.role)) {
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });
     }
-    request.headers.set("X-USER-AUTH-ID", user.id);
-    request.headers.set("X-USER-AUTH-ROLE", user.role);
-    return NextResponse.next();
+    request.headers.set(X_USER_AUTH_ID_HEADER, user.id);
+    request.headers.set(X_USER_AUTH_ROLE_HEADER, user.role);
+    return NextResponse.next({ request });
   };
 }
 
 const withAuth = withAuthRoles();
 const asAdmin = withAuthRoles([Role.ADMIN]);
 
+const asAdminOrImpersonatingOfmiUser: CustomMiddleware = (request) => {
+  if (isImpersonatingOfmiUser(request)) {
+    return NextResponse.next({ request });
+  }
+  return asAdmin(request);
+};
+
 export const middleware: CustomMiddleware = async (
   request,
 ): Promise<NextMiddlewareResult> => {
-  if (
-    request.nextUrl.pathname.startsWith("/admin") ||
-    request.nextUrl.pathname.startsWith("/api/admin")
-  ) {
+  // API paths
+  if (request.nextUrl.pathname.startsWith("/api/admin")) {
+    return asAdminOrImpersonatingOfmiUser(request);
+  }
+
+  if (request.nextUrl.pathname.startsWith("/admin")) {
     return asAdmin(request);
   }
 
@@ -51,7 +65,8 @@ export const config = {
      * Match all request paths except for the ones starting with:
      * - _next/static (static files)
      * - _next/image (image optimization files)
+     * - favicon.ico, sitemap.xml, robots.txt (metadata files)
      */
-    "/((?!api/_next/static|_next/image).*)",
+    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
   ],
 };
