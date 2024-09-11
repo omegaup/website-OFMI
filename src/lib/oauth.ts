@@ -273,6 +273,10 @@ export async function disconnectOauth({
   userAuthId: string;
   provider: OauthProvider;
 }): Promise<boolean> {
+  if (provider === "GCLOUD") {
+    // TODO: Hay que revocar token para GCLOUD.
+    return false;
+  }
   await prisma.userOauth.delete({
     where: {
       userAuthId_provider: {
