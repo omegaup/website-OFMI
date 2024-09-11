@@ -132,6 +132,7 @@ export async function findParticipation(
   email: string,
 ): Promise<ParticipationRequestInput | null> {
   const participation = await prisma.participation.findFirst({
+    where: { ofmiId: ofmi.id, user: { UserAuth: { email: email } } },
     include: {
       user: {
         include: {
@@ -148,7 +149,6 @@ export async function findParticipation(
       },
       VolunteerParticipation: true,
     },
-    where: { ofmiId: ofmi.id, user: { UserAuth: { email: email } } },
   });
 
   if (!participation) {
