@@ -51,6 +51,9 @@ export const middleware: CustomMiddleware = async (
   if (request.nextUrl.pathname.startsWith("/api/admin")) {
     return asAdminOrImpersonatingOfmiUser(request);
   }
+  if (request.nextUrl.pathname.startsWith("/api/ofmi/upsertParticipation")) {
+    return withAuth(request);
+  }
 
   if (request.nextUrl.pathname.startsWith("/admin")) {
     return asAdmin(request);
