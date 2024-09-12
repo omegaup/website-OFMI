@@ -36,7 +36,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     li: CustomLi,
     a: CustomA,
     wrapper: ({ children }) => (
-      <div className="relative flex min-h-screen flex-col overflow-hidden bg-gray-50 py-8 lg:py-12">
+      <div className="relative flex flex-1 flex-col overflow-hidden bg-gray-50 py-8 lg:py-12">
         <article className="prose prose-slate mx-auto px-4 lg:prose-lg md:mt-8 md:px-0">
           {children}
         </article>
