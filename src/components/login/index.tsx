@@ -136,6 +136,14 @@ export default function Login({
               >
                 Contraseña
               </label>
+              <div className="text-right">
+                <a
+                  href="#"
+                  className="font-medium text-blue-500 hover:text-blue-700"
+                >
+                  ¿Olvidaste tu contraseña?
+                </a>
+              </div>
             </div>
             <div className="mt-2">
               <PasswordInput
@@ -144,15 +152,6 @@ export default function Login({
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:leading-6"
               />
             </div>
-          </div>
-
-          <div className="text-right">
-            <a
-              href="#"
-              className="font-semibold text-blue-500 hover:text-blue-700"
-            >
-              ¿Olvidaste tu contraseña?
-            </a>
           </div>
 
           <Button
@@ -169,7 +168,7 @@ export default function Login({
               ¿Aun no tienes una cuenta?{" "}
               <a
                 href="/signup"
-                className="font-medium text-blue-500 hover:text-blue-700 hover:underline"
+                className="font-semibold text-blue-500 hover:text-blue-700 hover:underline"
               >
                 Crea una cuenta
               </a>
