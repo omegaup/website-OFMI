@@ -53,6 +53,7 @@
     "remark-frontmatter": "^5.0.0",
     "remark-gfm": "^4.0.0",
     "remark-mdx-frontmatter": "^4.0.0",
+    "sharp": "^0.33.5",
     "tailwindest": "^2.2.1",
     "typescript": "5.2.2"
   },

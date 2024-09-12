@@ -22,7 +22,7 @@ export const newUserEmailTemplate = (
       <br />
       <p>Equipo organizador de la OFMI</p>
     `,
-  } as MailOptions;
+  };
 };
 
 export const signUpSuccessfulEmailTemplate = (email: string): MailOptions => {
@@ -40,7 +40,7 @@ export const signUpSuccessfulEmailTemplate = (email: string): MailOptions => {
         <br />
         <p>Equipo organizador de la OFMI</p>
       `,
-  } as MailOptions;
+  };
 };
 
 export const ofmiRegistrationCompleteTemplate = (
@@ -80,5 +80,5 @@ export const ofmiRegistrationCompleteTemplate = (
         <br />
         <p>Equipo organizador de la OFMI</p>
       `,
-  } as MailOptions;
+  };
 };
