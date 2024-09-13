@@ -2,14 +2,6 @@ import type { NextMiddlewareResult } from "next/dist/server/web/types";
 
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { Role } from "@prisma/client";
-import {
-  X_USER_AUTH_EMAIL_HEADER,
-  X_USER_AUTH_ID_HEADER,
-  X_USER_AUTH_ROLE_HEADER,
-  getUser,
-  isImpersonatingOfmiUser,
-} from "@/lib/auth";
 import * as cfg from "@/config/default";
 
 // Prefix routes that requires only to be log in
@@ -19,6 +11,7 @@ export type CustomMiddleware = (
   request: NextRequest,
 ) => NextMiddlewareResult | Promise<NextMiddlewareResult>;
 
+/*
 function withAuthRoles(roles?: Array<Role>): CustomMiddleware {
   return async (request) => {
     const user = await getUser(request);
@@ -49,6 +42,7 @@ const asAdminOrImpersonatingOfmiUser: CustomMiddleware = (request) => {
   }
   return asAdmin(request);
 };
+*/
 
 export const middleware: CustomMiddleware = async (
   request,
