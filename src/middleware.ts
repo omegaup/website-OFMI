@@ -65,7 +65,10 @@ export const middleware: CustomMiddleware = async (
     return NextResponse.redirect(base);
   }
 
-  if (request.nextUrl.pathname.startsWith("/login")) {
+  if (
+    request.nextUrl.pathname.startsWith("/login") ||
+    request.nextUrl.pathname.startsWith("/signup")
+  ) {
     return NextResponse.redirect(base);
   }
   // Allow
