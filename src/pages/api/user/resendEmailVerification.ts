@@ -1,6 +1,6 @@
 import {
-  VerifyEmailRequestSchema,
-  VerifyEmailResponse,
+  ResendEmailVerificationResponse,
+  ResendEmailVerificationRequestSchema,
 } from "@/types/auth.schema";
 import { BadRequestError } from "@/types/errors";
 import { Value } from "@sinclair/typebox/value";
@@ -10,10 +10,10 @@ import generateAndSendVerificationToken from "@/lib/emailVerificationToken";
 
 async function resendEmailVerificationTokenHandler(
   req: NextApiRequest,
-  res: NextApiResponse<VerifyEmailResponse | BadRequestError>,
+  res: NextApiResponse<ResendEmailVerificationResponse | BadRequestError>,
 ): Promise<void> {
   const { body } = req;
-  if (!Value.Check(VerifyEmailRequestSchema, body)) {
+  if (!Value.Check(ResendEmailVerificationRequestSchema, body)) {
     return res.status(400).json({
       message: "Invalid request body",
     });
@@ -50,7 +50,7 @@ async function resendEmailVerificationTokenHandler(
 
 export default async function handle(
   req: NextApiRequest,
-  res: NextApiResponse<VerifyEmailResponse | BadRequestError>,
+  res: NextApiResponse<ResendEmailVerificationResponse | BadRequestError>,
 ): Promise<void> {
   if (req.method === "POST") {
     await resendEmailVerificationTokenHandler(req, res);

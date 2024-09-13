@@ -35,13 +35,15 @@ export const LoginUserResponseSchema = Type.Object({
   user: UserAuthResponseSchema,
 });
 
-export type VerifyEmailRequest = Static<typeof VerifyEmailRequestSchema>;
-export const VerifyEmailRequestSchema = Type.Object({
+export type ResendEmailVerificationRequest = Static<
+  typeof ResendEmailVerificationRequestSchema
+>;
+export const ResendEmailVerificationRequestSchema = Type.Object({
   // email
   email: Type.String({ pattern: emailReg }),
 });
 
-export interface VerifyEmailResponse {
+export type ResendEmailVerificationResponse = {
   email: string;
   message: string;
-}
+};
