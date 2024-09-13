@@ -22,7 +22,7 @@ function withAuthRoles(roles?: Array<Role>): CustomMiddleware {
   return async (request) => {
     const user = await getUser(request);
     if (!user) {
-      const callbackUrl = request.nextUrl.pathname;
+      const callbackUrl = `${request.nextUrl.pathname}${request.nextUrl.search}`;
       const url = request.nextUrl.clone();
       url.pathname = "/login";
       url.search = `callbackUrl=${callbackUrl}`;
