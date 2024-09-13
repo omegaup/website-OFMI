@@ -24,11 +24,13 @@ interface LoginError {
 interface LoginProps {
   verified?: boolean;
   initialEmail?: string;
+  callbackUrl?: string;
 }
 
 export default function Login({
   verified,
   initialEmail,
+  callbackUrl,
 }: LoginProps): JSX.Element {
   const router = useRouter();
   const [successResendEmailMsg, setSuccessResendEmailMsg] = useState<
@@ -55,6 +57,7 @@ export default function Login({
       redirect: false,
       email,
       password,
+      callbackUrl,
     });
 
     if (response?.error) {
