@@ -6,7 +6,9 @@ import type {
   StateName,
 } from "./types";
 import mexicoJSON from "./data.json";
+import isoCountriesJson from "./iso-3166-countries.json";
 
+export const ALFA3_CODES = isoCountriesJson.map((v) => v["alpha-3"]);
 export const MEX = "MEX";
 const mexico = mexicoJSON as Country;
 
