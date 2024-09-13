@@ -1,6 +1,13 @@
 import { Type, Static } from "@sinclair/typebox";
-import { UserAuth } from "@prisma/client";
+import { Role } from "@prisma/client";
 import { emailReg } from "@/lib/validators";
+
+export type UserAuthResponse = Static<typeof UserAuthResponseSchema>;
+export const UserAuthResponseSchema = Type.Object({
+  id: Type.String({ minLength: 1 }),
+  email: Type.String({ pattern: emailReg }),
+  role: Type.Enum(Role),
+});
 
 export type CreateUserRequest = Static<typeof CreateUserRequestSchema>;
 export const CreateUserRequestSchema = Type.Object({
@@ -10,9 +17,10 @@ export const CreateUserRequestSchema = Type.Object({
   password: Type.String({ minLength: 1 }),
 });
 
-export interface CreateUserResponse {
-  user: UserAuth;
-}
+export type CreateUserResponse = Static<typeof CreateUserResponseSchema>;
+export const CreateUserResponseSchema = Type.Object({
+  user: UserAuthResponseSchema,
+});
 
 export type LoginUserRequest = Static<typeof LoginUserRequestSchema>;
 export const LoginUserRequestSchema = Type.Object({
@@ -22,9 +30,10 @@ export const LoginUserRequestSchema = Type.Object({
   password: Type.String({ minLength: 1 }),
 });
 
-export interface LoginUserResponse {
-  user: UserAuth;
-}
+export type LoginUserResponse = Static<typeof LoginUserResponseSchema>;
+export const LoginUserResponseSchema = Type.Object({
+  user: UserAuthResponseSchema,
+});
 
 export type VerifyEmailRequest = Static<typeof VerifyEmailRequestSchema>;
 export const VerifyEmailRequestSchema = Type.Object({

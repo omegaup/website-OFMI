@@ -4,6 +4,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import {
   CreateUserRequestSchema,
   CreateUserResponse,
+  CreateUserResponseSchema,
 } from "@/types/auth.schema";
 import { Value } from "@sinclair/typebox/value";
 import { BadRequestError } from "@/types/errors";
@@ -37,7 +38,7 @@ async function createUserHandler(
 
     await generateAndSendVerificationToken(user.id, body.email);
 
-    return res.status(201).json({ user });
+    return res.status(201).json(Value.Cast(CreateUserResponseSchema, { user }));
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       if (e.code === "P2002") {

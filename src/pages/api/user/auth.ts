@@ -2,7 +2,11 @@ import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/hashPassword";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Value } from "@sinclair/typebox/value";
-import { LoginUserRequestSchema, LoginUserResponse } from "@/types/auth.schema";
+import {
+  LoginUserRequestSchema,
+  LoginUserResponse,
+  LoginUserResponseSchema,
+} from "@/types/auth.schema";
 import { BadRequestError } from "@/types/errors";
 
 async function loginUserHandler(
@@ -37,7 +41,7 @@ async function loginUserHandler(
     });
   }
 
-  return res.status(200).json({ user });
+  return res.status(200).json(Value.Cast(LoginUserResponseSchema, { user }));
 }
 
 export default async function handle(
