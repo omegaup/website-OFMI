@@ -10,6 +10,7 @@ import {
   getUser,
   isImpersonatingOfmiUser,
 } from "@/lib/auth";
+import * as cfg from "@/config/default";
 
 // Prefix routes that requires only to be log in
 const withAuthPaths = ["/mentorias", "/registro", "/oauth"];
@@ -41,6 +42,7 @@ function withAuthRoles(roles?: Array<Role>): CustomMiddleware {
 const withAuth = withAuthRoles();
 const asAdmin = withAuthRoles([Role.ADMIN]);
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const asAdminOrImpersonatingOfmiUser: CustomMiddleware = (request) => {
   if (isImpersonatingOfmiUser(request)) {
     return NextResponse.next({ request });
@@ -52,22 +54,26 @@ export const middleware: CustomMiddleware = async (
   request,
 ): Promise<NextMiddlewareResult> => {
   // API paths
+  const base = cfg.default.BASE_URL;
   if (request.nextUrl.pathname.startsWith("/api/admin")) {
-    return asAdminOrImpersonatingOfmiUser(request);
+    return NextResponse.redirect(base);
   }
   if (request.nextUrl.pathname.startsWith("/api/ofmi/upsertParticipation")) {
-    return withAuth(request);
+    return NextResponse.redirect(base);
   }
 
   if (request.nextUrl.pathname.startsWith("/admin")) {
-    return asAdmin(request);
+    return NextResponse.redirect(base);
   }
 
   // Pages that requires just to be login
   if (withAuthPaths.some((path) => request.nextUrl.pathname.startsWith(path))) {
-    return withAuth(request);
+    return NextResponse.redirect(base);
   }
 
+  if (request.nextUrl.pathname.startsWith("/login")) {
+    return NextResponse.redirect(base);
+  }
   // Allow
   return NextResponse.next({ request });
 };
