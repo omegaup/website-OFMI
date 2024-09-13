@@ -1,5 +1,8 @@
-import { expect, test } from "vitest";
-import { validateMailingAddressLocation } from "@/lib/validators/address";
+import { expect, test, describe } from "vitest";
+import {
+  validateMailingAddressLocation,
+  validateCountryState,
+} from "@/lib/validators/address";
 import {
   localityNames,
   MEX,
@@ -55,5 +58,31 @@ test("Mexico json valid", () => {
         `${municipality}, ${state} had not localities`,
       );
     });
+  });
+});
+
+describe("validate country state", () => {
+  test("validate country", () => {
+    ["MEX", "USA", "PER"].forEach((c) =>
+      expect(
+        validateCountryState({ country: c, state: "Aguascalientes" }),
+      ).toMatchObject({
+        ok: true,
+      }),
+    );
+
+    ["MX", "Mexico"].forEach((c) =>
+      expect(
+        validateCountryState({ country: c, state: "Aguascalientes" }),
+      ).toMatchObject({
+        ok: false,
+      }),
+    );
+  });
+
+  test("invalid state", () => {
+    expect(
+      validateCountryState({ country: "MEX", state: "Juan" }),
+    ).toMatchObject({ ok: false });
   });
 });
