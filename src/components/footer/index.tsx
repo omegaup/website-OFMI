@@ -28,12 +28,12 @@ function SocialMediaIcon({ id, ...props }: SocialMediaIconProps): JSX.Element {
 
 export const Footer = (): JSX.Element => {
   return (
-    <footer className="mt-auto flex flex-col border-t-2 border-s-stone-300 py-8">
+    <footer className="mt-auto flex flex-col border-t-2 border-s-stone-300 pt-4">
       <div className="relative mx-auto max-w-3xl px-4 text-center md:px-8">
         <h2 className="mb-4">
           Página oficial de la Olimpiada Femenil Mexicana de Informática.
         </h2>
-        <div className="grid items-center md:grid-cols-3 md:gap-6">
+        <div className="grid items-center md:grid-cols-2 md:gap-6">
           {/* OmegaUp Section */}
           <div className="group relative z-0 mb-5 w-full">
             <a className="inline-block" href="https://omegaup.com">
@@ -64,27 +64,26 @@ export const Footer = (): JSX.Element => {
                 alt="janestreet"
               />
             </a>
-            <p>Patrocinadores</p>
+            <p>Patrocinador</p>
           </div>
-
-          {/* Social Media Section */}
-          <div className="group relative z-0 mb-5 w-full">
-            <ul className="flex flex-wrap justify-center gap-4">
-              {Object.entries(socialMediaLinks).map(([key, url]) => {
-                const id = key as SocialMedia;
-                return (
-                  <li key={id}>
-                    <a href={url} target="_blank" rel="noopener noreferrer">
-                      <SocialMediaIcon
-                        className=" h-4 w-4 fill-stone-300"
-                        id={id}
-                      />
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
+        </div>
+        {/* Social Media Section */}
+        <div className="group relative z-0 mb-4 w-full">
+          <ul className="flex flex-wrap justify-center gap-8">
+            {Object.entries(socialMediaLinks).map(([key, url]) => {
+              const id = key as SocialMedia;
+              return (
+                <li key={id}>
+                  <a href={url} target="_blank" rel="noopener noreferrer">
+                    <SocialMediaIcon
+                      className=" h-6 w-6 fill-stone-500"
+                      id={id}
+                    />
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       </div>
     </footer>

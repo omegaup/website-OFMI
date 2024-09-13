@@ -1,4 +1,7 @@
-import { VerifyEmailRequest, VerifyEmailResponse } from "@/types/auth.schema";
+import {
+  ResendEmailVerificationRequest,
+  ResendEmailVerificationResponse,
+} from "@/types/auth.schema";
 import { BadRequestError } from "@/types/errors";
 
 export async function resendEmailVerification({
@@ -12,10 +15,10 @@ export async function resendEmailVerification({
     }
   | {
       success: true;
-      data: VerifyEmailResponse;
+      data: ResendEmailVerificationResponse;
     }
 > {
-  const payload: VerifyEmailRequest = {
+  const payload: ResendEmailVerificationRequest = {
     email,
   };
 
@@ -42,7 +45,7 @@ export async function resendEmailVerification({
     };
   }
 
-  const data: VerifyEmailResponse = await response.json();
+  const data: ResendEmailVerificationResponse = await response.json();
   return {
     success: true,
     data,

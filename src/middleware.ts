@@ -22,7 +22,11 @@ function withAuthRoles(roles?: Array<Role>): CustomMiddleware {
   return async (request) => {
     const user = await getUser(request);
     if (!user) {
-      return NextResponse.redirect(new URL("/login", request.url));
+      const callbackUrl = `${request.nextUrl.pathname}${request.nextUrl.search}`;
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      url.search = `callbackUrl=${callbackUrl}`;
+      return NextResponse.redirect(url);
     }
     if (roles && !roles.find((v) => v === user.role)) {
       return NextResponse.json({ message: "Forbidden" }, { status: 403 });

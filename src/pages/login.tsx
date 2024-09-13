@@ -24,8 +24,9 @@ export default function LoginPage(
 
   return (
     <Login
-      verified={props.verified == null ? undefined : props.verified}
-      initialEmail={props.email == null ? undefined : props.email}
+      verified={props.verified === null ? undefined : props.verified}
+      initialEmail={props.email === null ? undefined : props.email}
+      callbackUrl={props.callbackUrl === null ? undefined : props.callbackUrl}
     />
   );
 }
@@ -33,6 +34,7 @@ export default function LoginPage(
 export const getServerSideProps: GetServerSideProps<{
   verified: boolean | null;
   email: string | null;
+  callbackUrl: string | null;
   errorMsg: string | null;
 }> = async ({ req, res, query }) => {
   const session = await getServerSession(req, res, authOptions);
@@ -67,10 +69,14 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
+  const callbackUrl =
+    typeof query.callbackUrl === "string" ? query.callbackUrl : null;
+
   return {
     props: {
       verified,
       email,
+      callbackUrl,
       errorMsg,
     },
   };
