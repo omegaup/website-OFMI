@@ -1,4 +1,5 @@
-import { municipalityNames, stateNames } from "@/lib/address";
+import { MEX, municipalityNames, stateNames } from "@/lib/address";
+import isoCountriesJson from "@/lib/address/iso-3166-countries.json";
 import { useState } from "react";
 import { FloatingInput } from "../input/FloatingInput";
 
@@ -30,6 +31,7 @@ function SelectWithFallback({
           ev.preventDefault();
           onChange?.(ev.target.value);
         }}
+        required={required}
       />
     );
   }
@@ -87,7 +89,7 @@ export const LocationFields = ({
   defaultLocalityValue?: string;
   required?: boolean;
 }): JSX.Element => {
-  const [country, setCountry] = useState(defaultCountryValue ?? "MEX");
+  const [country, setCountry] = useState(defaultCountryValue ?? MEX);
   const states = stateNames(country);
   const [state, setState] = useState<string | undefined>(defaultStateValue);
   if (state && states.length > 0 && !states.includes(state)) {
@@ -112,9 +114,13 @@ export const LocationFields = ({
           className="peer block w-full appearance-none border-0 border-b-2 border-gray-300 bg-transparent px-0 py-2.5 text-sm text-gray-900 focus:border-blue-600 focus:outline-none focus:ring-0"
           required={required}
         >
-          <option value="MEX">México</option>
-          <option value="USA">Estados Unidos</option>
-          <option value="Other">Otro</option>
+          {isoCountriesJson.map((d) => {
+            return (
+              <option key={d["alpha-3"]} value={d["alpha-3"]}>
+                {d["name"]}
+              </option>
+            );
+          })}
         </select>
         <label
           htmlFor={countryFieldId}
@@ -130,6 +136,7 @@ export const LocationFields = ({
           value={state}
           onChange={(ev) => setState(ev)}
           options={states}
+          required={required}
         ></SelectWithFallback>
       </div>
       {!onlyCountryState && municipalities.length > 0 && (
