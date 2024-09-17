@@ -1,25 +1,32 @@
 import { useState } from "react";
 import { APIS } from "./client";
+import Form from "@rjsf/core";
+import validator from "@rjsf/validator-ajv8";
+import { RJSFSchema } from "@rjsf/utils";
 
 function APIForm({ endpoint }: { endpoint: string }): JSX.Element {
   const [requestSchema, responseSchema] = APIS[endpoint];
 
-  async function handleSubmit(
-    event: React.FormEvent<HTMLFormElement>,
-  ): Promise<void> {
-    console.log(event);
-  }
-
-  console.log({ requestSchema, responseSchema });
-  console.log(requestSchema.params);
-  console.log(requestSchema.$schema);
-
   return (
-    <form
-      className="space-y-6"
-      method="POST"
-      onSubmit={(ev) => handleSubmit(ev)}
-    ></form>
+    <Form
+      schema={requestSchema as RJSFSchema}
+      validator={validator}
+      onSubmit={async (data, ev) => {
+        ev.preventDefault();
+        const formData = data.formData;
+        if (!formData) {
+          return;
+        }
+        await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
+        console.log(data);
+      }}
+    />
   );
 }
 
