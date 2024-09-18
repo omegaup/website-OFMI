@@ -1,0 +1,12 @@
+.rjsf .form-group {
+  display: flex;
+  flex-direction: column;
+  margin-top: 12px;
+}
+
+.rjsf .btn {
+  margin-top: 12px;
+  padding: 8px;
+  border: solid 2px black;
+  border-radius: 24px;
+}
