@@ -8,7 +8,7 @@ export const SendEmailResponseSchema = Type.Object({
 
 export type SendEmailRequest = Static<typeof SendEmailRequestSchema>;
 export const SendEmailRequestSchema = Type.Object({
-  email: Type.String({}),
+  email: Type.String(),
   subject: Type.String({ minLength: 1 }),
   // Html of the email content
   content: Type.String({ minLength: 1 }),

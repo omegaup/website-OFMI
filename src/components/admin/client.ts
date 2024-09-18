@@ -1,16 +1,8 @@
-import {
-  SendEmailRequestSchema,
-  SendEmailResponseSchema,
-} from "@/types/admin.schema";
-import { UpsertParticipationRequestSchema } from "@/types/participation.schema";
+import { SendEmailRequestSchema } from "@/types/admin.schema";
 import { TObject } from "@sinclair/typebox";
 
 export const APIS: {
-  [key: string]: [TObject, TObject];
+  [key: string]: TObject;
 } = {
-  "/api/admin/sendEmail": [SendEmailRequestSchema, SendEmailResponseSchema],
-  "/api/ofmi/upsertParticipation": [
-    UpsertParticipationRequestSchema,
-    SendEmailResponseSchema,
-  ],
+  "/api/admin/sendEmail": SendEmailRequestSchema,
 };
