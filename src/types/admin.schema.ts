@@ -1,5 +1,4 @@
 import { Static, Type } from "@sinclair/typebox";
-//import { emailReg } from "@/lib/validators";
 
 export type SendEmailResponse = Static<typeof SendEmailResponseSchema>;
 export const SendEmailResponseSchema = Type.Object({
