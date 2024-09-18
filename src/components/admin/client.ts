@@ -1,8 +1,9 @@
 import { SendEmailRequestSchema } from "@/types/admin.schema";
-import { TObject } from "@sinclair/typebox";
+import { TObject, Type } from "@sinclair/typebox";
 
 export const APIS: {
-  [key: string]: TObject;
+  [key: string]: ["GET" | "POST", TObject];
 } = {
-  "/api/admin/sendEmail": SendEmailRequestSchema,
+  "/api/admin/sendEmail": ["POST", SendEmailRequestSchema],
+  "/api/admin/exportParticipants": ["GET", Type.Object({})],
 };

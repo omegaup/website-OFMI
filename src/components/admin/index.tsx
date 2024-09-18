@@ -7,7 +7,7 @@ import { RJSFSchema } from "@rjsf/utils";
 function APIForm({ endpoint }: { endpoint: string }): JSX.Element {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<string | null>(null);
-  const requestSchema = APIS[endpoint];
+  const [method, requestSchema] = APIS[endpoint];
 
   return (
     <div>
@@ -23,13 +23,22 @@ function APIForm({ endpoint }: { endpoint: string }): JSX.Element {
           if (!formData) {
             return;
           }
-          const res = await fetch(endpoint, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formData),
-          });
+
+          let res: Response | null = null;
+          if (method === "POST") {
+            res = await fetch(endpoint, {
+              method,
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(formData),
+            });
+          } else {
+            const query = new URLSearchParams(formData);
+            res = await fetch(`${endpoint}?${query.toString()}`, {
+              method,
+            });
+          }
           setLoading(false);
           const json = await res.json();
           setResponse(JSON.stringify(json, null, 2));
