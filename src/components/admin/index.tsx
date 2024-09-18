@@ -36,8 +36,18 @@ function APIForm({ endpoint }: { endpoint: string }): JSX.Element {
         }}
       />
       {response && (
-        <div className="mt-6 rounded-md border border-gray-300 bg-gray-100 p-4">
-          <pre className="whitespace-pre-wrap break-words">{response}</pre>
+        <div>
+          <div className="mt-6 rounded-md border border-gray-300 bg-gray-100 p-4">
+            <pre className="whitespace-pre-wrap break-words">{response}</pre>
+          </div>
+          <button
+            onClick={(ev) => {
+              ev.preventDefault();
+              setResponse(null);
+            }}
+          >
+            Cerrar
+          </button>
         </div>
       )}
     </div>
