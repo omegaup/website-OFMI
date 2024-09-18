@@ -13,7 +13,5 @@ export const SendEmailRequestSchema = Type.Object(
     // Html of the email content
     content: Type.String({ minLength: 1 }),
   },
-  {
-    description: "Envía un correo desde la cuenta de ofmi-no-reply",
-  },
+  { description: "Envía un correo desde la cuenta de ofmi-no-reply" },
 );
