@@ -31,16 +31,22 @@ async function exportParticipantsHandler(
     return res.status(403).json({ message: "Forbidden" });
   }
   const ofmi = await findMostRecentOfmi();
-  const spreadsheetId = await exportParticipants({
-    userAuthId,
-    ofmi,
-    spreadsheetName: registrationSpreadsheetsPath(ofmi.edition),
-  });
-  return res.status(200).json({
-    success: true,
-    spreadsheetId,
-    spreadsheetUrl: spreadsheetURL(spreadsheetId),
-  });
+  try {
+    const spreadsheetId = await exportParticipants({
+      userAuthId,
+      ofmi,
+      spreadsheetName: registrationSpreadsheetsPath(ofmi.edition),
+    });
+    return res.status(200).json({
+      success: true,
+      spreadsheetId,
+      spreadsheetUrl: spreadsheetURL(spreadsheetId),
+    });
+  } catch (e) {
+    return res.status(500).json({
+      message: `Internal Server Error. ${e}`,
+    });
+  }
 }
 
 export default async function handle(
