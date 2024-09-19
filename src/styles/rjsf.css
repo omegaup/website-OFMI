@@ -12,20 +12,20 @@
   width: 100%;
   background-color: #facc15;
   color: #111827;
-  font-weight:  bold;
+  font-weight: bold;
 }
 
-.rjsf .btn:hover{
+.rjsf .btn:hover {
   background-color: #eab308;
 }
 
-.rjsf input{
+.rjsf input {
   border-radius: 6px;
   padding: 4px;
-  border: 1px solid lightgray; 
-  box-shadow:  0.5px 1px rgba(200, 200, 200, 0.3);
+  border: 1px solid lightgray;
+  box-shadow: 0.5px 1px rgba(200, 200, 200, 0.3);
 }
 
-.rjsf input:focus{
+.rjsf input:focus {
   border: 1px solid purple;
 }
