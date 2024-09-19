@@ -8,6 +8,7 @@ import { jwtSign, jwtVerify } from "./jwt";
 import { getSecretOrError } from "./secret";
 import { emailer } from "./emailer";
 import { prisma } from "@/lib/prisma";
+import { hashPassword } from "./hashPassword";
 
 const VERIFICATION_EMAIL_SECRET_KEY = "VERIFICATION_EMAIL_SECRET";
 
@@ -52,6 +53,12 @@ export async function changePassword({
       message: "Las contraseñas no coinciden",
     };
   }
+  if (pass.length < 8) {
+    return {
+      success: false,
+      message: "Las contraseña debe tener al menos 8 caracteres",
+    };
+  }
   try {
     const result = await jwtVerify(
       verificationEmailTokenSchema,
@@ -63,7 +70,7 @@ export async function changePassword({
         id: result.userAuthId,
       },
       data: {
-        password: pass,
+        password: hashPassword(pass),
       },
     });
     if (user == null) {
