@@ -39,7 +39,7 @@ This is the current DB design
 3. **Seed Database**: To seed your database with dummy data.
 
    ```bash
-   docker compose exec app npm run seed
+   docker compose exec app npm run prisma:seed
    ```
 
 4. **Open Your App**: Your application should now be running at [http://localhost:3000](http://localhost:3000). You can start building your project by modifying the source code located in the `src` directory.

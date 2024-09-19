@@ -3,8 +3,15 @@
     "source.fixAll.eslint": "explicit",
     "source.fixAll": "explicit"
   },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   "standard.enable": false,
   "prettier.prettierPath": "./node_modules/prettier",
   "typescript.tsdk": "node_modules/typescript/lib",
-  "tailwindCSS.codeActions": false
+  "tailwindCSS.codeActions": false,
+  "editor.formatOnSave": true
 }

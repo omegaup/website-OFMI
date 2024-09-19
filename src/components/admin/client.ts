@@ -5,5 +5,13 @@ export const APIS: {
   [key: string]: ["GET" | "POST", TObject];
 } = {
   "/api/admin/sendEmail": ["POST", SendEmailRequestSchema],
-  "/api/admin/exportParticipants": ["GET", Type.Object({})],
+  "/api/admin/exportParticipants": [
+    "GET",
+    Type.Object(
+      {},
+      {
+        description: "Exporta a google sheets la lista de participantes",
+      },
+    ),
+  ],
 };
