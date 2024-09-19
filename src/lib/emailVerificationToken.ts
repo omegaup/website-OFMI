@@ -12,7 +12,7 @@ const VERIFICATION_EMAIL_SECRET_KEY = "VERIFICATION_EMAIL_SECRET";
 export type verificationEmailToken = Static<
   typeof verificationEmailTokenSchema
 >;
-const verificationEmailTokenSchema = Type.Object({
+export const verificationEmailTokenSchema = Type.Object({
   userAuthId: Type.String(), // User auth id
 });
 

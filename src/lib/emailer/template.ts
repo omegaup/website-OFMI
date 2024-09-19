@@ -82,3 +82,41 @@ export const ofmiRegistrationCompleteTemplate = (
       `,
   };
 };
+
+export const passwordRecoveryAttemptTemplate = (
+  email: string,
+  url: string,
+): MailOptions => {
+  return {
+    from: getSecretOrError(OFMI_EMAIL_SMTP_USER_KEY),
+    to: email,
+    subject: "Recuperacion de contraseña de la OFMI",
+    text: "Recuperacion de contraseña de la OFMI",
+    html: `
+        <p>Estas recibiendo este correo porque se recibio una solicitud de recuperacion de tu contraseña de la OFMI</p>
+        <p>Para continuar, haz click en el siguiente <a href="${config.BASE_URL}/${url}">enlace</a></p>
+        <p>Si no realizaste esta solicitud o tienes alguna duda, por favor envía un correo a
+        <a href="mailto:ofmi@omegaup.com">ofmi@omegaup.com</a></p>
+        <br />
+        <p>Equipo organizador de la OFMI</p>
+      `,
+  };
+};
+
+export const successfulPasswordRecoveryTemplate = (
+  email: string,
+): MailOptions => {
+  return {
+    from: getSecretOrError(OFMI_EMAIL_SMTP_USER_KEY),
+    to: email,
+    subject: "Actualizacion de contraseña de la OFMI",
+    text: "Actualizacion de contraseña de la OFMI",
+    html: `
+        <p>Estas recibiendo este correo porque la contraseña de tu cuenta de la OFMI ha sido cambiada</p>
+        <p>Si no realizaste este cambio o tienes alguna duda, por favor envía un correo a
+        <a href="mailto:ofmi@omegaup.com">ofmi@omegaup.com</a></p>
+        <br />
+        <p>Equipo organizador de la OFMI</p>
+      `,
+  };
+};
