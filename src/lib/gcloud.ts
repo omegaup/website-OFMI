@@ -260,6 +260,9 @@ export async function exportParticipants({
     const json = participants
       .filter((v) => v.userParticipation.role === role)
       .map((participation) => {
+        const optInToString = (f: boolean): string => {
+          return f ? "Sí" : "No";
+        };
         let data: Record<string, string> = {
           "Nombre completo": `${participation.user.firstName.trim()} ${participation.user.lastName.trim()}`,
           Email: participation.user.email.trim(),
@@ -272,6 +275,20 @@ export async function exportParticipants({
             ...data,
             Estado: userParticipation.schoolState,
             Escuela: userParticipation.schoolName.trim(),
+          };
+        } else if (userParticipation.role === "VOLUNTEER") {
+          data = {
+            ...data,
+            "Comunidad / Redes": optInToString(
+              userParticipation.communityOptIn,
+            ),
+            "Vinculación educativa": optInToString(
+              userParticipation.educationalLinkageOptIn,
+            ),
+            Fundraising: optInToString(userParticipation.fundraisingOptIn),
+            Entrenamientos: optInToString(userParticipation.trainerOptIn),
+            Problemsetter: optInToString(userParticipation.problemSetterOptIn),
+            Mentorías: optInToString(userParticipation.mentorOptIn),
           };
         }
         return data;
