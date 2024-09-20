@@ -47,3 +47,15 @@ export type ResendEmailVerificationResponse = {
   email: string;
   message: string;
 };
+
+export type PasswordResetRequest = Static<typeof PasswordResetRequestSchema>;
+export const PasswordResetRequestSchema = Type.Object({
+  email: Type.String({ pattern: emailReg }),
+});
+
+export type PasswordChangeRequest = Static<typeof PasswordChangeRequestSchema>;
+export const PasswordChangeRequestSchema = Type.Object({
+  password: Type.String({ minLength: 8 }),
+  passwordConfirm: Type.String({ minLength: 8 }),
+  token: Type.String(),
+});

@@ -26,7 +26,19 @@ export default function ForgotPassword(): JSX.Element {
           <form
             className="space-y-6"
             method="POST"
-            onSubmit={() => {
+            onSubmit={async (ev) => {
+              ev.preventDefault();
+              const data = new FormData(ev.currentTarget);
+              const email = data.get("email")?.toString();
+              await fetch("/api/user/change-password", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  email,
+                }),
+              });
               setEmailHasBeenSet(true);
             }}
           >

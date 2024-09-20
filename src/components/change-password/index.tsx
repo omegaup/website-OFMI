@@ -2,11 +2,11 @@ import { useState } from "react";
 import { Button } from "../button";
 import { Alert, SuccessAlert } from "../alert";
 import { PasswordInput } from "../password";
-import { IChangePasswordProps } from "@/pages/change-password";
+import { IForgotPasswordProps } from "@/pages/forgot-password";
 
 export default function ChangePassword({
   token,
-}: IChangePasswordProps): JSX.Element {
+}: IForgotPasswordProps): JSX.Element {
   const [error, setError] = useState<Error | null>(null);
   const [passHasBeenChanged, setPassHasBeenChanged] = useState<boolean>(false);
   return (
@@ -26,13 +26,13 @@ export default function ChangePassword({
         {passHasBeenChanged ? (
           <SuccessAlert
             title="Listo!"
-            text="Has cambiado tu contrasena exitosamente!"
+            text="Has cambiado tu contraseña exitosamente!"
           />
         ) : (
           <form
             className="space-y-6"
             method="POST"
-            onSubmit={(ev) => {
+            onSubmit={async (ev) => {
               ev.preventDefault();
               setError(null);
               const data = new FormData(ev.currentTarget);
@@ -50,6 +50,22 @@ export default function ChangePassword({
                 setError(
                   new Error("La contraseña debe tener al menos 8 caracteres"),
                 );
+                return;
+              }
+              const response = await fetch("/api/user/change-password", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  token,
+                  password: pass,
+                  passwordConfirm: passConfirm,
+                }),
+              });
+              const req = await response.json();
+              if (response.status == 400) {
+                setError(new Error(req.message));
                 return;
               }
               setPassHasBeenChanged(true);
