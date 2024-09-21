@@ -26,7 +26,7 @@ async function requestPaswordResetHandler(
   });
   if (user) {
     const token = await generateRecoveryToken(user.id);
-    const url = `${config.BASE_URL}/forget-password?token={${token}}`;
+    const url = `${config.BASE_URL}/change-password?token={${token}}`;
     await emailer.notifyPasswordRecoveryAttempt(user.email, url);
   }
   res.status(200).json({

@@ -2,11 +2,11 @@ import { useState } from "react";
 import { Button } from "../button";
 import { Alert, SuccessAlert } from "../alert";
 import { PasswordInput } from "../password";
-import { IForgotPasswordProps } from "@/pages/forgot-password";
+import { IChangePasswordProps } from "@/pages/change-password";
 
 export default function ChangePassword({
   token,
-}: IForgotPasswordProps): JSX.Element {
+}: IChangePasswordProps): JSX.Element {
   const [error, setError] = useState<Error | null>(null);
   const [passHasBeenChanged, setPassHasBeenChanged] = useState<boolean>(false);
   return (
