@@ -60,7 +60,6 @@ export default function ChangePassword({
                 body: JSON.stringify({
                   token,
                   password: pass,
-                  passwordConfirm: passConfirm,
                 }),
               });
               const req = await response.json();

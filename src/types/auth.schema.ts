@@ -56,6 +56,5 @@ export const PasswordResetRequestSchema = Type.Object({
 export type PasswordChangeRequest = Static<typeof PasswordChangeRequestSchema>;
 export const PasswordChangeRequestSchema = Type.Object({
   password: Type.String({ minLength: 8 }),
-  passwordConfirm: Type.String({ minLength: 8 }),
   token: Type.String(),
 });
