@@ -140,7 +140,7 @@ export default function Login({
               </label>
               <div className="text-right">
                 <a
-                  href="/forgot-password"
+                  href="/forgotPassword"
                   className="font-medium text-blue-500 hover:text-blue-700"
                 >
                   ¿Olvidaste tu contraseña?

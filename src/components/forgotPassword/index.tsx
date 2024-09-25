@@ -30,7 +30,7 @@ export default function ForgotPassword(): JSX.Element {
               ev.preventDefault();
               const data = new FormData(ev.currentTarget);
               const email = data.get("email")?.toString();
-              await fetch("/api/user/change-password", {
+              await fetch("/api/user/resetPassword", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",

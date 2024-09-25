@@ -7,7 +7,7 @@ import generateRecoveryToken from "@/lib/passwordRecoveryToken";
 import config from "@/config/default";
 import { emailer } from "@/lib/emailer";
 
-async function requestPaswordResetHandler(
+async function requestPasswordResetHandler(
   req: NextApiRequest,
   res: NextApiResponse,
 ): Promise<void> {
@@ -26,12 +26,12 @@ async function requestPaswordResetHandler(
   });
   if (user) {
     const token = await generateRecoveryToken(user.id);
-    const url = `${config.BASE_URL}/change-password?token={${token}}`;
+    const url = `${config.BASE_URL}/changePassword?token=${token}`;
     await emailer.notifyPasswordRecoveryAttempt(user.email, url);
   }
   res.status(200).json({
     message:
-      "Si el usuario existe, se le ha enviado un correo con las instrucciones para cambiar su contrasena",
+      "Si el usuario existe, se le ha enviado un correo con las instrucciones para cambiar su contraseña",
   });
 }
 
@@ -40,7 +40,7 @@ export default async function handle(
   res: NextApiResponse,
 ): Promise<void> {
   if (req.method === "POST") {
-    await requestPaswordResetHandler(req, res);
+    await requestPasswordResetHandler(req, res);
   } else {
     return res.status(405).json({ message: "Method Not Allowed" });
   }

@@ -93,8 +93,8 @@ export const passwordRecoveryAttemptTemplate = (
     subject: "Recuperacion de contraseña de la OFMI",
     text: "Recuperacion de contraseña de la OFMI",
     html: `
-        <p>Estás recibiendo este correo porque se recibió una solicitud de recuperación de tu contraseña de la OFMI</p>
-        <p>Para continuar, haz click en el siguiente <a href="${config.BASE_URL}/${url}">enlace</a>.</p>
+        <p>Estás recibiendo este correo porque se recibió una solicitud de recuperación de tu contraseña de la OFMI.</p>
+        <p>Para continuar, haz click en el siguiente <a href="${url}">enlace</a>.</p>
         <p>Si no realizaste esta solicitud o tienes alguna duda, por favor envía un correo a
         <a href="mailto:ofmi@omegaup.com">ofmi@omegaup.com</a></p>
         <br />

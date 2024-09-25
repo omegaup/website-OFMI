@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "../button";
 import { Alert, SuccessAlert } from "../alert";
 import { PasswordInput } from "../password";
-import { IChangePasswordProps } from "@/pages/change-password";
+import { IChangePasswordProps } from "@/pages/changePassword";
 
 export default function ChangePassword({
   token,
@@ -52,7 +52,7 @@ export default function ChangePassword({
                 );
                 return;
               }
-              const response = await fetch("/api/user/change-password", {
+              const response = await fetch("/api/user/changePassword", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",

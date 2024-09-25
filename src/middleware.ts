@@ -14,7 +14,7 @@ import {
 // Prefix routes that requires only to be log in
 const withAuthPaths = ["/mentorias", "/registro", "/oauth"];
 
-const unauthenticatedPaths = ["/forgot-password", "/signup"];
+const unauthenticatedPaths = ["changePassword", "/forgotPassword", "/signup"];
 
 export type CustomMiddleware = (
   request: NextRequest,
