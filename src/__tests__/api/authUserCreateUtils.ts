@@ -8,6 +8,8 @@ import {
 import type { NextApiRequest, NextApiResponse } from "next";
 import createUserHandler from "@/pages/api/user/create";
 import { expect } from "vitest";
+import { mockEmailer } from "./mocks/emailer";
+import { verifyEmail } from "@/lib/emailVerificationToken";
 
 type ApiRequest = NextApiRequest & ReturnType<typeof createRequest>;
 type APiResponse = NextApiResponse & ReturnType<typeof createResponse>;
@@ -42,11 +44,12 @@ export function mockRequestResponse({
 
 export async function insertAndCheckSuccessfullyDummyInsertion(
   email: string,
+  password: string = "password",
 ): Promise<void> {
   const { req, res } = mockRequestResponse({
     body: {
       email: email,
-      password: "password",
+      password,
     },
   });
   await createUserHandler(req, res);
@@ -66,4 +69,28 @@ export async function insertAndCheckSuccessfullyDummyInsertion(
   });
 
   expect(userAuth).not.toBeNull();
+}
+
+export async function insertAndCheckSuccessfullyDummyInsertionVerified(
+  email: string,
+  password: string = "password",
+): Promise<void> {
+  await insertAndCheckSuccessfullyDummyInsertion(email, password);
+  const emails = mockEmailer.getSentEmails();
+  expect(emails).length(1);
+  const html = emails[0].mailOptions.html?.toString();
+  if (!html) {
+    return expect(html).not.toBeUndefined();
+  }
+  const matches = Array.from(
+    html.matchAll(/<a href=".*\/login\?verifyToken=(.*)">/g),
+  );
+  expect(matches).length(1);
+  const token = matches[0][1];
+  // Clear the emailer
+  const response = await verifyEmail({ token });
+  expect(response).toMatchObject({
+    success: true,
+    email,
+  });
 }

@@ -9,6 +9,7 @@ export default function ChangePassword({
 }: IChangePasswordProps): JSX.Element {
   const [error, setError] = useState<Error | null>(null);
   const [passHasBeenChanged, setPassHasBeenChanged] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   return (
     <main className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
       <figure className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -35,6 +36,7 @@ export default function ChangePassword({
             onSubmit={async (ev) => {
               ev.preventDefault();
               setError(null);
+              setLoading(true);
               const data = new FormData(ev.currentTarget);
               const pass = data.get("password")?.toString();
               const passConfirm = data.get("confirmPassword")?.toString();
@@ -63,6 +65,7 @@ export default function ChangePassword({
                 }),
               });
               const req = await response.json();
+              setLoading(false);
               if (response.status !== 200) {
                 setError(new Error(req.message));
                 return;
@@ -110,7 +113,7 @@ export default function ChangePassword({
                 type="submit"
                 buttonType="primary"
                 className="w-full"
-                disabled={false}
+                disabled={loading}
               >
                 Cambiar contraseña
               </Button>

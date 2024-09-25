@@ -4,6 +4,7 @@ import { SuccessAlert } from "../alert";
 
 export default function ForgotPassword(): JSX.Element {
   const [emailHasBeenSent, setEmailHasBeenSet] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
   return (
     <main className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
       <figure className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -28,6 +29,7 @@ export default function ForgotPassword(): JSX.Element {
             method="POST"
             onSubmit={async (ev) => {
               ev.preventDefault();
+              setLoading(true);
               const data = new FormData(ev.currentTarget);
               const email = data.get("email")?.toString();
               await fetch("/api/user/resetPassword", {
@@ -40,6 +42,7 @@ export default function ForgotPassword(): JSX.Element {
                 }),
               });
               setEmailHasBeenSet(true);
+              setLoading(false);
             }}
           >
             <div>
@@ -65,7 +68,7 @@ export default function ForgotPassword(): JSX.Element {
                 type="submit"
                 buttonType="primary"
                 className="w-full"
-                disabled={false}
+                disabled={loading}
               >
                 Recuperar cuenta
               </Button>
