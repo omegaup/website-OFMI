@@ -15,10 +15,8 @@ async function sendEmailHandler(
   res: NextApiResponse<SendEmailResponse | BadRequestError>,
 ): Promise<void> {
   const { body } = req;
-  console.log(body);
   if (!Value.Check(SendEmailRequestSchema, body)) {
     const firstError = Value.Errors(SendEmailRequestSchema, body).First();
-    console.log(firstError);
     return res.status(400).json({
       message: `${firstError ? parseValueError(firstError) : "Invalid request body."}`,
     });

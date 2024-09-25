@@ -81,7 +81,6 @@ export default function Login({
   }
 
   async function handleResendEmailVerification(email: string): Promise<void> {
-    console.log("resend email verification");
     const response = await resendEmailVerification({ email });
     if (!response.success) {
       console.log("error", response.error);
