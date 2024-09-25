@@ -14,6 +14,8 @@ import {
 // Prefix routes that requires only to be log in
 const withAuthPaths = ["/mentorias", "/registro", "/oauth"];
 
+const unauthenticatedPaths = ["changePassword", "/forgotPassword", "/signup"];
+
 export type CustomMiddleware = (
   request: NextRequest,
 ) => NextMiddlewareResult | Promise<NextMiddlewareResult>;
@@ -37,6 +39,16 @@ function withAuthRoles(roles?: Array<Role>): CustomMiddleware {
     return NextResponse.next({ request });
   };
 }
+
+const unauthenticated: CustomMiddleware = async (request) => {
+  const user = await getUser(request);
+  if (!user) {
+    return NextResponse.next({ request });
+  }
+  const url = request.nextUrl.clone();
+  url.pathname = "/";
+  return NextResponse.redirect(url);
+};
 
 const withAuth = withAuthRoles();
 const asAdmin = withAuthRoles([Role.ADMIN]);
@@ -66,6 +78,15 @@ export const middleware: CustomMiddleware = async (
   // Pages that requires just to be login
   if (withAuthPaths.some((path) => request.nextUrl.pathname.startsWith(path))) {
     return withAuth(request);
+  }
+
+  // Pages that requiresr to be unauthenticated
+  if (
+    unauthenticatedPaths.some((path) =>
+      request.nextUrl.pathname.startsWith(path),
+    )
+  ) {
+    return unauthenticated(request);
   }
 
   // Allow

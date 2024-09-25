@@ -5,6 +5,8 @@ import {
   ofmiRegistrationCompleteTemplate,
   signUpSuccessfulEmailTemplate,
   OFMI_EMAIL_SMTP_USER_KEY,
+  passwordRecoveryAttemptTemplate,
+  successfulPasswordRecoveryTemplate,
 } from "./template";
 import config from "@/config/default";
 import { getSecretOrError } from "../secret";
@@ -45,6 +47,17 @@ export class Emailer {
     gDriveFolder?: string,
   ): Promise<void> {
     await this.sendEmail(ofmiRegistrationCompleteTemplate(email, gDriveFolder));
+  }
+
+  public async notifyPasswordRecoveryAttempt(
+    email: string,
+    url: string,
+  ): Promise<void> {
+    await this.sendEmail(passwordRecoveryAttemptTemplate(email, url));
+  }
+
+  public async notifySuccessfulPasswordRecovery(email: string): Promise<void> {
+    await this.sendEmail(successfulPasswordRecoveryTemplate(email));
   }
 }
 

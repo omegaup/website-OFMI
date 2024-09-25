@@ -81,7 +81,6 @@ export default function Login({
   }
 
   async function handleResendEmailVerification(email: string): Promise<void> {
-    console.log("resend email verification");
     const response = await resendEmailVerification({ email });
     if (!response.success) {
       console.log("error", response.error);
@@ -141,7 +140,7 @@ export default function Login({
               </label>
               <div className="text-right">
                 <a
-                  href="#"
+                  href="/forgotPassword"
                   className="font-medium text-blue-500 hover:text-blue-700"
                 >
                   ¿Olvidaste tu contraseña?
