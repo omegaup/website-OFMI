@@ -42,7 +42,7 @@ export default function ChangePassword({
                 setError(new Error("Todos los campos son requeridos"));
                 return;
               }
-              if (pass != passConfirm) {
+              if (pass !== passConfirm) {
                 setError(new Error("Las contraseñas no coinciden"));
                 return;
               }
@@ -63,7 +63,7 @@ export default function ChangePassword({
                 }),
               });
               const req = await response.json();
-              if (response.status == 400) {
+              if (response.status !== 200) {
                 setError(new Error(req.message));
                 return;
               }

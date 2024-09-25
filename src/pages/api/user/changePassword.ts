@@ -20,7 +20,7 @@ async function requestPasswordChangeHandler(
   }
   const { token, password } = body;
   const validatedToken = await validateRecoveryToken(token);
-  if (validatedToken.success == false) {
+  if (validatedToken.success === false) {
     return res.status(400).json({ message: validatedToken.message });
   }
   try {
