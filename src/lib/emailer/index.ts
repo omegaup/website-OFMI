@@ -1,22 +1,17 @@
 import * as nodemailer from "nodemailer";
 import type { MailOptions } from "nodemailer/lib/json-transport";
-import {
-  newUserEmailTemplate,
-  ofmiRegistrationCompleteTemplate,
-  signUpSuccessfulEmailTemplate,
-  OFMI_EMAIL_SMTP_USER_KEY,
-  passwordRecoveryAttemptTemplate,
-  successfulPasswordRecoveryTemplate,
-} from "./template";
+import { OFMI_EMAIL_SMTP_USER_KEY } from "./template";
 import config from "@/config/default";
 import { getSecretOrError } from "../secret";
+import { BaseEmailer } from "./baseEmailer";
 
 const OFMI_EMAIL_SMTP_PASSWORD_KEY = "OFMI_EMAIL_SMTP_PASSWORD";
 
-export class Emailer {
+export class Emailer extends BaseEmailer {
   private readonly transporter: nodemailer.Transporter;
 
   constructor() {
+    super();
     this.transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -32,32 +27,6 @@ export class Emailer {
     } else {
       console.info("INFO: Email not sent.", mailOptions);
     }
-  }
-
-  public async notifyUserForSignup(email: string, url: string): Promise<void> {
-    await this.sendEmail(newUserEmailTemplate(email, url));
-  }
-
-  public async notifyUserSuccessfulSignup(email: string): Promise<void> {
-    await this.sendEmail(signUpSuccessfulEmailTemplate(email));
-  }
-
-  public async notifySuccessfulOfmiRegistration(
-    email: string,
-    gDriveFolder?: string,
-  ): Promise<void> {
-    await this.sendEmail(ofmiRegistrationCompleteTemplate(email, gDriveFolder));
-  }
-
-  public async notifyPasswordRecoveryAttempt(
-    email: string,
-    url: string,
-  ): Promise<void> {
-    await this.sendEmail(passwordRecoveryAttemptTemplate(email, url));
-  }
-
-  public async notifySuccessfulPasswordRecovery(email: string): Promise<void> {
-    await this.sendEmail(successfulPasswordRecoveryTemplate(email));
   }
 }
 
