@@ -1,9 +1,11 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { mockEmailer } from "./mocks/emailer";
 import createUserHandler from "@/pages/api/user/create";
+import loginUserHandler from "@/pages/api/user/auth";
 import { emailReg } from "@/lib/validators";
 import {
   insertAndCheckSuccessfullyDummyInsertion,
+  insertAndCheckSuccessfullyDummyInsertionVerified,
   mockRequestResponse,
   removeIfExists,
 } from "./authUserCreateUtils";
@@ -115,4 +117,23 @@ describe("/api/user/create API Endpoint", () => {
     });
     expect(res.statusCode).toBe(400);
   });
+});
+
+it("can login after creation", async () => {
+  const password = "password";
+  await insertAndCheckSuccessfullyDummyInsertionVerified(dummyEmail, password);
+  const { req, res } = mockRequestResponse({
+    body: {
+      email: dummyEmail,
+      password,
+    },
+  });
+  await loginUserHandler(req, res);
+  expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
+  expect(res._getJSONData()).toMatchObject({
+    user: {
+      email: dummyEmail,
+    },
+  });
+  expect(res.statusCode).toBe(200);
 });

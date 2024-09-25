@@ -90,8 +90,8 @@ export const passwordRecoveryAttemptTemplate = (
   return {
     from: getSecretOrError(OFMI_EMAIL_SMTP_USER_KEY),
     to: email,
-    subject: "Recuperacion de contraseña de la OFMI",
-    text: "Recuperacion de contraseña de la OFMI",
+    subject: "Recuperación de contraseña de la OFMI",
+    text: "Recuperación de contraseña de la OFMI",
     html: `
         <p>Estás recibiendo este correo porque se recibió una solicitud de recuperación de tu contraseña de la OFMI.</p>
         <p>Para continuar, haz click en el siguiente <a href="${url}">enlace</a>.</p>
@@ -109,8 +109,8 @@ export const successfulPasswordRecoveryTemplate = (
   return {
     from: getSecretOrError(OFMI_EMAIL_SMTP_USER_KEY),
     to: email,
-    subject: "Actualizacion de contraseña de la OFMI",
-    text: "Actualizacion de contraseña de la OFMI",
+    subject: "Actualización de contraseña de la OFMI",
+    text: "Actualización de contraseña de la OFMI",
     html: `
         <p>Estás recibiendo este correo porque la contraseña de tu cuenta de la OFMI ha sido cambiada.</p>
         <p>Si no realizaste este cambio o tienes alguna duda, por favor envía un correo a
