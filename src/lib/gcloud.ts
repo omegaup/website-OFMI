@@ -279,6 +279,7 @@ export async function exportParticipants({
         } else if (userParticipation.role === "VOLUNTEER") {
           data = {
             ...data,
+            Teléfono: participation.user.mailingAddress.phone,
             "Comunidad / Redes": optInToString(
               userParticipation.communityOptIn,
             ),
