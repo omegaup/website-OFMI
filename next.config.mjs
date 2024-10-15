@@ -10,6 +10,15 @@ const nextConfig = {
   experimental: {
     swcPlugins: [["@swc-jotai/react-refresh", {}]],
   },
+  async redirects() {
+    return [
+      {
+        source: "/",
+        destination: "/convocatoria",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 const withMDX = createMDX({
