@@ -1,12 +1,9 @@
 import { findMostRecentOfmi, findParticipants } from "@/lib/ofmi";
-import {
-  ContestantParticipationInput,
-  ContestantParticipationInputSchema,
-} from "@/types/participation.schema";
+import { VolunteerParticipationInputSchema } from "@/types/participation.schema";
 import { Value } from "@sinclair/typebox/build/cjs/value";
 import { NextApiRequest, NextApiResponse } from "next";
 import countries from "@/lib/address/iso-3166-countries.json";
-import { capitalizeInitials, getMexStateCode } from "@/utils";
+import { capitalizeInitials, filterNull, getMexStateCode } from "@/utils";
 
 async function generateIdentitiesHandler(
   req: NextApiRequest,
@@ -14,15 +11,48 @@ async function generateIdentitiesHandler(
 ): Promise<void> {
   const ofmi = await findMostRecentOfmi();
   const allParticipants = await findParticipants(ofmi);
-  const onlyContestants = allParticipants.filter((participant) => {
-    return Value.Check(
-      ContestantParticipationInputSchema,
-      participant.userParticipation,
-    );
-  });
+  const onlyContestants = filterNull(
+    allParticipants.map((participant) => {
+      if (
+        Value.Check(
+          VolunteerParticipationInputSchema,
+          participant.userParticipation,
+        )
+      ) {
+        return null;
+      }
+      return {
+        ofmiEdition: participant.ofmiEdition,
+        user: participant.user,
+        userParticipation: participant.userParticipation,
+      };
+    }),
+  );
 
-  const states = new Map();
-  const minDigits = Math.log10(onlyContestants.length);
+  const states = new Map<string, number>();
+
+  const getMaxContestantsCount = (
+    contestants: typeof onlyContestants,
+  ): number => {
+    let maxi = 0;
+    const states = new Map<string, number>();
+    // Mexican contestants are divided by their state
+    // International contestants are divided by their country
+    // Among all these different groups, find the one with the greatest amount of participants.
+    // This is done to make sure participant usernames are as short as possible.
+    for (const contestant of contestants) {
+      let state = contestant.userParticipation.schoolCountry;
+      if (state === "Mexico") {
+        state = contestant.userParticipation.schoolState;
+      }
+      const count = (states.get(state) || 0) + 1;
+      maxi = Math.max(maxi, count);
+      states.set(state, count);
+    }
+    return maxi;
+  };
+
+  const minDigits = Math.log10(getMaxContestantsCount(onlyContestants));
 
   const generateUsername = (state: string): string => {
     const rawNumber = (states.get(state) || 0) + 1;
@@ -34,7 +64,7 @@ async function generateIdentitiesHandler(
 
   onlyContestants.map((contestant) => {
     const { user, userParticipation } = contestant;
-    const participation = userParticipation as ContestantParticipationInput;
+    const participation = userParticipation;
     const country = countries.find((country) => {
       return country.name === participation.schoolCountry;
     }) || {

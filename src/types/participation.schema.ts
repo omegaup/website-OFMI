@@ -87,7 +87,7 @@ export const ContestantParticipationInputSchema = Type.Object({
   schoolState: Type.String({ minLength: 1 }),
 });
 
-const VolunteerParticipationInputSchema = Type.Object({
+export const VolunteerParticipationInputSchema = Type.Object({
   role: Type.Literal(ParticipationRole.VOLUNTEER),
   educationalLinkageOptIn: Type.Boolean(),
   fundraisingOptIn: Type.Boolean(),
