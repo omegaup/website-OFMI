@@ -63,12 +63,11 @@ export const capitalizeInitials = (words: string): string => {
   const separated = words.split(" ").filter((word) => word.length);
   return separated
     .map((word) => {
-      const lower = word.toLowerCase();
-      let initial = lower[0];
+      let initial = word[0];
       if ("a" <= initial && initial <= "z") {
         initial += -32;
       }
-      return initial + lower.substring(1);
+      return initial + word.substring(1).toLowerCase();
     })
     .join(" ");
 };
