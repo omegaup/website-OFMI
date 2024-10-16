@@ -38,3 +38,37 @@ export function jsonToCsv(items: Array<Record<string, string>>): string {
   const csv = [headerString, ...csvContent].join("\r\n");
   return csv;
 }
+
+export const getMexStateCode = (name: string): string => {
+  const exceptions = new Map([
+    ["Baja California", "BCN"],
+    ["Ciudad de México", "CMX"],
+    ["Chiapas", "CHP"],
+    ["Chihuahua", "CHH"],
+    ["Guerrero", "GRO"],
+    ["México", "MEX"],
+    ["Nuevo León", "NLE"],
+    ["Quintana Roo", "ROO"],
+    ["San Luis Potosi", "SLP"],
+  ]);
+  let state = exceptions.get(name);
+  if (!state) {
+    state = name.substring(0, 3).toUpperCase();
+  }
+  return state;
+};
+
+export const capitalizeInitials = (words: string): string => {
+  // Capitalizes the first letter of every word in a sentence, removing extra spaces
+  const separated = words.split(" ").filter((word) => word.length);
+  return separated
+    .map((word) => {
+      const lower = word.toLowerCase();
+      let initial = lower[0];
+      if ("a" <= initial && initial <= "z") {
+        initial += -32;
+      }
+      return initial + lower.substring(1);
+    })
+    .join(" ");
+};
