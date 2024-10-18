@@ -273,6 +273,7 @@ export async function exportParticipants({
         if (userParticipation.role === "CONTESTANT") {
           data = {
             ...data,
+            "Fecha de registro": `=DATEVALUE(MID("${participation.registeredAt}",1,10))+TIMEVALUE(MID("${participation.registeredAt}",12,8))`,
             Estado: userParticipation.schoolState,
             Escuela: userParticipation.schoolName.trim(),
           };
