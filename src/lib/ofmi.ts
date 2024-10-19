@@ -118,7 +118,7 @@ export async function findParticipants(
           references: mailingAddress.references ?? undefined,
         },
       },
-      registeredAt: contestantParticipation!.createdAt,
+      registeredAt: participation.createdAt,
       userParticipation: userParticipation as UserParticipation,
     };
 
