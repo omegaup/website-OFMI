@@ -118,6 +118,7 @@ export async function findParticipants(
           references: mailingAddress.references ?? undefined,
         },
       },
+      registeredAt: participation.createdAt,
       userParticipation: userParticipation as UserParticipation,
     };
 
@@ -201,6 +202,7 @@ export async function findParticipation(
         references: mailingAddress.references ?? undefined,
       },
     },
+    registeredAt: participation.createdAt,
     userParticipation: userParticipation as UserParticipation,
   };
 

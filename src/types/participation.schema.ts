@@ -109,13 +109,17 @@ export type ParticipationRequestInput = Static<
 export const ParticipationRequestInputSchema = Type.Object({
   ofmiEdition: Type.Integer({ minimum: 1 }),
   user: UserInputSchema,
+  registeredAt: Type.Date(),
   userParticipation: UserParticipationSchema,
 });
 
 export type UpsertParticipationRequest = Static<
   typeof UpsertParticipationRequestSchema
 >;
-export const UpsertParticipationRequestSchema = ParticipationRequestInputSchema;
+export const UpsertParticipationRequestSchema = Type.Omit(
+  ParticipationRequestInputSchema,
+  ["registeredAt"],
+);
 
 export interface UpsertParticipationResponse {
   participation: Participation;
