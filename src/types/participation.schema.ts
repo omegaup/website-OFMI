@@ -109,7 +109,7 @@ export type ParticipationRequestInput = Static<
 export const ParticipationRequestInputSchema = Type.Object({
   ofmiEdition: Type.Integer({ minimum: 1 }),
   user: UserInputSchema,
-  registeredAt: Type.Date(),
+  registeredAt: Type.String({ pattern: toISOStringReg }),
   userParticipation: UserParticipationSchema,
 });
 
