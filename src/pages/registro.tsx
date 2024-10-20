@@ -17,13 +17,9 @@ import { X_USER_AUTH_EMAIL_HEADER } from "@/lib/auth";
 export default function RegistroPage({
   ofmiEdition,
   participationJSON,
-  registrationClosingTime,
   role,
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
-  if (
-    ofmiEdition == null ||
-    (registrationClosingTime && registrationClosingTime < Date.now())
-  ) {
+  if (ofmiEdition == null) {
     const errorMsg = ofmiEdition ? "El registro de la OFMI ha finalizado." : "";
     return (
       <div className="flex w-full items-center justify-center">
