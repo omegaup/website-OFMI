@@ -12,11 +12,11 @@ export function SchoolDetails({
 }: {
   contestantParticipation: ContestantParticipationInput | null;
 }): JSX.Element {
-  const [schoolStageValue, setSchoolStage] = useState<string | undefined>(
+  const [schoolStageValue, setSchoolStage] = useState<SchoolStage | undefined>(
     contestantParticipation?.schoolStage,
   );
   const schoolGrades = schoolStageValue
-    ? schoolStageValue === "elementary"
+    ? schoolStageValue === "ELEMENTARY"
       ? 6
       : 3
     : undefined;
@@ -50,7 +50,11 @@ export function SchoolDetails({
             value={schoolStageValue}
             onChange={(ev) => {
               ev.preventDefault();
-              setSchoolStage(ev.target.value);
+              setSchoolStage(
+                ev.target.value in SchoolStage
+                  ? SchoolStage[ev.target.value as keyof typeof SchoolStage]
+                  : undefined,
+              );
             }}
             required
           >
