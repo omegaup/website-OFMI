@@ -9,12 +9,6 @@ export function validateOFMIOpenAndCloseTime(
     role,
   }: { registrationTime: Date; role: ParticipationRole },
 ): ValidationResult {
-  if (ofmi.registrationOpenTime.getTime() > registrationTime.getTime()) {
-    return {
-      ok: false,
-      message: `Las inscripciones para esta OFMI aun no han abierto.`,
-    };
-  }
   if (role === "VOLUNTEER") {
     // Vamos a darles todo el año para registrarse
     if (
