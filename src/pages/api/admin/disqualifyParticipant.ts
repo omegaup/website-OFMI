@@ -141,9 +141,9 @@ async function updateParticipantDisqualification(
     });
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === "P2002") {
+      if (error.code === "P2001") {
         const error = new Error(
-          `Este participante ya ha sido descalificado de la ${!ofmiEdition ? "ultima OFMI" : friendlyOfmiName(ofmiEdition, true)}.`,
+          `Este participante no ha sido descalificado de la ${!ofmiEdition ? "ultima OFMI" : friendlyOfmiName(ofmiEdition, true)}.`,
         );
         error.name = "Handled Not Found";
         throw error;
