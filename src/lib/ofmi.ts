@@ -7,7 +7,7 @@ import {
 import { Pronoun, PronounsOfString } from "@/types/pronouns";
 import { ShirtStyle, ShirtStyleOfString } from "@/types/shirt";
 import { filterNull } from "@/utils";
-import { Ofmi } from "@prisma/client";
+import { Ofmi, User } from "@prisma/client";
 import { Value } from "@sinclair/typebox/value";
 import { TTLCache } from "./cache";
 import path from "path";
@@ -16,9 +16,41 @@ const caches = {
   findMostRecentOfmi: new TTLCache<Ofmi>(),
 };
 
-export function friendlyOfmiName(ofmiEdition: number): string {
-  return `${ofmiEdition}a-ofmi`;
+export function friendlyOfmiName(
+  ofmiEdition: number,
+  formatted = false,
+): string {
+  return `${ofmiEdition}a${formatted ? " OFMI" : "-ofmi"}`;
 }
+
+export const findOfmiByEdition = async (
+  edition: number,
+): Promise<Ofmi | null> => {
+  return prisma.ofmi.findFirst({ where: { edition } });
+};
+
+export const findContestantByOfmiAndEmail = async (
+  ofmi: Ofmi,
+  email: string,
+): Promise<User | null> => {
+  const contestant = await prisma.userAuth.findFirstOrThrow({
+    where: {
+      email,
+      User: {
+        Participation: {
+          some: {
+            ofmiId: ofmi.id,
+            role: "CONTESTANT",
+          },
+        },
+      },
+    },
+    select: {
+      User: true,
+    },
+  });
+  return contestant?.User;
+};
 
 export function registrationSpreadsheetsPath(ofmiEdition: number): string {
   return path.join(

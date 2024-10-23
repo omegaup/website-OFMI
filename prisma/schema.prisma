@@ -100,9 +100,9 @@ enum ShirtSize {
 }
 
 model User {
-  id               String          @id @default(uuid())
-  userAuthId       String          @unique
-  UserAuth         UserAuth        @relation(fields: [userAuthId], references: [id])
+  id               String             @id @default(uuid())
+  userAuthId       String             @unique
+  UserAuth         UserAuth           @relation(fields: [userAuthId], references: [id])
   firstName        String
   lastName         String
   birthDate        DateTime
@@ -111,16 +111,17 @@ model User {
   pronouns         String
   shirtSize        ShirtSize
   shirtStyle       String
-  MailingAddress   MailingAddress  @relation(fields: [mailingAddressId], references: [id])
-  mailingAddressId String          @unique
+  MailingAddress   MailingAddress     @relation(fields: [mailingAddressId], references: [id])
+  mailingAddressId String             @unique
   Participation    Participation[]
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  Disqualification Disqualification[]
 }
 
 model Ofmi {
-  id                            String           @id @default(uuid())
-  edition                       Int              @unique
+  id                            String             @id @default(uuid())
+  edition                       Int                @unique
   year                          Int
   registrationOpenTime          DateTime
   registrationCloseTime         DateTime
@@ -128,8 +129,9 @@ model Ofmi {
   highSchoolGraduationDateLimit DateTime?
   Participation                 Participation[]
   OmegaupContest                OmegaupContest[]
-  createdAt                     DateTime         @default(now())
-  updatedAt                     DateTime         @updatedAt
+  createdAt                     DateTime           @default(now())
+  updatedAt                     DateTime           @updatedAt
+  Disqualification              Disqualification[]
 }
 
 model Participation {
@@ -156,7 +158,6 @@ model ContestantParticipation {
   schoolGrade    Int
   medal          String?
   place          Int?
-  disqualified   Boolean
   omegaupUserId  String?
   omegaupUser    OmegaupUser?    @relation(fields: [omegaupUserId], references: [id])
   problemResults ProblemResult[]
@@ -216,4 +217,18 @@ model OmegaupUser {
   ContestantParticipation ContestantParticipation[]
   createdAt               DateTime                  @default(now())
   updatedAt               DateTime                  @updatedAt
+}
+
+model Disqualification {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  ofmi      Ofmi     @relation(fields: [ofmiId], references: [id])
+  ofmiId    String
+  reason    String
+  appealed  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, ofmiId])
 }

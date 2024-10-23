@@ -120,3 +120,86 @@ export const successfulPasswordRecoveryTemplate = (
       `,
   };
 };
+
+export const contestantDisqualificationTemplate = (
+  email: string,
+  ofmiName: string,
+  preferredName: string,
+  shortReason: string,
+): MailOptions => {
+  let longReason = shortReason;
+  switch (shortReason) {
+    case "NO_ELEGIBLE":
+      longReason =
+        "No cumples con todos los criterios de eligibilidad senalados en la convocatoria";
+      break;
+    case "IA":
+      longReason =
+        "Usaste herramientas de Inteligencia Artificial, para autocompletar/generar codigo u obtener la solucion a un problema";
+      break;
+    case "SUMINISTROS_PROHIBIDOS":
+      longReason =
+        "Usaste, durante la competencia, uno o varios suministros que no estan explicitamente mencionados en la seccion de Suministros de la convocatoria";
+      break;
+    case "MATERIAL_PROHIBIDO":
+      longReason =
+        "Usaste, durante el examen, uno o varios materiales que no estan explicitamente mencionados en la seccion de Material Permitido de la convocatoria";
+      break;
+    case "MALA_GRABACION":
+      longReason =
+        "No se pudo verificar tu identidad y que seguiste el reglamento durante la competencia con las grabaciones que enviaste";
+      break;
+    case "MULTICUENTAS":
+      longReason =
+        "Durante el concurso, iniciaste sesion en una cuenta de OmegaUp distinta a la que se te asigno para la competencia";
+      break;
+    case "COMUNICACION_PROHIBIDA":
+      longReason =
+        "Te comunicaste, durante el concurso, con personas que no son parte del Comite Organizador";
+      break;
+    case "FALTA_GRABACION":
+      longReason = "No subiste tu grabacion del dia 1 o del dia 2";
+      break;
+    case "MALA_CONDUCTA":
+      longReason = "No cumpliste con el Codigo de Conducta";
+      break;
+  }
+  return {
+    from: getSecretOrError(OFMI_EMAIL_SMTP_USER_KEY),
+    to: email,
+    subject: `Descalificación de la ${ofmiName}`,
+    text: `Descalificación de la ${ofmiName}`,
+    html: `
+        <p>Hola, ${preferredName}!</p>
+        <p>Te informamos que, lamentablemente, sido descalificade de la ${ofmiName} por el siguiente motivo: </p>
+        <p>${longReason}.</p>
+        <p>Si tienes alguna duda, quieres mas informacion o te gustaria realizar una apelacion, por favor envía un correo a
+        <a href="mailto:ofmi@omegaup.com">ofmi@omegaup.com</a></p>
+        <br />
+        <p>Equipo organizador de la OFMI</p>
+      `,
+  };
+};
+
+export const contestantDisqualificationAppealTemplate = (
+  email: string,
+  ofmiName: string,
+  preferredName: string,
+  appealed: boolean,
+): MailOptions => {
+  return {
+    from: getSecretOrError(OFMI_EMAIL_SMTP_USER_KEY),
+    to: email,
+    subject: `(Actualizacion) Descalificación de la ${ofmiName}`,
+    text: `(Actualizacion) Descalificación de la ${ofmiName}`,
+    html: `
+        <p>Hola, ${preferredName}!</p>
+        <p>Te informamos que la apelacion a tu descalificacion de la ${ofmiName} ha sido ${appealed ? "aceptada" : "rechazada"}.</p>
+        <p>En otras palabras, hemos ${appealed ? "retractado" : "reafirmado"} nuestra decision de descalificarte.</p>
+        <p>Si tienes alguna duda o te gustaria realizar otra apelacion, por favor envía un correo a
+        <a href="mailto:ofmi@omegaup.com">ofmi@omegaup.com</a></p>
+        <br />
+        <p>Equipo organizador de la OFMI</p>
+      `,
+  };
+};
