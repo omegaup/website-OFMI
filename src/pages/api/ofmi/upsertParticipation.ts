@@ -38,7 +38,10 @@ async function upsertParticipationHandler(
     });
   }
 
-  const { ofmiEdition: ofmiEditionInput, user: userInput } = body;
+  const { ofmiEdition: ofmiEditionInput, user: userInput } = Value.Cast(
+    UpsertParticipationRequestSchema,
+    body,
+  );
   const { mailingAddress: mailingAddressInput } = userInput;
   const birthDate = new Date(userInput.birthDate);
   const role = body.userParticipation.role;
