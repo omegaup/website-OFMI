@@ -15,42 +15,48 @@ import {
 import { Prisma } from "@prisma/client";
 import { emailer } from "@/lib/emailer";
 
-type Shared = {
+type ofmiInfo = {
   ofmiId: string;
   ofmiName: string;
+};
+
+type ContestantInfo = {
   preferredName: string;
   contestantId: string;
   message: string;
 };
 
-const fetchShared = async (
+type ofmiAndContestantInfo = {
+  ofmiInfo: ofmiInfo;
+  contestantInfo: ContestantInfo;
+};
+
+const fetchOfmiAndContestantInfo = async (
   email: string,
   ofmiEdition?: number,
-): Promise<Shared> => {
+): Promise<ofmiAndContestantInfo | string> => {
   const ofmi = !ofmiEdition
     ? await findMostRecentOfmi()
     : await findOfmiByEdition(ofmiEdition);
   if (!ofmi) {
-    const error = new Error("Edicion de la OFMI no encontrada");
-    error.name = "Handled Not Found";
-    throw error;
+    return "No se encontro edicion de la OFMI";
   }
   const ofmiName = friendlyOfmiName(ofmi.edition, true);
   const contestant = await findContestantByOfmiAndEmail(ofmi, email);
   if (!contestant) {
-    const error = new Error(
-      `No se encontro participante registrado a la ${ofmiName} con ese correo`,
-    );
-    error.name = "Handled Not Found";
-    throw error;
+    return `No hay participante registrada en la ${ofmiName} con ese correo`;
   }
   const fullName = `${contestant.firstName} ${contestant.lastName}`;
   return {
-    ofmiId: ofmi.id,
-    message: `Descalificacion de ${fullName} de la ${ofmiName}`,
-    preferredName: contestant.preferredName,
-    contestantId: contestant.id,
-    ofmiName,
+    ofmiInfo: {
+      ofmiId: ofmi.id,
+      ofmiName,
+    },
+    contestantInfo: {
+      message: `Descalificacion de ${fullName} de la ${ofmiName}`,
+      preferredName: contestant.preferredName,
+      contestantId: contestant.id,
+    },
   };
 };
 
@@ -73,35 +79,39 @@ async function createParticipantDisqualification(
     body,
   );
   try {
-    const shared = await fetchShared(email, ofmiEdition);
+    const sharedInfo = await fetchOfmiAndContestantInfo(email, ofmiEdition);
+    if (typeof sharedInfo === "string") {
+      return res.status(404).json({ message: sharedInfo });
+    }
+    const { ofmiInfo, contestantInfo } = sharedInfo;
     await prisma.disqualification.create({
       data: {
-        userId: shared.contestantId,
-        ofmiId: shared.ofmiId,
+        userId: contestantInfo.contestantId,
+        ofmiId: ofmiInfo.ofmiId,
         ...others,
       },
     });
     if (sendEmail) {
       await emailer.notifyContestantDisqualification(
         email,
-        shared.ofmiName,
-        shared.preferredName,
+        ofmiInfo.ofmiName,
+        contestantInfo.preferredName,
         others.reason,
       );
     }
     return res.status(201).json({
-      message: `${shared.message} creada`,
+      message: `${contestantInfo.message} creada`,
     });
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2002") {
-        const error = new Error(
-          `Este concursante ya ha sido descalificado de la ${!ofmiEdition ? "ultima OFMI" : friendlyOfmiName(ofmiEdition, true)}.`,
-        );
-        error.name = "Handled";
-        throw error;
+        return res.status(500).json({
+          message: `Este concursante ya ha sido descalificado de la ${!ofmiEdition ? "ultima OFMI" : friendlyOfmiName(ofmiEdition, true)}.`,
+        });
       }
     }
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 }
 
@@ -124,12 +134,16 @@ async function updateParticipantDisqualification(
     body,
   );
   try {
-    const shared = await fetchShared(email, ofmiEdition);
+    const sharedInfo = await fetchOfmiAndContestantInfo(email, ofmiEdition);
+    if (typeof sharedInfo === "string") {
+      return res.status(404).json({ message: sharedInfo });
+    }
+    const { ofmiInfo, contestantInfo } = sharedInfo;
     await prisma.disqualification.update({
       where: {
         userId_ofmiId: {
-          userId: shared.contestantId,
-          ofmiId: shared.ofmiId,
+          userId: contestantInfo.contestantId,
+          ofmiId: ofmiInfo.ofmiId,
         },
       },
       data: others,
@@ -137,24 +151,24 @@ async function updateParticipantDisqualification(
     if (sendEmail && "appealed" in others) {
       await emailer.notifyContestantDisqualificationUpdate(
         email,
-        shared.ofmiName,
-        shared.preferredName,
+        ofmiInfo.ofmiName,
+        contestantInfo.preferredName,
         others["appealed"],
       );
     }
-    return res.status(201).json({
-      message: `${shared.message} actualizada`,
+    return res.status(200).json({
+      message: `${contestantInfo.message} actualizada`,
     });
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2001") {
-        const error = new Error(
-          `Este participante no ha sido descalificado de la ${!ofmiEdition ? "ultima OFMI" : friendlyOfmiName(ofmiEdition, true)}.`,
-        );
-        error.name = "Handled Not Found";
-        throw error;
+        return res.status(500).json({
+          message: `Este participante no ha sido descalificada de la ${!ofmiEdition ? "ultima OFMI" : friendlyOfmiName(ofmiEdition, true)}.`,
+        });
       }
     }
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 }
 
@@ -163,27 +177,11 @@ export default async function handle(
   res: NextApiResponse,
 ): Promise<void> {
   const { method } = req;
-  try {
-    if (method === "POST") {
-      await createParticipantDisqualification(req, res);
-    } else if (method === "PUT") {
-      await updateParticipantDisqualification(req, res);
-    } else {
-      return res.status(405).json({ message: "Method Not Allowed" });
-    }
-  } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      return res.status(400).json({ message: error.message });
-    }
-    const { name, message: _message } = error as Error;
-    let message = "Internal Server Error";
-    let code = 500;
-    if (name.includes("Handled")) {
-      message = _message;
-    }
-    if (name === "Handled Not Found") {
-      code = 404;
-    }
-    return res.status(code).json({ message });
+  if (method === "POST") {
+    await createParticipantDisqualification(req, res);
+  } else if (method === "PUT") {
+    await updateParticipantDisqualification(req, res);
+  } else {
+    return res.status(405).json({ message: "Method Not Allowed" });
   }
 }
