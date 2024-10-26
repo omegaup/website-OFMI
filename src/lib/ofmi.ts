@@ -3,6 +3,7 @@ import {
   ParticipationRequestInput,
   ParticipationRequestInputSchema,
   UserParticipation,
+  UserParticipationSchema,
 } from "@/types/participation.schema";
 import { Pronoun, PronounsOfString } from "@/types/pronouns";
 import { ShirtStyle, ShirtStyleOfString } from "@/types/shirt";
@@ -131,15 +132,16 @@ export async function findParticipants(
 
     const userParticipation: UserParticipation | null =
       (role === "CONTESTANT" &&
-        contestantParticipation && {
+        contestantParticipation &&
+        Value.Cast(UserParticipationSchema, {
           role,
           schoolName: contestantParticipation.School.name,
           schoolStage: contestantParticipation.School.stage,
           schoolGrade: contestantParticipation.schoolGrade,
           schoolCountry: contestantParticipation.School.country,
           schoolState: contestantParticipation.School.state,
-          disqualificationReason: mappedDisqualifications.get(user.id) ?? "N/A",
-        }) ||
+          disqualificationReason: mappedDisqualifications.get(user.id),
+        })) ||
       (role === "VOLUNTEER" &&
         volunteerParticipation && {
           role,

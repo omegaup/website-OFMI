@@ -99,7 +99,7 @@ const VolunteerParticipationInputSchema = Type.Object({
 });
 
 export type UserParticipation = Static<typeof UserParticipationSchema>;
-const UserParticipationSchema = Type.Union([
+export const UserParticipationSchema = Type.Union([
   ContestantParticipationInputSchema,
   VolunteerParticipationInputSchema,
 ]);

@@ -4,6 +4,7 @@ import { MailingAddress } from "./mailingAddress";
 import { PersonalDetails } from "./personalDetails";
 import { SchoolDetails } from "./schoolDetails";
 import {
+  UserParticipationSchema,
   ParticipationRoleName,
   type ParticipationRequestInput,
   type UpsertParticipationRequest,
@@ -18,6 +19,7 @@ import { sendUpsertParticipation } from "./client";
 import { useSession } from "next-auth/react";
 import { exhaustiveMatchingGuard, undefinedIfEmpty } from "@/utils";
 import { VolunteerDetails } from "./volunteerDetails";
+import { Value } from "@sinclair/typebox/value";
 
 export default function Registro({
   ofmiEdition,
@@ -80,14 +82,14 @@ export default function Registro({
             return null;
           }
 
-          return {
+          return Value.Cast(UserParticipationSchema, {
             role,
             schoolName: data.get(fieldIds.schoolName)?.toString() ?? "",
             schoolStage,
             schoolGrade: Number(data.get(fieldIds.schoolGrade)?.toString()),
             schoolCountry: data.get(fieldIds.schoolCountry)?.toString() ?? "",
             schoolState: data.get(fieldIds.schoolState)?.toString() ?? "",
-          };
+          });
         }
         case "VOLUNTEER": {
           return {

@@ -68,7 +68,10 @@ async function createParticipantDisqualification(
       message: `${firstError ? parseValueError(firstError) : "Invalid request body."}`,
     });
   }
-  const { email, ofmiEdition, sendEmail, ...others } = body;
+  const { email, ofmiEdition, sendEmail, ...others } = Value.Cast(
+    DisqualifyParticipantCreateRequestSchema,
+    body,
+  );
   try {
     const shared = await fetchShared(email, ofmiEdition);
     await prisma.disqualification.create({
@@ -116,7 +119,10 @@ async function updateParticipantDisqualification(
       message: `${firstError ? parseValueError(firstError) : "Invalid request body."}`,
     });
   }
-  const { email, ofmiEdition, sendEmail, ...others } = body;
+  const { email, ofmiEdition, sendEmail, ...others } = Value.Cast(
+    DisqualifyParticipantUpdateRequestSchema,
+    body,
+  );
   try {
     const shared = await fetchShared(email, ofmiEdition);
     await prisma.disqualification.update({
