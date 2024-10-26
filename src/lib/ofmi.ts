@@ -102,6 +102,23 @@ export async function findParticipants(
     },
   });
 
+  const allDisqualifications = await prisma.disqualification.findMany({
+    where: {
+      ofmiId: ofmi.id,
+    },
+    select: {
+      userId: true,
+      reason: true,
+      appealed: true,
+    },
+  });
+
+  const mappedDisqualifications = new Map<string, string>();
+
+  for (const { appealed, reason, userId: id } of allDisqualifications) {
+    mappedDisqualifications.set(id, appealed ? "N/A" : reason);
+  }
+
   const res = participants.map((participation) => {
     // TODO: Share code with findParticipation
     const {
@@ -121,6 +138,7 @@ export async function findParticipants(
           schoolGrade: contestantParticipation.schoolGrade,
           schoolCountry: contestantParticipation.School.country,
           schoolState: contestantParticipation.School.state,
+          disqualificationReason: mappedDisqualifications.get(user.id) ?? "N/A",
         }) ||
       (role === "VOLUNTEER" &&
         volunteerParticipation && {
@@ -168,6 +186,9 @@ export async function findParticipation(
     where: { ofmiId: ofmi.id, user: { UserAuth: { email: email } } },
     include: {
       user: {
+        select: {
+          id: true,
+        },
         include: {
           MailingAddress: true,
           UserAuth: {
@@ -188,6 +209,20 @@ export async function findParticipation(
     return null;
   }
 
+  const disqualification = await prisma.disqualification.findUnique({
+    where: {
+      userId_ofmiId: {
+        userId: participation.userId,
+        ofmiId: ofmi.id,
+      },
+    },
+  });
+
+  const disqualificationReason =
+    !disqualification || disqualification.appealed
+      ? "N/A"
+      : disqualification.reason;
+
   const {
     user,
     role,
@@ -205,6 +240,7 @@ export async function findParticipation(
         schoolGrade: contestantParticipation.schoolGrade,
         schoolCountry: contestantParticipation.School.country,
         schoolState: contestantParticipation.School.state,
+        disqualificationReason,
       }) ||
     (role === "VOLUNTEER" &&
       volunteerParticipation && {

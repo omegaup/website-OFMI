@@ -85,6 +85,7 @@ const ContestantParticipationInputSchema = Type.Object({
   schoolGrade: Type.Integer({ minimum: 1 }),
   schoolCountry: Type.String({ pattern: countryReg.toString() }),
   schoolState: Type.String({ minLength: 1 }),
+  disqualificationReason: Type.String({ default: "N/A" }),
 });
 
 const VolunteerParticipationInputSchema = Type.Object({
