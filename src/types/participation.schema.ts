@@ -78,7 +78,8 @@ const UserInputSchema = Type.Object({
 export type ContestantParticipationInput = Static<
   typeof ContestantParticipationInputSchema
 >;
-const ContestantParticipationInputSchema = Type.Object({
+
+export const ContestantParticipationInputSchema = Type.Object({
   role: Type.Literal(ParticipationRole.CONTESTANT),
   schoolName: Type.String({ minLength: 1 }),
   schoolStage: SchoolStageSchema,

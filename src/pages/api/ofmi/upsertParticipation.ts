@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import {
+  ContestantParticipationInputSchema,
   UpsertParticipationRequestSchema,
   UpsertParticipationResponse,
 } from "@/types/participation.schema";
@@ -38,15 +39,14 @@ async function upsertParticipationHandler(
     });
   }
 
-  const { ofmiEdition: ofmiEditionInput, user: userInput } = Value.Cast(
-    UpsertParticipationRequestSchema,
-    body,
-  );
+  const { ofmiEdition: ofmiEditionInput, user: userInput } = body;
   const { mailingAddress: mailingAddressInput } = userInput;
   const birthDate = new Date(userInput.birthDate);
   const role = body.userParticipation.role;
   const contestantParticipationInput =
-    role === "CONTESTANT" ? body.userParticipation : undefined;
+    role === "CONTESTANT"
+      ? Value.Cast(ContestantParticipationInputSchema, body.userParticipation)
+      : undefined;
   const volunteerParticipationInput =
     role === "VOLUNTEER" ? body.userParticipation : undefined;
 
