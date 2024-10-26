@@ -182,7 +182,6 @@ async function upsertParticipationHandler(
   const contestantParticipationPayload = contestantParticipationInput
     ? {
         schoolGrade: contestantParticipationInput.schoolGrade,
-        disqualified: false,
         School: {
           connectOrCreate: {
             where: {
