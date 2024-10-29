@@ -89,7 +89,7 @@ Contributions are welcome! If you have suggestions, bug reports, or want to cont
 
 Happy coding with Next-Prisma-Starter! 🚀
 
-Before creating the commit make sure you run `npm run format`.
+Before creating the commit make sure you run `docker compose exec app npm run format`.
 
 ## StandardJS
 
