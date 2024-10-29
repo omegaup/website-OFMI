@@ -90,10 +90,11 @@ export const getServerSideProps: GetServerSideProps<{
     roleRequested || participation?.userParticipation.role || "CONTESTANT";
 
   const volunteerClosingTime = ofmi?.registrationCloseTime
-      ? new Date(ofmi?.registrationCloseTime.getFullYear(), 11, 31).getTime()
-      : null;
+    ? new Date(ofmi?.registrationCloseTime.getFullYear(), 11, 31).getTime()
+    : null;
 
-  const closingTime = role === "VOLUNTEER"
+  const closingTime =
+    role === "VOLUNTEER"
       ? volunteerClosingTime
       : (ofmi?.registrationCloseTime.getTime() ?? null);
 
