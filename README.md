@@ -89,6 +89,8 @@ Contributions are welcome! If you have suggestions, bug reports, or want to cont
 
 Happy coding with Next-Prisma-Starter! 🚀
 
+Before creating the commit make sure you run `npm run format`.
+
 ## StandardJS
 
 Install the [StandardJS](https://marketplace.visualstudio.com/items?itemName=standard.vscode-standard) extension.
