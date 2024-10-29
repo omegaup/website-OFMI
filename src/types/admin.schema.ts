@@ -20,7 +20,7 @@ export const SendEmailRequestSchema = Type.Object(
 export const BaseDisqualifyParticipantRequestSchema = Type.Object({
   ofmiEdition: Type.Optional(Type.Number({ minimum: 1 })),
   email: Type.String({ minLength: 6, pattern: emailReg }),
-  sendEmail: Type.Boolean({ default: true }),
+  sendEmail: Type.Optional(Type.Boolean({ default: true })),
   reason: Type.String({ minLength: 1 }),
   appealed: Type.Boolean(),
 });

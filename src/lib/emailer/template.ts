@@ -131,37 +131,41 @@ export const contestantDisqualificationTemplate = (
   switch (shortReason) {
     case "NO_ELEGIBLE":
       longReason =
-        "No cumples con todos los criterios de eligibilidad senalados en la convocatoria";
+        "No cumples con todos los criterios de eligibilidad señalados en la convocatoria";
       break;
     case "IA":
       longReason =
-        "Usaste herramientas de Inteligencia Artificial, para autocompletar/generar codigo u obtener la solucion a un problema";
+        "Durante la competencia, usaste herramientas de Inteligencia Artificial para autocompletar/generar código u obtener la solución a un problema";
       break;
     case "SUMINISTROS_PROHIBIDOS":
       longReason =
-        "Usaste, durante la competencia, uno o varios suministros que no estan explicitamente mencionados en la seccion de Suministros de la convocatoria";
+        "Durante la competencia, usaste uno o varios suministros que no están explícitamente mencionados en la sección de Suministros de la convocatoria";
       break;
     case "MATERIAL_PROHIBIDO":
       longReason =
-        "Usaste, durante el examen, uno o varios materiales que no estan explicitamente mencionados en la seccion de Material Permitido de la convocatoria";
+        "Durante la competencia, usaste uno o varios materiales que no están explícitamente mencionados en la sección de Material Permitido de la convocatoria";
       break;
-    case "MALA_GRABACION":
+    case "IDENTIDAD_NO_VERIFICADA":
       longReason =
-        "No se pudo verificar tu identidad y que seguiste el reglamento durante la competencia con las grabaciones que enviaste";
+        "No se pudo verificar tu identidad con las grabaciones que enviaste";
+      break;
+    case "MALAS_GRABACIONES":
+      longReason =
+        "No se pudo verificar que no hayas hecho trampa con las grabaciones que enviaste";
       break;
     case "MULTICUENTAS":
       longReason =
-        "Durante el concurso, iniciaste sesion en una cuenta de OmegaUp distinta a la que se te asigno para la competencia";
+        "Durante la competencia, iniciaste sesión en una cuenta de OmegaUp distinta a la que se te asignó para la competencia";
       break;
     case "COMUNICACION_PROHIBIDA":
       longReason =
-        "Te comunicaste, durante el concurso, con personas que no son parte del Comite Organizador";
+        "Durante la competencia, te comunicaste con personas que no son parte del Comité Organizador";
       break;
     case "FALTA_GRABACION":
-      longReason = "No subiste tu grabacion del dia 1 o del dia 2";
+      longReason = "No subiste tu grabación del día 1 o del día 2";
       break;
     case "MALA_CONDUCTA":
-      longReason = "No cumpliste con el Codigo de Conducta";
+      longReason = "No cumpliste con el Código de Conducta";
       break;
   }
   return {
@@ -171,9 +175,9 @@ export const contestantDisqualificationTemplate = (
     text: `Descalificación de la ${ofmiName}`,
     html: `
         <p>Hola, ${preferredName}!</p>
-        <p>Te informamos que, lamentablemente, sido descalificade de la ${ofmiName} por el siguiente motivo: </p>
+        <p>Te informamos que, lamentablemente, has sido descalificada de la ${ofmiName} por el siguiente motivo: </p>
         <p>${longReason}.</p>
-        <p>Si tienes alguna duda, quieres mas informacion o te gustaria realizar una apelacion, por favor envía un correo a
+        <p>Si tienes alguna duda, quieres más informacion o te gustaría realizar una apelación, por favor envía un correo a
         <a href="mailto:ofmi@omegaup.com">ofmi@omegaup.com</a></p>
         <br />
         <p>Equipo organizador de la OFMI</p>
@@ -190,13 +194,13 @@ export const contestantDisqualificationAppealTemplate = (
   return {
     from: getSecretOrError(OFMI_EMAIL_SMTP_USER_KEY),
     to: email,
-    subject: `(Actualizacion) Descalificación de la ${ofmiName}`,
-    text: `(Actualizacion) Descalificación de la ${ofmiName}`,
+    subject: `(Actualización) Descalificación de la ${ofmiName}`,
+    text: `(Actualización) Descalificación de la ${ofmiName}`,
     html: `
         <p>Hola, ${preferredName}!</p>
-        <p>Te informamos que la apelacion a tu descalificacion de la ${ofmiName} ha sido ${appealed ? "aceptada" : "rechazada"}.</p>
-        <p>En otras palabras, hemos ${appealed ? "retractado" : "reafirmado"} nuestra decision de descalificarte.</p>
-        <p>Si tienes alguna duda o te gustaria realizar otra apelacion, por favor envía un correo a
+        <p>Te informamos que la apelación a tu descalificación de la ${ofmiName} ha sido ${appealed ? "aceptada" : "rechazada"}.</p>
+        <p>En otras palabras, hemos ${appealed ? "retractado" : "reafirmado"} nuestra decisión de descalificarte.</p>
+        <p>Si ${appealed ? "tienes alguna duda" : "te gustaría realizar otra apelación"}, por favor envía un correo a
         <a href="mailto:ofmi@omegaup.com">ofmi@omegaup.com</a></p>
         <br />
         <p>Equipo organizador de la OFMI</p>

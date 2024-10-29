@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
 import {
-  ContestantParticipationInputSchema,
   UpsertParticipationRequestSchema,
   UpsertParticipationResponse,
 } from "@/types/participation.schema";
@@ -44,9 +43,7 @@ async function upsertParticipationHandler(
   const birthDate = new Date(userInput.birthDate);
   const role = body.userParticipation.role;
   const contestantParticipationInput =
-    role === "CONTESTANT"
-      ? Value.Cast(ContestantParticipationInputSchema, body.userParticipation)
-      : undefined;
+    role === "CONTESTANT" ? body.userParticipation : undefined;
   const volunteerParticipationInput =
     role === "VOLUNTEER" ? body.userParticipation : undefined;
 

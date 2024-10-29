@@ -39,7 +39,7 @@ const fetchOfmiAndContestantInfo = async (
     ? await findMostRecentOfmi()
     : await findOfmiByEdition(ofmiEdition);
   if (!ofmi) {
-    return "No se encontro edicion de la OFMI";
+    return "No se encontró edición de la OFMI";
   }
   const ofmiName = friendlyOfmiName(ofmi.edition, true);
   const contestant = await findContestantByOfmiAndEmail(ofmi, email);
@@ -53,7 +53,7 @@ const fetchOfmiAndContestantInfo = async (
       ofmiName,
     },
     contestantInfo: {
-      message: `Descalificacion de ${fullName} de la ${ofmiName}`,
+      message: `Descalificación de ${fullName} de la ${ofmiName}`,
       preferredName: contestant.preferredName,
       contestantId: contestant.id,
     },
@@ -106,7 +106,7 @@ async function createParticipantDisqualification(
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2002") {
         return res.status(500).json({
-          message: `Este concursante ya ha sido descalificado de la ${!ofmiEdition ? "ultima OFMI" : friendlyOfmiName(ofmiEdition, true)}.`,
+          message: `Esta concursante ya ha sido descalificada de la ${!ofmiEdition ? "última OFMI" : friendlyOfmiName(ofmiEdition, true)}.`,
         });
       }
     }
@@ -163,7 +163,7 @@ async function updateParticipantDisqualification(
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2001") {
         return res.status(500).json({
-          message: `Este participante no ha sido descalificada de la ${!ofmiEdition ? "ultima OFMI" : friendlyOfmiName(ofmiEdition, true)}.`,
+          message: `Esta participante no ha sido descalificada de la ${!ofmiEdition ? "última OFMI" : friendlyOfmiName(ofmiEdition, true)}.`,
         });
       }
     }
