@@ -45,7 +45,6 @@ function Loading(): JSX.Element {
   return (
     <div className="flex justify-center">
       <svg
-        aria-hidden="true"
         className="h-8 w-8 animate-spin fill-blue-600 text-gray-200 dark:text-gray-600"
         viewBox="0 0 100 101"
         fill="none"
@@ -84,14 +83,11 @@ export default function Mentorias({
 
   const showFilterCalendar = schedulingUrlToShow === undefined;
   const fullSchedulingUrlToShow = (schedulingUrlToShow: string): string => {
-    return (
-      schedulingUrlToShow &&
-      (selectedStartTime
-        ? `${schedulingUrlToShow}/${getLocalDateTimeWithOffset(selectedStartTime)}`
-        : selectedDay
-          ? `${schedulingUrlToShow}/?date=${selectedDay.toLocaleDateString()}?`
-          : schedulingUrlToShow)
-    );
+    return selectedStartTime
+      ? `${schedulingUrlToShow}/${getLocalDateTimeWithOffset(selectedStartTime)}`
+      : selectedDay
+        ? `${schedulingUrlToShow}/?date=${selectedDay.toLocaleDateString()}?`
+        : schedulingUrlToShow;
   };
   const availableLocalDates =
     availabilities &&
