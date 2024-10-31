@@ -134,47 +134,43 @@ export default function Mentorias({
       {/* Filter calendar */}
       <h1 className="text-4xl font-bold">Mentorías</h1>
       <div className="grid py-6 md:grid-cols-4 md:gap-6">
-        <div
-          className="group relative z-0 col-span-3 mb-5 w-full"
-          hidden={!showFilterCalendar}
-        >
-          <Calendar
-            defaultView="year" // TODO: Somehow the default view mess up the class name first rendering.
-            minDate={startTime}
-            maxDate={endTime}
-            onClickDay={(value, event) => {
-              event.preventDefault();
-              if (selectedDay?.getTime() === value.getTime()) {
-                setSelectedDay(undefined);
-                setSelectedStartTime(undefined);
-              } else {
-                setSelectedDay(value);
-                setSelectedStartTime(undefined);
-              }
-            }}
-            tileClassName={({ date, view }) => {
-              if (view !== "month") {
-                return null;
-              }
-              const res = [];
-              if (date.getTime() === selectedDay?.getTime()) {
-                res.push("react-calendar__tile--activeV2");
-              }
-              if (
-                availableLocalDates &&
-                availableLocalDates.has(date.toLocaleDateString())
-              ) {
-                res.push("react-calendar__tile--available");
-              }
-              return res;
-            }}
-          />
-        </div>
-        {availableLocalStartTimes && (
-          <div
-            className="group relative z-0 mb-5 w-full"
-            hidden={!showFilterCalendar}
-          >
+        {showFilterCalendar && (
+          <div className="group relative z-0 col-span-3 mb-5 w-full">
+            <Calendar
+              defaultView="year" // TODO: Somehow the default view mess up the class name first rendering.
+              minDate={startTime}
+              maxDate={endTime}
+              onClickDay={(value, event) => {
+                event.preventDefault();
+                if (selectedDay?.getTime() === value.getTime()) {
+                  setSelectedDay(undefined);
+                  setSelectedStartTime(undefined);
+                } else {
+                  setSelectedDay(value);
+                  setSelectedStartTime(undefined);
+                }
+              }}
+              tileClassName={({ date, view }) => {
+                if (view !== "month") {
+                  return null;
+                }
+                const res = [];
+                if (date.getTime() === selectedDay?.getTime()) {
+                  res.push("react-calendar__tile--activeV2");
+                }
+                if (
+                  availableLocalDates &&
+                  availableLocalDates.has(date.toLocaleDateString())
+                ) {
+                  res.push("react-calendar__tile--available");
+                }
+                return res;
+              }}
+            />
+          </div>
+        )}
+        {availableLocalStartTimes && showFilterCalendar && (
+          <div className="group relative z-0 mb-5 w-full">
             <div className="text-center">
               {selectedDay.toLocaleDateString()}
             </div>
@@ -216,75 +212,80 @@ export default function Mentorias({
       {/* List of calendly */}
       <div className="grid md:grid-cols-2 md:gap-6">
         <div className="group relative z-0 mb-5 w-full">
-          <table
-            className="w-full table-auto"
-            hidden={availabilities === null || availabilities.length == 0}
-          >
-            <thead>
-              <tr>
-                <th>Mentor</th>
-                <th>Disponibilidad</th>
-              </tr>
-            </thead>
-            <tbody>
-              {availabilities &&
-                availabilities.map(
-                  ({
-                    calendlySchedulingUrl,
-                    firstName,
-                    lastName,
-                    availableStartTimes,
-                  }) => {
-                    const hidden =
-                      availableStartTimes.find((v) => {
-                        if (selectedDay === undefined) {
+          {availabilities !== null && availabilities.length > 0 && (
+            <table className="w-full table-auto">
+              <thead>
+                <tr>
+                  <th>Mentor</th>
+                  <th>Disponibilidad</th>
+                </tr>
+              </thead>
+              <tbody>
+                {availabilities &&
+                  availabilities.map(
+                    ({
+                      calendlySchedulingUrl,
+                      firstName,
+                      lastName,
+                      availableStartTimes,
+                    }) => {
+                      const hidden =
+                        availableStartTimes.find((v) => {
+                          if (selectedDay === undefined) {
+                            return true;
+                          }
+                          const time = new Date(v);
+                          if (
+                            time.toLocaleDateString() !==
+                            selectedDay.toLocaleDateString()
+                          ) {
+                            return false;
+                          }
+                          if (
+                            selectedStartTime &&
+                            selectedStartTime.getTime() !== time.getTime()
+                          ) {
+                            return false;
+                          }
                           return true;
-                        }
-                        const time = new Date(v);
-                        if (
-                          time.toLocaleDateString() !==
-                          selectedDay.toLocaleDateString()
-                        ) {
-                          return false;
-                        }
-                        if (
-                          selectedStartTime &&
-                          selectedStartTime.getTime() !== time.getTime()
-                        ) {
-                          return false;
-                        }
-                        return true;
-                      }) === undefined;
-                    return (
-                      <tr key={calendlySchedulingUrl} hidden={hidden}>
-                        <td>{`${firstName} ${lastName}`}</td>
-                        <td>
-                          <div className="text-center">
-                            <Link
-                              className="font-light text-blue-600 hover:cursor-pointer hover:underline dark:text-blue-500"
-                              onClick={(ev) => {
-                                ev.preventDefault();
-                                if (
-                                  calendlySchedulingUrl === schedulingUrlToShow
-                                ) {
-                                  setSchedulingUrlToShow(undefined);
-                                } else {
-                                  setSchedulingUrlToShow(calendlySchedulingUrl);
-                                }
-                              }}
-                            >
-                              {calendlySchedulingUrl === schedulingUrlToShow
-                                ? "Ocultar"
-                                : "Mostrar"}
-                            </Link>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  },
-                )}
-            </tbody>
-          </table>
+                        }) === undefined;
+                      if (hidden) {
+                        return <></>;
+                      }
+                      return (
+                        <tr key={calendlySchedulingUrl}>
+                          <td>{`${firstName} ${lastName}`}</td>
+                          <td>
+                            <div className="text-center">
+                              <Link
+                                className="font-light text-blue-600 hover:cursor-pointer hover:underline dark:text-blue-500"
+                                onClick={(ev) => {
+                                  ev.preventDefault();
+                                  if (
+                                    calendlySchedulingUrl ===
+                                    schedulingUrlToShow
+                                  ) {
+                                    setSchedulingUrlToShow(undefined);
+                                  } else {
+                                    setSchedulingUrlToShow(
+                                      calendlySchedulingUrl,
+                                    );
+                                  }
+                                }}
+                              >
+                                {calendlySchedulingUrl === schedulingUrlToShow
+                                  ? "Ocultar"
+                                  : "Mostrar"}
+                              </Link>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    },
+                  )}
+              </tbody>
+            </table>
+          )}
           {availabilities === null && <Loading />}
         </div>
         {schedulingUrlToShow && (
