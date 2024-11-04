@@ -202,12 +202,12 @@ export async function getAvailabilities({
   }
 }
 
-export async function getEvent({
+export async function getEventOrInvitee({
   token,
-  eventUri,
+  url,
 }: {
   token: string;
-  eventUri: string;
+  url: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }): Promise<any> {
   const options = {
@@ -216,14 +216,14 @@ export async function getEvent({
       Authorization: `Bearer ${token}`,
     },
   };
-  const response = await fetch(eventUri, options);
+  const response = await fetch(url, options);
   if (response.status === 429) {
     throw Error("Calendly RareLimit");
   }
   const json = await response.json();
   if (response.status !== 200) {
-    console.error("calendly.getEvent", json);
-    throw Error("calendly.getEvent");
+    console.error("calendly.getEventOrInvitee", json);
+    throw Error("calendly.getEventOrInvitee");
   }
 
   return json.resource;

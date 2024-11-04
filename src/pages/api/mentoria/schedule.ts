@@ -6,7 +6,7 @@ import {
   ScheduleMentoriaResponse,
   ScheduleMentoriaRequestSchema,
 } from "@/types/mentorias.schema";
-import { getEvent } from "@/lib/calendly";
+import { getEventOrInvitee } from "@/lib/calendly";
 import { getAccessToken } from "@/lib/oauth";
 import { OauthProvider } from "@prisma/client";
 
@@ -28,14 +28,20 @@ async function scheduleMentoriaHandler(
 
   let meetingTime = meetingTimeOpt || null;
   try {
-    const eventPayload = await getEvent({
-      token: await getAccessToken(volunteerAuthId, OauthProvider.CALENDLY),
-      eventUri: calendlyPayload.event.uri,
+    const token = await getAccessToken(volunteerAuthId, OauthProvider.CALENDLY);
+    const eventPayload = await getEventOrInvitee({
+      token,
+      url: calendlyPayload.event.uri,
     });
     calendlyPayload.event = eventPayload;
     if (eventPayload.start_time) {
       meetingTime = eventPayload.start_time;
     }
+    const inviteePayload = await getEventOrInvitee({
+      token,
+      url: calendlyPayload.invitee.uri,
+    });
+    calendlyPayload.invitee = inviteePayload;
   } catch (e) {
     console.error(e);
   }
