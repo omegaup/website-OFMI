@@ -6,10 +6,11 @@ import {
 } from "@/types/mentor.schema";
 import Calendar from "react-calendar";
 import { useState } from "react";
-import { InlineWidget } from "react-calendly";
+import { useCalendlyEventListener, InlineWidget } from "react-calendly";
 import { Link } from "../link";
 import { getLocalDateTimeWithOffset, nextHalfHour } from "@/utils/time";
 import { Value } from "@sinclair/typebox/value";
+import { registerMentoria } from "./client";
 
 const fetcher = (args: RequestInfo): Promise<unknown> =>
   fetch(args).then((res) => res.json());
@@ -64,11 +65,46 @@ function Loading(): JSX.Element {
   );
 }
 
+function CalendlyInlineWidget({
+  url,
+  contestantParticipantId,
+  volunteerAuthId,
+  volunteerParticipationId,
+  meetingTimeOpt,
+}: {
+  volunteerAuthId: string;
+  volunteerParticipationId: string;
+  contestantParticipantId: string | null;
+  meetingTimeOpt: Date | undefined;
+  url: string;
+}): JSX.Element {
+  useCalendlyEventListener({
+    onEventScheduled: async (e) => {
+      if (contestantParticipantId) {
+        await registerMentoria({
+          volunteerAuthId,
+          contestantParticipantId,
+          volunteerParticipationId,
+          meetingTimeOpt: meetingTimeOpt && meetingTimeOpt.toISOString(),
+          calendlyPayload: e.data.payload,
+        });
+      }
+    },
+  });
+  return (
+    <div className="group relative z-0 mb-5 w-full">
+      <InlineWidget url={url}></InlineWidget>
+    </div>
+  );
+}
+
 // Receives a list of connected providers
 export default function Mentorias({
   ofmiEdition,
+  contestantParticipantId,
 }: {
   ofmiEdition: number;
+  contestantParticipantId: string | null;
 }): JSX.Element {
   const startTime = nextHalfHour(new Date(Date.now()));
   const endTime = new Date(startTime.getTime() + 7 * 24 * 60 * 60 * 1000);
@@ -79,7 +115,11 @@ export default function Mentorias({
   });
   const [selectedDay, setSelectedDay] = useState<Date>();
   const [selectedStartTime, setSelectedStartTime] = useState<Date>();
-  const [schedulingUrlToShow, setSchedulingUrlToShow] = useState<string>();
+  const [schedulingUrlToShow, setSchedulingUrlToShow] = useState<{
+    url: string;
+    volunteerAuthId: string;
+    volunteerParticipationId: string;
+  }>();
 
   const showFilterCalendar = schedulingUrlToShow === undefined;
   const fullSchedulingUrlToShow = (schedulingUrlToShow: string): string => {
@@ -220,6 +260,8 @@ export default function Mentorias({
                 {availabilities &&
                   availabilities.map(
                     ({
+                      volunteerAuthId,
+                      volunteerParticipationId,
                       calendlySchedulingUrl,
                       firstName,
                       lastName,
@@ -259,17 +301,20 @@ export default function Mentorias({
                                   ev.preventDefault();
                                   if (
                                     calendlySchedulingUrl ===
-                                    schedulingUrlToShow
+                                    schedulingUrlToShow?.url
                                   ) {
                                     setSchedulingUrlToShow(undefined);
                                   } else {
-                                    setSchedulingUrlToShow(
-                                      calendlySchedulingUrl,
-                                    );
+                                    setSchedulingUrlToShow({
+                                      url: calendlySchedulingUrl,
+                                      volunteerParticipationId,
+                                      volunteerAuthId,
+                                    });
                                   }
                                 }}
                               >
-                                {calendlySchedulingUrl === schedulingUrlToShow
+                                {calendlySchedulingUrl ===
+                                schedulingUrlToShow?.url
                                   ? "Ocultar"
                                   : "Mostrar"}
                               </Link>
@@ -285,11 +330,15 @@ export default function Mentorias({
           {availabilities === null && <Loading />}
         </div>
         {schedulingUrlToShow && (
-          <div className="group relative z-0 mb-5 w-full">
-            <InlineWidget
-              url={fullSchedulingUrlToShow(schedulingUrlToShow)}
-            ></InlineWidget>
-          </div>
+          <CalendlyInlineWidget
+            contestantParticipantId={contestantParticipantId}
+            volunteerAuthId={schedulingUrlToShow.volunteerAuthId}
+            volunteerParticipationId={
+              schedulingUrlToShow.volunteerParticipationId
+            }
+            meetingTimeOpt={selectedStartTime}
+            url={fullSchedulingUrlToShow(schedulingUrlToShow.url)}
+          />
         )}
       </div>
     </div>

@@ -12,6 +12,8 @@ export const GetAvailabilitiesRequestSchema = Type.Object({
 
 export type UserAvailability = Static<typeof UserAvailabilitySchema>;
 export const UserAvailabilitySchema = Type.Object({
+  volunteerAuthId: Type.String({ minLength: 1 }),
+  volunteerParticipationId: Type.String({ minLength: 1 }),
   firstName: Type.String(),
   lastName: Type.String(),
   calendlySchedulingUrl: Type.String(),

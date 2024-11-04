@@ -19,7 +19,7 @@ async function exportParticipantsHandler(
       message: `Participation for the ${ofmi.edition}-ofmi not found.`,
     });
   }
-  return res.status(200).json(participation);
+  return res.status(200).json(participation.input);
 }
 
 export default async function handle(

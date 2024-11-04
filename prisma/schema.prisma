@@ -161,6 +161,7 @@ model ContestantParticipation {
   omegaupUser    OmegaupUser?    @relation(fields: [omegaupUserId], references: [id])
   problemResults ProblemResult[]
   Participation  Participation[]
+  Mentorias      Mentoria[]
   File           File[]
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
@@ -175,8 +176,31 @@ model VolunteerParticipation {
   problemSetterOptIn      Boolean
   mentorOptIn             Boolean
   Participation           Participation[]
+  Mentorias               Mentoria[]
   createdAt               DateTime        @default(now())
   updatedAt               DateTime        @updatedAt
+}
+
+enum MentoriaStatus {
+  SCHEDULED
+  CANCELLED
+  NO_SHOW
+  COMPLETED
+}
+
+model Mentoria {
+  id                       String                  @id @default(uuid())
+  volunteerParticipationId String
+  volunteerParticipation   VolunteerParticipation  @relation(fields: [volunteerParticipationId], references: [id])
+  contestantParticipantId  String
+  contestantParticipant    ContestantParticipation @relation(fields: [contestantParticipantId], references: [id])
+  meetingTime              DateTime
+  status                   MentoriaStatus
+  metadata                 Json?
+  createdAt                DateTime                @default(now())
+  updatedAt                DateTime                @updatedAt
+
+  @@unique([volunteerParticipationId, contestantParticipantId, meetingTime])
 }
 
 model ProblemResult {

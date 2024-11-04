@@ -46,6 +46,8 @@ export async function getAllAvailabilities({
       continue;
     }
     mentors.push({
+      volunteerAuthId: userAuthId,
+      volunteerParticipationId: participation.volunteerParticipationId!,
       firstName: participation.user.firstName,
       lastName: participation.user.lastName,
       ...availabilities,

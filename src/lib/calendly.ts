@@ -176,7 +176,10 @@ export async function getAvailabilities({
   token: string;
   startTime: Date;
   endTime: Date;
-}): Promise<Omit<UserAvailability, "firstName" | "lastName"> | null> {
+}): Promise<Omit<
+  UserAvailability,
+  "volunteerAuthId" | "volunteerParticipationId" | "firstName" | "lastName"
+> | null> {
   try {
     // Get the user uri
     const userUri = await getUserUri(token);
@@ -197,4 +200,31 @@ export async function getAvailabilities({
     console.error("Error getting availabilities...", e);
     return null;
   }
+}
+
+export async function getEvent({
+  token,
+  eventUri,
+}: {
+  token: string;
+  eventUri: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+}): Promise<any> {
+  const options = {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const response = await fetch(eventUri, options);
+  if (response.status === 429) {
+    throw Error("Calendly RareLimit");
+  }
+  const json = await response.json();
+  if (response.status !== 200) {
+    console.error("calendly.getEvent", json);
+    throw Error("calendly.getEvent");
+  }
+
+  return json.resource;
 }

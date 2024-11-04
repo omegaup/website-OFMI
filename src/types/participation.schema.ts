@@ -113,6 +113,13 @@ export const ParticipationRequestInputSchema = Type.Object({
   userParticipation: UserParticipationSchema,
 });
 
+export type ParticipationOutput = Static<typeof ParticipationOutputSchema>;
+export const ParticipationOutputSchema = Type.Object({
+  // input schema of request
+  input: ParticipationRequestInputSchema,
+  contestantParticipantId: Type.Union([Type.Null(), Type.String()]),
+});
+
 export type UpsertParticipationRequest = Static<
   typeof UpsertParticipationRequestSchema
 >;

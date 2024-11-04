@@ -85,11 +85,13 @@ export const getServerSideProps: GetServerSideProps<{
       ? ParticipationRoleOfString(query.role)
       : undefined;
   const role =
-    roleRequested || participation?.userParticipation.role || "CONTESTANT";
+    roleRequested ||
+    participation?.input.userParticipation.role ||
+    "CONTESTANT";
 
   return {
     props: {
-      participationJSON: JSON.stringify(participation),
+      participationJSON: participation && JSON.stringify(participation.input),
       ofmiEdition: ofmi.edition,
       validationResult: validateOFMIOpenAndCloseTime(ofmi, {
         registrationTime: new Date(Date.now()),
