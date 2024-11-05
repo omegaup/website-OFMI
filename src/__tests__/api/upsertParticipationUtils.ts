@@ -95,22 +95,23 @@ export async function cleanParticipation(email: string): Promise<void> {
       Participation: { every: { user: { UserAuth: { email } } } },
     },
   });
-
   // Remove volunteer participation
   await prisma.volunteerParticipation.deleteMany({
     where: {
       Participation: { every: { user: { UserAuth: { email } } } },
     },
   });
-
   // Remove participation of dummy email
   await prisma.participation.deleteMany({
     where: { user: { UserAuth: { email } } },
   });
-
   // Remove user
   await prisma.user.deleteMany({
     where: { UserAuth: { email } },
+  });
+  // Remove hanging address
+  await prisma.mailingAddress.deleteMany({
+    where: { User: { every: { mailingAddressId: { equals: "" } } } },
   });
 }
 
@@ -129,7 +130,6 @@ export async function insertAndCheckSuccessfullyDummyParticipation(
   const { req, res } = mockRequestResponse({ body: validRequest });
   await upsertParticipationHandler(req, res);
 
-  console.log(res._getJSONData());
   expect(res.statusCode).toBe(201);
   expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
   return res;
