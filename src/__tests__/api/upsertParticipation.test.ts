@@ -1,3 +1,4 @@
+import { cascadeDelete } from "prisma-cascade-delete";
 import { describe, it, expect, beforeEach, beforeAll } from "vitest";
 import { mockEmailer } from "./mocks/emailer";
 import {
@@ -13,6 +14,8 @@ import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/hashPassword";
 import { toISOStringReg } from "@/lib/validators/date";
 import {
+  cleanParticipation,
+  insertAndCheckSuccessfullyDummyParticipation,
   validMailingAddressInput,
   validOfmi,
   validUserInput,
@@ -44,16 +47,7 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-  // Remove contestant participation of dummy email
-  await prisma.contestantParticipation.deleteMany({
-    where: {
-      Participation: { every: { user: { UserAuth: { email: dummyEmail } } } },
-    },
-  });
-  // Remove participation of dummy email
-  await prisma.participation.deleteMany({
-    where: { user: { UserAuth: { email: dummyEmail } } },
-  });
+  await cleanParticipation(dummyEmail);
   // Remover contestant participation
   mockEmailer.resetMock();
 });
@@ -109,11 +103,15 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
     expect(participationModel).not.toBeNull();
   });
 
+  it("should register volunteer", async () => {
+    await insertAndCheckSuccessfullyDummyParticipation(dummyEmail, "VOLUNTEER");
+  });
+
   it("should update", async () => {
-    const { req, res } = mockRequestResponse({ body: validRequest });
-    await upsertParticipationHandler(req, res);
-    expect(res.statusCode).toBe(201);
-    expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
+    const res = await insertAndCheckSuccessfullyDummyParticipation(
+      dummyEmail,
+      "CONTESTANT",
+    );
     const participation = res._getJSONData()["participation"];
 
     const newFirstName = "Other Name";
