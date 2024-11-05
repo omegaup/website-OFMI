@@ -9,6 +9,7 @@ import {
 import { getEventOrInvitee } from "@/lib/calendly";
 import { getAccessToken } from "@/lib/oauth";
 import { OauthProvider } from "@prisma/client";
+import type { JSONValue } from "@/types/json";
 
 async function scheduleMentoriaHandler(
   req: NextApiRequest,
@@ -26,48 +27,52 @@ async function scheduleMentoriaHandler(
     calendlyPayload,
   } = body;
 
+  let eventPayload: JSONValue = calendlyPayload.event;
+  let inviteePayload: JSONValue = calendlyPayload.invitee;
   let meetingTime = meetingTimeOpt || null;
   try {
     const token = await getAccessToken(volunteerAuthId, OauthProvider.CALENDLY);
-    const eventPayload = await getEventOrInvitee({
+    eventPayload = await getEventOrInvitee({
       token,
       url: calendlyPayload.event.uri,
     });
-    calendlyPayload.event = eventPayload;
-    if (eventPayload.start_time) {
+    if (
+      eventPayload !== null &&
+      typeof eventPayload === "object" &&
+      "start_time" in eventPayload &&
+      typeof eventPayload.start_time === "string"
+    ) {
       meetingTime = eventPayload.start_time;
     }
-    const inviteePayload = await getEventOrInvitee({
+    inviteePayload = await getEventOrInvitee({
       token,
       url: calendlyPayload.invitee.uri,
     });
-    calendlyPayload.invitee = inviteePayload;
   } catch (e) {
     console.error(e);
   }
 
   meetingTime = meetingTime || new Date(Date.now()).toISOString();
 
-  await prisma.mentoria.upsert({
-    where: {
-      volunteerParticipationId_contestantParticipantId_meetingTime: {
+  try {
+    await prisma.mentoria.create({
+      data: {
         volunteerParticipationId,
         contestantParticipantId,
+        status: "SCHEDULED",
         meetingTime,
+        metadata: {
+          calendly: {
+            event: eventPayload,
+            invitee: inviteePayload,
+          },
+        },
       },
-    },
-    update: {},
-    create: {
-      volunteerParticipationId,
-      contestantParticipantId,
-      status: "SCHEDULED",
-      meetingTime,
-      metadata: {
-        calendly: calendlyPayload,
-      },
-    },
-  });
-
+    });
+  } catch (e) {
+    console.error("scheduleMentoriaHandler: could not store mentoria", e);
+    return res.status(500).json({ message: "Internal server error" });
+  }
   return res.status(200).json({ success: true });
 }
 

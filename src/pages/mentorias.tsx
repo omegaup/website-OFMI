@@ -35,11 +35,20 @@ export const getServerSideProps: GetServerSideProps<{
   const ofmi = await findMostRecentOfmi();
   const participation = await findParticipation(ofmi, email);
 
+  if (participation === null) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
   return {
     props: {
       ofmiId: ofmi.id,
       ofmiEdition: ofmi.edition,
-      contestantParticipantId: participation?.contestantParticipantId || null,
+      contestantParticipantId: participation.contestantParticipantId,
     },
   };
 };

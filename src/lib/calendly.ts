@@ -1,5 +1,6 @@
 import type { UserAvailability } from "@/types/mentor.schema";
 import { TTLCache } from "./cache";
+import type { JSONValue } from "@/types/json";
 
 const CALENDLY_API_BASE_URL = "https://api.calendly.com";
 
@@ -28,7 +29,7 @@ async function getUserUri(token: string): Promise<string> {
   };
   const response = await fetch(`${CALENDLY_API_BASE_URL}/users/me`, options);
   if (response.status === 429) {
-    throw Error("Calendly RareLimit");
+    throw Error("Calendly RateLimit");
   }
   const json = await response.json();
   if (response.status !== 200) {
@@ -72,7 +73,7 @@ async function getEventUri(
     options,
   );
   if (response.status === 429) {
-    throw Error("Calendly RareLimit");
+    throw Error("Calendly RateLimit");
   }
   const json = await response.json();
   if (response.status !== 200) {
@@ -146,7 +147,7 @@ async function getAvailableStartTimes({
     options,
   );
   if (response.status === 429) {
-    throw Error("Calendly RareLimit");
+    throw Error("Calendly RateLimit");
   }
   const json = await response.json();
   if (response.status !== 200) {
@@ -208,8 +209,7 @@ export async function getEventOrInvitee({
 }: {
   token: string;
   url: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-}): Promise<any> {
+}): Promise<JSONValue> {
   const options = {
     method: "GET",
     headers: {
@@ -218,7 +218,7 @@ export async function getEventOrInvitee({
   };
   const response = await fetch(url, options);
   if (response.status === 429) {
-    throw Error("Calendly RareLimit");
+    throw Error("Calendly RateLimit");
   }
   const json = await response.json();
   if (response.status !== 200) {
