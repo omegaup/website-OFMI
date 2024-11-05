@@ -12,20 +12,17 @@ import { emailReg } from "@/lib/validators";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/hashPassword";
 import { toISOStringReg } from "@/lib/validators/date";
-import { ParticipationRole } from "@prisma/client";
+import {
+  validMailingAddressInput,
+  validOfmi,
+  validUserInput,
+  validUserParticipationInput,
+} from "./upsertParticipationUtils";
 
 type ApiRequest = NextApiRequest & ReturnType<typeof createRequest>;
 type APiResponse = NextApiResponse & ReturnType<typeof createResponse>;
 
 const dummyEmail = "upsertParticipation@test.com";
-const validOfmi = {
-  edition: 1,
-  birthDateRequirement: new Date("2005-07-01"),
-  year: 2024,
-  registrationOpenTime: new Date("2024-07-07"),
-  registrationCloseTime: new Date("2050-08-08"),
-};
-const validRole: ParticipationRole = "CONTESTANT";
 
 beforeAll(async () => {
   // ofmi is Needed
@@ -83,43 +80,11 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
     return { req, res };
   }
 
-  const validMailingAddressInput = {
-    street: "Calle",
-    externalNumber: "#8Bis",
-    zipcode: "01234",
-    country: "MEX",
-    state: "Aguascalientes",
-    municipality: "Aguascalientes",
-    locality: "Aguascalientes",
-    phone: "5511223344",
-    references: "Hasta el fondo",
-  };
-
-  const validUserInput = {
-    email: dummyEmail,
-    firstName: "Juan Carlos",
-    lastName: "Sigler Priego",
-    preferredName: "Juanito",
-    birthDate: new Date("2006-11-24").toISOString(),
-    pronouns: "HE",
-    governmentId: "HEGG061124MVZRRL02",
-    shirtSize: "M",
-    shirtStyle: "STRAIGHT",
-    mailingAddress: validMailingAddressInput,
-  };
-
-  const validUserParticipationInput = {
-    role: validRole,
-    schoolName: "Colegio Carol Baur",
-    schoolStage: "HIGH",
-    schoolGrade: 3,
-    schoolCountry: "MEX",
-    schoolState: "Aguascalientes",
-  };
+  const validUser = validUserInput(dummyEmail);
 
   const validRequest = {
-    ofmiEdition: 1,
-    user: validUserInput,
+    ofmiEdition: validOfmi.edition,
+    user: validUser,
     userParticipation: validUserParticipationInput,
   };
 
@@ -158,7 +123,7 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
       body: {
         ...validRequest,
         user: {
-          ...validUserInput,
+          ...validUser,
           firstName: newFirstName,
           mailingAddress: {
             ...validMailingAddressInput,
@@ -278,7 +243,7 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
       body: {
         ...validRequest,
         user: {
-          ...validUserInput,
+          ...validUser,
           email: "juanito.omegaup.com",
         },
       },
@@ -297,7 +262,7 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
       body: {
         ...validRequest,
         user: {
-          ...validUserInput,
+          ...validUser,
           email: "dont@exist.com",
         },
       },
@@ -317,7 +282,7 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
         body: {
           ...validRequest,
           user: {
-            ...validUserInput,
+            ...validUser,
             birthDate: "0006-12-12",
           },
         },
@@ -336,7 +301,7 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
         body: {
           ...validRequest,
           user: {
-            ...validUserInput,
+            ...validUser,
             birthDate: new Date("2008-12-12").toISOString(),
           },
         },
@@ -356,7 +321,7 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
         body: {
           ...validRequest,
           user: {
-            ...validUserInput,
+            ...validUser,
             birthDate: new Date("2004-12-12").toISOString(),
             governmentId: "PELJ041212HDFXXX04",
           },
