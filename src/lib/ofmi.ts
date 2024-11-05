@@ -19,9 +19,9 @@ const caches = {
 
 export function friendlyOfmiName(
   ofmiEdition: number,
-  formatted = false,
+  humanReadable = false,
 ): string {
-  return `${ofmiEdition}a${formatted ? " OFMI" : "-ofmi"}`;
+  return `${ofmiEdition}a${humanReadable ? " OFMI" : "-ofmi"}`;
 }
 
 export const findOfmiByEdition = async (

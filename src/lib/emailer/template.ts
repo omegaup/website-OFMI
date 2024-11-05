@@ -1,5 +1,6 @@
 import config from "@/config/default";
 import type { MailOptions } from "nodemailer/lib/json-transport";
+import { disqualificationReasons } from "@/types/participation.schema";
 import { getSecretOrError } from "../secret";
 
 export const OFMI_EMAIL_SMTP_USER_KEY = "OFMI_EMAIL_SMTP_USER";
@@ -128,45 +129,8 @@ export const contestantDisqualificationTemplate = (
   shortReason: string,
 ): MailOptions => {
   let longReason = shortReason;
-  switch (shortReason) {
-    case "NO_ELEGIBLE":
-      longReason =
-        "No cumples con todos los criterios de eligibilidad señalados en la convocatoria";
-      break;
-    case "IA":
-      longReason =
-        "Durante la competencia, usaste herramientas de Inteligencia Artificial para autocompletar/generar código u obtener la solución a un problema";
-      break;
-    case "SUMINISTROS_PROHIBIDOS":
-      longReason =
-        "Durante la competencia, usaste uno o varios suministros que no están explícitamente mencionados en la sección de Suministros de la convocatoria";
-      break;
-    case "MATERIAL_PROHIBIDO":
-      longReason =
-        "Durante la competencia, usaste uno o varios materiales que no están explícitamente mencionados en la sección de Material Permitido de la convocatoria";
-      break;
-    case "IDENTIDAD_NO_VERIFICADA":
-      longReason =
-        "No se pudo verificar tu identidad con las grabaciones que enviaste";
-      break;
-    case "MALAS_GRABACIONES":
-      longReason =
-        "No se pudo verificar que no hayas hecho trampa con las grabaciones que enviaste";
-      break;
-    case "MULTICUENTAS":
-      longReason =
-        "Durante la competencia, iniciaste sesión en una cuenta de OmegaUp distinta a la que se te asignó para la competencia";
-      break;
-    case "COMUNICACION_PROHIBIDA":
-      longReason =
-        "Durante la competencia, te comunicaste con personas que no son parte del Comité Organizador";
-      break;
-    case "FALTA_GRABACION":
-      longReason = "No subiste tu grabación del día 1 o del día 2";
-      break;
-    case "MALA_CONDUCTA":
-      longReason = "No cumpliste con el Código de Conducta";
-      break;
+  if (Object.hasOwn(disqualificationReasons, shortReason)) {
+    longReason = disqualificationReasons[shortReason];
   }
   return {
     from: getSecretOrError(OFMI_EMAIL_SMTP_USER_KEY),
