@@ -2,6 +2,7 @@ import { Type, Static } from "@sinclair/typebox";
 import {
   Participation,
   ParticipationRole,
+  Prisma,
   SchoolStage,
   ShirtSize,
 } from "@prisma/client";
@@ -127,6 +128,20 @@ export const UpsertParticipationRequestSchema = Type.Omit(
   ParticipationRequestInputSchema,
   ["registeredAt"],
 );
+
+export type ParticipationWithUserOauth = Prisma.ParticipationGetPayload<{
+  include: {
+    user: {
+      include: {
+        UserAuth: {
+          include: {
+            UserOauth: true;
+          };
+        };
+      };
+    };
+  };
+}>;
 
 export interface UpsertParticipationResponse {
   participation: Participation;
