@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import {
+  ParticipationOutput,
   ParticipationRequestInput,
   ParticipationRequestInputSchema,
+  ParticipationOutputSchema,
   UserParticipation,
   UserParticipationSchema,
 } from "@/types/participation.schema";
@@ -162,7 +164,7 @@ export async function findParticipants(
 export async function findParticipation(
   ofmi: Ofmi,
   email: string,
-): Promise<ParticipationRequestInput | null> {
+): Promise<ParticipationOutput | null> {
   const participation = await prisma.participation.findFirst({
     where: { ofmiId: ofmi.id, user: { UserAuth: { email: email } } },
     include: {
@@ -219,26 +221,29 @@ export async function findParticipation(
     return null;
   }
 
-  const payload: ParticipationRequestInput = {
-    ofmiEdition: ofmi.edition,
-    user: {
-      ...user,
-      email: user.UserAuth.email,
-      birthDate: user.birthDate.toISOString(),
-      pronouns: PronounsOfString(user.pronouns) as Pronoun,
-      shirtStyle: ShirtStyleOfString(user.shirtStyle) as ShirtStyle,
-      mailingAddress: {
-        ...mailingAddress,
-        recipient: mailingAddress.name,
-        internalNumber: mailingAddress.internalNumber ?? undefined,
-        municipality: mailingAddress.county,
-        locality: mailingAddress.neighborhood,
-        references: mailingAddress.references ?? undefined,
+  const payload: ParticipationOutput = {
+    input: {
+      ofmiEdition: ofmi.edition,
+      user: {
+        ...user,
+        email: user.UserAuth.email,
+        birthDate: user.birthDate.toISOString(),
+        pronouns: PronounsOfString(user.pronouns) as Pronoun,
+        shirtStyle: ShirtStyleOfString(user.shirtStyle) as ShirtStyle,
+        mailingAddress: {
+          ...mailingAddress,
+          recipient: mailingAddress.name,
+          internalNumber: mailingAddress.internalNumber ?? undefined,
+          municipality: mailingAddress.county,
+          locality: mailingAddress.neighborhood,
+          references: mailingAddress.references ?? undefined,
+        },
       },
+      registeredAt: participation.createdAt.toISOString(),
+      userParticipation: userParticipation as UserParticipation,
     },
-    registeredAt: participation.createdAt.toISOString(),
-    userParticipation: userParticipation as UserParticipation,
+    contestantParticipantId: participation.contestantParticipationId,
   };
 
-  return Value.Cast(ParticipationRequestInputSchema, payload);
+  return Value.Cast(ParticipationOutputSchema, payload);
 }

@@ -87,7 +87,7 @@ async function upsertParticipationHandler(
       field: "Fechas de registro OFMI",
       result: validateOFMIOpenAndCloseTime(ofmi, {
         role,
-        registrationTime: authUser.createdAt,
+        registrationTime: requestStartTime,
       }),
     },
   ];

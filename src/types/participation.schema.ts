@@ -2,6 +2,7 @@ import { Type, Static } from "@sinclair/typebox";
 import {
   Participation,
   ParticipationRole,
+  Prisma,
   SchoolStage,
   ShirtSize,
 } from "@prisma/client";
@@ -115,6 +116,13 @@ export const ParticipationRequestInputSchema = Type.Object({
   userParticipation: UserParticipationSchema,
 });
 
+export type ParticipationOutput = Static<typeof ParticipationOutputSchema>;
+export const ParticipationOutputSchema = Type.Object({
+  // input schema of request
+  input: ParticipationRequestInputSchema,
+  contestantParticipantId: Type.Union([Type.Null(), Type.String()]),
+});
+
 export type UpsertParticipationRequest = Static<
   typeof UpsertParticipationRequestSchema
 >;
@@ -122,6 +130,20 @@ export const UpsertParticipationRequestSchema = Type.Omit(
   ParticipationRequestInputSchema,
   ["registeredAt"],
 );
+
+export type ParticipationWithUserOauth = Prisma.ParticipationGetPayload<{
+  include: {
+    user: {
+      include: {
+        UserAuth: {
+          include: {
+            UserOauth: true;
+          };
+        };
+      };
+    };
+  };
+}>;
 
 export interface UpsertParticipationResponse {
   participation: Participation;

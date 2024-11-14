@@ -1,5 +1,6 @@
 import type { UserAvailability } from "@/types/mentor.schema";
 import { TTLCache } from "./cache";
+import type { JSONValue } from "@/types/json";
 
 const CALENDLY_API_BASE_URL = "https://api.calendly.com";
 
@@ -28,7 +29,7 @@ async function getUserUri(token: string): Promise<string> {
   };
   const response = await fetch(`${CALENDLY_API_BASE_URL}/users/me`, options);
   if (response.status === 429) {
-    throw Error("Calendly RareLimit");
+    throw Error("Calendly RateLimit");
   }
   const json = await response.json();
   if (response.status !== 200) {
@@ -72,7 +73,7 @@ async function getEventUri(
     options,
   );
   if (response.status === 429) {
-    throw Error("Calendly RareLimit");
+    throw Error("Calendly RateLimit");
   }
   const json = await response.json();
   if (response.status !== 200) {
@@ -146,7 +147,7 @@ async function getAvailableStartTimes({
     options,
   );
   if (response.status === 429) {
-    throw Error("Calendly RareLimit");
+    throw Error("Calendly RateLimit");
   }
   const json = await response.json();
   if (response.status !== 200) {
@@ -176,7 +177,10 @@ export async function getAvailabilities({
   token: string;
   startTime: Date;
   endTime: Date;
-}): Promise<Omit<UserAvailability, "firstName" | "lastName"> | null> {
+}): Promise<Omit<
+  UserAvailability,
+  "volunteerAuthId" | "volunteerParticipationId" | "firstName" | "lastName"
+> | null> {
   try {
     // Get the user uri
     const userUri = await getUserUri(token);
@@ -197,4 +201,30 @@ export async function getAvailabilities({
     console.error("Error getting availabilities...", e);
     return null;
   }
+}
+
+export async function getEventOrInvitee({
+  token,
+  url,
+}: {
+  token: string;
+  url: string;
+}): Promise<JSONValue> {
+  const options = {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+  const response = await fetch(url, options);
+  if (response.status === 429) {
+    throw Error("Calendly RateLimit");
+  }
+  const json = await response.json();
+  if (response.status !== 200) {
+    console.error("calendly.getEventOrInvitee", json);
+    throw Error("calendly.getEventOrInvitee");
+  }
+
+  return json.resource;
 }

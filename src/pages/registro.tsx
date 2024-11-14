@@ -13,19 +13,21 @@ import {
 } from "@/types/participation.schema";
 import { ParticipationRole } from "@prisma/client";
 import { X_USER_AUTH_EMAIL_HEADER } from "@/lib/auth";
+import { validateOFMIOpenAndCloseTime } from "@/lib/validators/ofmi";
+import type { ValidationResult } from "@/lib/validators/types";
 
 export default function RegistroPage({
   ofmiEdition,
   participationJSON,
+  validationResult,
   role,
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
-  if (ofmiEdition == null) {
-    const errorMsg = ofmiEdition ? "El registro de la OFMI ha finalizado." : "";
+  if (!validationResult.ok) {
     return (
       <div className="flex w-full items-center justify-center">
         <Alert
           className="block w-1/2 items-center justify-center"
-          errorMsg={errorMsg}
+          errorMsg={validationResult.message}
         >
           <p>
             Si tienes alguna duda por favor envía un correo a &nbsp;
@@ -59,8 +61,8 @@ export default function RegistroPage({
 }
 
 export const getServerSideProps: GetServerSideProps<{
-  ofmiEdition: number | null;
-  registrationClosingTime: number | null;
+  ofmiEdition: number;
+  validationResult: ValidationResult;
   participationJSON: string | null;
   role: ParticipationRole;
 }> = async ({ req, query }) => {
@@ -83,13 +85,18 @@ export const getServerSideProps: GetServerSideProps<{
       ? ParticipationRoleOfString(query.role)
       : undefined;
   const role =
-    roleRequested || participation?.userParticipation.role || "CONTESTANT";
+    roleRequested ||
+    participation?.input.userParticipation.role ||
+    "CONTESTANT";
 
   return {
     props: {
-      participationJSON: JSON.stringify(participation),
-      ofmiEdition: ofmi?.edition ?? null,
-      registrationClosingTime: ofmi?.registrationCloseTime.getTime() ?? null,
+      participationJSON: participation && JSON.stringify(participation.input),
+      ofmiEdition: ofmi.edition,
+      validationResult: validateOFMIOpenAndCloseTime(ofmi, {
+        registrationTime: new Date(Date.now()),
+        role,
+      }),
       role,
     },
   };
