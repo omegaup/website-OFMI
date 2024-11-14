@@ -8,7 +8,7 @@ import {
 import { Pronoun, PronounsOfString } from "@/types/pronouns";
 import { ShirtStyle, ShirtStyleOfString } from "@/types/shirt";
 import { filterNull } from "@/utils";
-import { Ofmi, User } from "@prisma/client";
+import { Ofmi } from "@prisma/client";
 import { Value } from "@sinclair/typebox/value";
 import { TTLCache } from "./cache";
 import path from "path";
@@ -28,29 +28,6 @@ export const findOfmiByEdition = async (
   edition: number,
 ): Promise<Ofmi | null> => {
   return prisma.ofmi.findFirst({ where: { edition } });
-};
-
-export const findContestantByOfmiAndEmail = async (
-  ofmi: Ofmi,
-  email: string,
-): Promise<User | null> => {
-  const contestant = await prisma.userAuth.findFirstOrThrow({
-    where: {
-      email,
-      User: {
-        Participation: {
-          some: {
-            ofmiId: ofmi.id,
-            role: "CONTESTANT",
-          },
-        },
-      },
-    },
-    select: {
-      User: true,
-    },
-  });
-  return contestant?.User;
 };
 
 export function registrationSpreadsheetsPath(ofmiEdition: number): string {
@@ -84,7 +61,7 @@ export async function findParticipants(
   ofmi: Ofmi,
 ): Promise<Array<ParticipationRequestInput>> {
   const participants = await prisma.participation.findMany({
-    where: { ofmiId: ofmi.id },
+    where: { ofmiId: ofmi.id, volunteerParticipationId: null },
     include: {
       user: {
         include: {
@@ -97,27 +74,29 @@ export async function findParticipants(
       ContestantParticipation: {
         include: {
           School: true,
+          Disqualification: {
+            select: {
+              appealed: true,
+              reason: true,
+              id: true,
+            },
+          },
         },
       },
       VolunteerParticipation: true,
     },
   });
 
-  const allDisqualifications = await prisma.disqualification.findMany({
-    where: {
-      ofmiId: ofmi.id,
-    },
-    select: {
-      userId: true,
-      reason: true,
-      appealed: true,
-    },
-  });
-
   const mappedDisqualifications = new Map<string, string>();
 
-  for (const { appealed, reason, userId: id } of allDisqualifications) {
-    mappedDisqualifications.set(id, appealed ? "N/A" : reason);
+  for (const participant of participants) {
+    let reason = "N/A";
+    const participation = participant.ContestantParticipation!;
+    const disqualification = participation.Disqualification;
+    if (disqualification && !disqualification.appealed) {
+      reason = disqualification.reason;
+    }
+    mappedDisqualifications.set(participant.id, reason);
   }
 
   const res = participants.map((participation) => {
@@ -211,20 +190,6 @@ export async function findParticipation(
     return null;
   }
 
-  const disqualification = await prisma.disqualification.findUnique({
-    where: {
-      userId_ofmiId: {
-        userId: participation.userId,
-        ofmiId: ofmi.id,
-      },
-    },
-  });
-
-  const disqualificationReason =
-    !disqualification || disqualification.appealed
-      ? "N/A"
-      : disqualification.reason;
-
   const {
     user,
     role,
@@ -242,7 +207,6 @@ export async function findParticipation(
         schoolGrade: contestantParticipation.schoolGrade,
         schoolCountry: contestantParticipation.School.country,
         schoolState: contestantParticipation.School.state,
-        disqualificationReason,
       }) ||
     (role === "VOLUNTEER" &&
       volunteerParticipation && {

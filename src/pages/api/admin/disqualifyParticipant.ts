@@ -7,28 +7,17 @@ import {
   DisqualifyParticipantUpdateRequestSchema,
 } from "@/types/admin.schema";
 import {
-  findContestantByOfmiAndEmail,
   findMostRecentOfmi,
   findOfmiByEdition,
   friendlyOfmiName,
 } from "@/lib/ofmi";
-import { Prisma } from "@prisma/client";
 import { emailer } from "@/lib/emailer";
 
-type ofmiInfo = {
-  ofmiId: string;
-  ofmiName: string;
-};
-
-type ContestantInfo = {
-  preferredName: string;
-  contestantId: string;
-  message: string;
-};
-
 type ofmiAndContestantInfo = {
-  ofmiInfo: ofmiInfo;
-  contestantInfo: ContestantInfo;
+  ofmiName: string;
+  preferredName: string;
+  disqualificationId: string | null;
+  message: string;
 };
 
 const fetchOfmiAndContestantInfo = async (
@@ -42,21 +31,46 @@ const fetchOfmiAndContestantInfo = async (
     return "No se encontró edición de la OFMI";
   }
   const ofmiName = friendlyOfmiName(ofmi.edition, true);
-  const contestant = await findContestantByOfmiAndEmail(ofmi, email);
-  if (!contestant) {
-    return `No hay participante registrada en la ${ofmiName} con ese correo`;
+  const participation = await prisma.participation.findFirst({
+    where: {
+      ofmiId: ofmi.id,
+      user: { UserAuth: { email: email } },
+      role: "CONTESTANT",
+      volunteerParticipationId: null,
+      contestantParticipationId: {
+        not: null,
+      },
+    },
+    include: {
+      user: {
+        select: {
+          firstName: true,
+          lastName: true,
+          preferredName: true,
+        },
+      },
+      ContestantParticipation: {
+        include: {
+          Disqualification: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
+    },
+  });
+  if (!participation || !participation.ContestantParticipation) {
+    return `No se encontró participación de ${email} en la ${ofmiName}`;
   }
+  const contestant = participation.user;
   const fullName = `${contestant.firstName} ${contestant.lastName}`;
   return {
-    ofmiInfo: {
-      ofmiId: ofmi.id,
-      ofmiName,
-    },
-    contestantInfo: {
-      message: `Descalificación de ${fullName} de la ${ofmiName}`,
-      preferredName: contestant.preferredName,
-      contestantId: contestant.id,
-    },
+    message: `Descalificación de ${fullName} de la ${ofmiName}`,
+    disqualificationId:
+      participation.ContestantParticipation.DisqualificationId,
+    preferredName: contestant.preferredName,
+    ofmiName: ofmiName,
   };
 };
 
@@ -83,33 +97,27 @@ async function createParticipantDisqualification(
     if (typeof sharedInfo === "string") {
       return res.status(404).json({ message: sharedInfo });
     }
-    const { ofmiInfo, contestantInfo } = sharedInfo;
+    const { message, ofmiName, preferredName, disqualificationId } = sharedInfo;
+    if (disqualificationId) {
+      return res.status(401).json({
+        message: `Esta concursante ya ha sido descalificada de la ${ofmiName}.`,
+      });
+    }
     await prisma.disqualification.create({
-      data: {
-        userId: contestantInfo.contestantId,
-        ofmiId: ofmiInfo.ofmiId,
-        ...others,
-      },
+      data: others,
     });
     if (sendEmail) {
       await emailer.notifyContestantDisqualification(
         email,
-        ofmiInfo.ofmiName,
-        contestantInfo.preferredName,
+        ofmiName,
+        preferredName,
         others.reason,
       );
     }
     return res.status(201).json({
-      message: `${contestantInfo.message} creada`,
+      message: `${message} creada`,
     });
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === "P2002") {
-        return res.status(500).json({
-          message: `Esta concursante ya ha sido descalificada de la ${!ofmiEdition ? "última OFMI" : friendlyOfmiName(ofmiEdition, true)}.`,
-        });
-      }
-    }
     console.error(error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
@@ -138,35 +146,30 @@ async function updateParticipantDisqualification(
     if (typeof sharedInfo === "string") {
       return res.status(404).json({ message: sharedInfo });
     }
-    const { ofmiInfo, contestantInfo } = sharedInfo;
+    const { message, ofmiName, preferredName, disqualificationId } = sharedInfo;
+    if (!disqualificationId) {
+      return res.status(401).json({
+        message: `Esta participante no ha sido descalificada de la ${ofmiName}.`,
+      });
+    }
     await prisma.disqualification.update({
       where: {
-        userId_ofmiId: {
-          userId: contestantInfo.contestantId,
-          ofmiId: ofmiInfo.ofmiId,
-        },
+        id: disqualificationId,
       },
       data: others,
     });
     if (sendEmail && "appealed" in others) {
       await emailer.notifyContestantDisqualificationUpdate(
         email,
-        ofmiInfo.ofmiName,
-        contestantInfo.preferredName,
+        ofmiName,
+        preferredName,
         others["appealed"],
       );
     }
     return res.status(200).json({
-      message: `${contestantInfo.message} actualizada`,
+      message: `${message} actualizada`,
     });
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === "P2001") {
-        return res.status(500).json({
-          message: `Esta participante no ha sido descalificada de la ${!ofmiEdition ? "última OFMI" : friendlyOfmiName(ofmiEdition, true)}.`,
-        });
-      }
-    }
     console.error(error);
     return res.status(500).json({ message: "Internal Server Error" });
   }
