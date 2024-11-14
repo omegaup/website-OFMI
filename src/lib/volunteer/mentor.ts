@@ -2,6 +2,32 @@ import { prisma } from "@/lib/prisma";
 import { getAvailabilities } from "@/lib/calendly";
 import { getAccessToken } from "@/lib/oauth";
 import { UserAvailability } from "@/types/mentor.schema";
+import pLimit from "p-limit";
+import { ParticipationWithUserOauth } from "@/types/participation.schema";
+
+async function getAvailiabity(
+  participation: ParticipationWithUserOauth,
+  startTime: Date,
+  endTime: Date,
+): Promise<UserAvailability | null> {
+  const userOauth = participation.user.UserAuth.UserOauth[0];
+  const userAuthId = participation.user.UserAuth.id;
+  const availabilities = await getAvailabilities({
+    token: await getAccessToken(userAuthId, userOauth.provider, userOauth),
+    startTime,
+    endTime,
+  });
+
+  if (!availabilities) return null;
+
+  return {
+    volunteerAuthId: userAuthId,
+    volunteerParticipationId: participation.volunteerParticipationId!,
+    firstName: participation.user.firstName,
+    lastName: participation.user.lastName,
+    ...availabilities,
+  };
+}
 
 export async function getAllAvailabilities({
   ofmiEdition,
@@ -33,24 +59,23 @@ export async function getAllAvailabilities({
     },
   });
 
+  // Limit concurrent active promises to 5
+  const limit = pLimit(5);
   const mentors: Array<UserAvailability> = [];
-  for (const participation of mentorsDb) {
-    const userOauth = participation.user.UserAuth.UserOauth[0];
-    const userAuthId = participation.user.UserAuth.id;
-    const availabilities = await getAvailabilities({
-      token: await getAccessToken(userAuthId, userOauth.provider, userOauth),
-      startTime,
-      endTime,
-    });
-    if (!availabilities) {
-      continue;
+
+  const result = await Promise.allSettled(
+    mentorsDb.map((participation) =>
+      limit(() => getAvailiabity(participation, startTime, endTime)),
+    ),
+  );
+
+  result.map((res) => {
+    if (res.status === "fulfilled") {
+      if (res.value !== null) {
+        mentors.push(res.value);
+      }
     }
-    mentors.push({
-      firstName: participation.user.firstName,
-      lastName: participation.user.lastName,
-      ...availabilities,
-    });
-  }
+  });
 
   return mentors;
 }

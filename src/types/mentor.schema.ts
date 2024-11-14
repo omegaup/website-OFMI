@@ -10,13 +10,19 @@ export const GetAvailabilitiesRequestSchema = Type.Object({
   endTime: Type.String({ pattern: toISOStringReg }),
 });
 
-export type UserAvailability = {
-  firstName: string;
-  lastName: string;
-  calendlySchedulingUrl: string;
-  availableStartTimes: Array<string>;
-};
+export type UserAvailability = Static<typeof UserAvailabilitySchema>;
+export const UserAvailabilitySchema = Type.Object({
+  volunteerAuthId: Type.String({ minLength: 1 }),
+  volunteerParticipationId: Type.String({ minLength: 1 }),
+  firstName: Type.String(),
+  lastName: Type.String(),
+  calendlySchedulingUrl: Type.String(),
+  availableStartTimes: Type.Array(Type.String()),
+});
 
-export type GetAvailabilitiesResponse = {
-  availabilities: Array<UserAvailability>;
-};
+export type GetAvailabilitiesResponse = Static<
+  typeof GetAvailabilitiesResponseSchema
+>;
+export const GetAvailabilitiesResponseSchema = Type.Object({
+  availabilities: Type.Array(UserAvailabilitySchema),
+});
