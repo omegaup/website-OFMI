@@ -1,5 +1,6 @@
 import config from "@/config/default";
 import type { MailOptions } from "nodemailer/lib/json-transport";
+import { disqualificationReasons } from "@/types/participation.schema";
 import { getSecretOrError } from "../secret";
 
 export const OFMI_EMAIL_SMTP_USER_KEY = "OFMI_EMAIL_SMTP_USER";
@@ -114,6 +115,56 @@ export const successfulPasswordRecoveryTemplate = (
     html: `
         <p>Estás recibiendo este correo porque la contraseña de tu cuenta de la OFMI ha sido cambiada.</p>
         <p>Si no realizaste este cambio o tienes alguna duda, por favor envía un correo a
+        <a href="mailto:ofmi@omegaup.com">ofmi@omegaup.com</a></p>
+        <br />
+        <p>Equipo organizador de la OFMI</p>
+      `,
+  };
+};
+
+export const contestantDisqualificationTemplate = (
+  email: string,
+  ofmiName: string,
+  preferredName: string,
+  shortReason: string,
+): MailOptions => {
+  let longReason = shortReason;
+  if (Object.hasOwn(disqualificationReasons, shortReason)) {
+    longReason = disqualificationReasons[shortReason];
+  }
+  return {
+    from: getSecretOrError(OFMI_EMAIL_SMTP_USER_KEY),
+    to: email,
+    subject: `Descalificación de la ${ofmiName}`,
+    text: `Descalificación de la ${ofmiName}`,
+    html: `
+        <p>Hola, ${preferredName}!</p>
+        <p>Te informamos que, lamentablemente, has sido descalificada de la ${ofmiName} por el siguiente motivo: </p>
+        <p>${longReason}.</p>
+        <p>Si tienes alguna duda, quieres más informacion o te gustaría realizar una apelación, por favor envía un correo a
+        <a href="mailto:ofmi@omegaup.com">ofmi@omegaup.com</a></p>
+        <br />
+        <p>Equipo organizador de la OFMI</p>
+      `,
+  };
+};
+
+export const contestantDisqualificationAppealTemplate = (
+  email: string,
+  ofmiName: string,
+  preferredName: string,
+  appealed: boolean,
+): MailOptions => {
+  return {
+    from: getSecretOrError(OFMI_EMAIL_SMTP_USER_KEY),
+    to: email,
+    subject: `(Actualización) Descalificación de la ${ofmiName}`,
+    text: `(Actualización) Descalificación de la ${ofmiName}`,
+    html: `
+        <p>Hola, ${preferredName}!</p>
+        <p>Te informamos que la apelación a tu descalificación de la ${ofmiName} ha sido ${appealed ? "aceptada" : "rechazada"}.</p>
+        <p>En otras palabras, hemos ${appealed ? "retractado" : "reafirmado"} nuestra decisión de descalificarte.</p>
+        <p>Si ${appealed ? "tienes alguna duda" : "te gustaría realizar otra apelación"}, por favor envía un correo a
         <a href="mailto:ofmi@omegaup.com">ofmi@omegaup.com</a></p>
         <br />
         <p>Equipo organizador de la OFMI</p>
