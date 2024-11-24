@@ -57,6 +57,7 @@ export class GCloud {
       accessToken: json["access_token"] as string,
       refreshToken: refreshToken || (json["refresh_token"] as string),
       expiresAt: new Date(Date.now() + expiresInSeconds * 1000),
+      externalUserId: "test",
     };
   }
 
@@ -146,11 +147,13 @@ export class Calendly {
       throw new Error("Calendly API error");
     }
     const expiresInSeconds = Number(json["expires_in"]);
+    const externalUserId = json["owner"].split("/").pop();
     return {
       provider: OauthProvider.CALENDLY,
       accessToken: json["access_token"] as string,
       refreshToken: json["refresh_token"] as string,
       expiresAt: new Date(Date.now() + expiresInSeconds * 1000),
+      externalUserId: externalUserId,
     };
   }
 
@@ -268,6 +271,18 @@ async function findUserOauth(
   });
 }
 
+async function findUserOauthByExternalId(
+  oauthExternalUserId: string,
+  provider: OauthProvider,
+): Promise<UserOauth | null> {
+  return prisma.userOauth.findUnique({
+    where: {
+      externalUserId: oauthExternalUserId,
+      provider: provider,
+    },
+  });
+}
+
 export async function getAccessToken(
   userAuthId: string,
   provider: OauthProvider,
@@ -309,6 +324,50 @@ export async function disconnectOauth({
 }: {
   userAuthId: string;
   provider: OauthProvider;
+}): Promise<boolean> {
+  const oauthInfo = await findUserOauth(userAuthId, provider);
+  if (!oauthInfo) {
+    return false;
+  }
+  const intf = providerIntf(provider);
+  const res = await intf.revoke(oauthInfo);
+  await prisma.userOauth.delete({
+    where: {
+      userAuthId_provider: {
+        userAuthId,
+        provider,
+      },
+    },
+  });
+  return res;
+}
+
+export async function oauthProcessCallback({
+                                             uri,
+                                             callback_url,
+                                             created_at,
+                                             updated_at,
+                                             retry_started_at,
+                                             state,
+                                             events,
+                                             scope,
+                                             organization,
+                                             user,
+                                             group,
+                                             creator,
+                                      }: {
+  uri: string,
+  callback_url: string,
+  created_at: string,
+  updated_at: string,
+  retry_started_at: string,
+  state: string,
+  events: string,
+  scope: string,
+  organization: string,
+  user: string,
+  group: string,
+  creator: string,
 }): Promise<boolean> {
   const oauthInfo = await findUserOauth(userAuthId, provider);
   if (!oauthInfo) {
