@@ -140,16 +140,16 @@ describe("/api/user/updateContactData API Endpoint", () => {
       },
     });
 
-    expect(updatedUser.firstName).toBe(updatedFields.firstName);
-    expect(updatedUser.lastName).toBe(updatedFields.lastName);
-    expect(updatedUser.preferredName).toBe(updatedFields.preferredName);
-    expect(updatedUser.birthDate.toISOString()).toBe(
+    expect(updatedUser?.firstName).toBe(updatedFields.firstName);
+    expect(updatedUser?.lastName).toBe(updatedFields.lastName);
+    expect(updatedUser?.preferredName).toBe(updatedFields.preferredName);
+    expect(updatedUser?.birthDate.toISOString()).toBe(
       updatedFields.birthDate.toString(),
     );
-    expect(updatedUser.pronouns).toBe(updatedFields.pronouns);
-    expect(updatedUser.governmentId).toBe(updatedFields.governmentId);
-    expect(updatedUser.shirtSize).toBe(updatedFields.shirtSize);
-    expect(updatedUser.shirtStyle).toBe(updatedFields.shirtStyle);
+    expect(updatedUser?.pronouns).toBe(updatedFields.pronouns);
+    expect(updatedUser?.governmentId).toBe(updatedFields.governmentId);
+    expect(updatedUser?.shirtSize).toBe(updatedFields.shirtSize);
+    expect(updatedUser?.shirtStyle).toBe(updatedFields.shirtStyle);
   });
 
   it("should fail due to invalid address", async () => {
