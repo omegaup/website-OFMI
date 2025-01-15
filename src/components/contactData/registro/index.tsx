@@ -1,15 +1,15 @@
 import { Button } from "@/components/button";
 import { Alert, SuccessAlert, WarningAlert } from "@/components/alert";
-import { MailingAddress } from "./mailingAddress";
-import { PersonalDetails } from "./personalDetails";
-import { SchoolDetails } from "./schoolDetails";
+import { MailingAddress } from "../mailingAddress";
+import { PersonalDetails } from "../personalDetails";
+import { SchoolDetails } from "../schoolDetails";
 import {
   ParticipationRoleName,
   type ParticipationRequestInput,
   type UpsertParticipationRequest,
   UserParticipation,
 } from "@/types/participation.schema";
-import { fieldIds } from "./constants";
+import { fieldIds } from "../constants";
 import { useState } from "react";
 import { PronounsOfString } from "@/types/pronouns";
 import { ShirtStyleOfString } from "@/types/shirt";
@@ -17,7 +17,7 @@ import { ParticipationRole, SchoolStage, ShirtSize } from "@prisma/client";
 import { sendUpsertParticipation } from "./client";
 import { useSession } from "next-auth/react";
 import { exhaustiveMatchingGuard, undefinedIfEmpty } from "@/utils";
-import { VolunteerDetails } from "./volunteerDetails";
+import { VolunteerDetails } from "../volunteerDetails";
 
 export default function Registro({
   ofmiEdition,

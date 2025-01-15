@@ -12,7 +12,12 @@ import {
 } from "@/lib/auth";
 
 // Prefix routes that requires only to be log in
-const withAuthPaths = ["/mentorias", "/registro", "/oauth"];
+const withAuthPaths = [
+  "/mentorias",
+  "/registro",
+  "/oauth",
+  "/updateContactData",
+];
 
 const unauthenticatedPaths = ["changePassword", "/forgotPassword", "/signup"];
 
