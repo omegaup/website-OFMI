@@ -1,6 +1,9 @@
 # Use the official Node.js 18 image as the base image
 FROM node:18-alpine
 
+# To fix: https://github.com/prisma/prisma/discussions/19341
+RUN apk add --no-cache openssl
+
 # Set the working directory
 WORKDIR /app
 
