@@ -7,9 +7,6 @@ import remarkGfm from "remark-gfm";
 const nextConfig = {
   reactStrictMode: true,
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
-  experimental: {
-    swcPlugins: [["@swc-jotai/react-refresh", {}]],
-  },
   async redirects() {
     return [
       {
