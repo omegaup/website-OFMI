@@ -17,6 +17,7 @@ const withAuthPaths = [
   "/registro",
   "/oauth",
   "/updateContactData",
+  "/repository",
   "/api/ofmi/upsertParticipation",
   "/api/user/updateContactData",
 ];
