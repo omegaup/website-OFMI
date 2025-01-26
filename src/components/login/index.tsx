@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { Alert, SuccessAlert } from "../alert";
 import { Button } from "../button";
 import { PasswordInput } from "../password";
+import Image from "next/image";
 import Link from "next/link";
 import { resendEmailVerification } from "./client";
 
@@ -93,10 +94,12 @@ export default function Login({
   return (
     <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-        <img
+        <Image
           className="mx-auto my-8 h-28 w-auto"
           src="/lightLogo.svg"
           alt="OFMI"
+          height={112}
+          width={112}
         />
         <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
           Inicia sesión
@@ -139,12 +142,12 @@ export default function Login({
                 Contraseña
               </label>
               <div className="text-right">
-                <a
+                <Link
                   href="/forgotPassword"
                   className="font-medium text-blue-500 hover:text-blue-700"
                 >
                   ¿Olvidaste tu contraseña?
-                </a>
+                </Link>
               </div>
             </div>
             <div className="mt-2">
@@ -168,12 +171,12 @@ export default function Login({
           <div>
             <p className="font-light text-gray-700">
               ¿Aun no tienes una cuenta?{" "}
-              <a
+              <Link
                 href="/signup"
                 className="font-semibold text-blue-500 hover:text-blue-700 hover:underline"
               >
                 Crea una cuenta
-              </a>
+              </Link>
             </p>
           </div>
         </form>

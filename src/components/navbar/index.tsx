@@ -1,5 +1,6 @@
 import { Disclosure } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import Image from "next/image";
 import { ProfileDropdown } from "./Profile";
 import { Unauthenticated } from "./Unauthenticated";
 import { classNames } from "./styles";
@@ -42,11 +43,17 @@ export const Navbar = (): JSX.Element => {
               <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                 <div className="flex flex-shrink-0 items-center">
                   <a key="index-icon" href="/">
-                    <img className="h-9" src="/lightLogo.svg" alt="Inicio" />
+                    <Image
+                      className="h-8"
+                      src="/lightLogo.svg"
+                      alt="Inicio"
+                      height={32}
+                      width={32}
+                    />
                   </a>
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
-                  <div className="flex space-x-4">
+                  <div className="flex items-center space-x-4">
                     {Object.entries(navigation).map(([name, href]) => (
                       <a
                         key={name}
@@ -55,7 +62,7 @@ export const Navbar = (): JSX.Element => {
                           href === pathname
                             ? "bg-gray-200"
                             : "hover:bg-gray-700 hover:text-white",
-                          "rounded-md px-3 py-2 text-sm font-medium text-gray-700",
+                          "rounded-md px-3 py-2 text-center text-sm font-medium text-gray-700",
                         )}
                         aria-current={href === pathname ? "page" : undefined}
                       >

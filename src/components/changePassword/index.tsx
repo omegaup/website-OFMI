@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Image from "next/image";
 import { Button } from "../button";
 import { Alert, SuccessAlert } from "../alert";
 import { PasswordInput } from "../password";
@@ -13,10 +14,12 @@ export default function ChangePassword({
   return (
     <main className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
       <figure className="sm:mx-auto sm:w-full sm:max-w-sm">
-        <img
+        <Image
           className="mx-auto my-8 h-28 w-auto"
           src="/lightLogo.svg"
           alt="OFMI"
+          height={112}
+          width={112}
         />
         <figcaption className="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
           <h2>Cambiar contraseña</h2>

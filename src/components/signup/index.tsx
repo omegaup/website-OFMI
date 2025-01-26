@@ -1,4 +1,6 @@
 import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { sendSignUp } from "./client";
 import { Alert, SuccessAlert } from "../alert";
 import { Button } from "../button";
@@ -57,10 +59,12 @@ export default function SignUp(): JSX.Element {
     <>
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <img
+          <Image
             className="mx-auto my-8 h-28 w-auto"
             src="/lightLogo.svg"
             alt="OFMI"
+            height={112}
+            width={112}
           />
           <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
             Crea una cuenta
@@ -142,12 +146,12 @@ export default function SignUp(): JSX.Element {
             <div className="text-sm">
               <p className="font-light text-gray-700">
                 ¿Ya tienes una cuenta?{" "}
-                <a
+                <Link
                   href="/login"
                   className="font-medium text-blue-500 hover:text-blue-700 hover:underline"
                 >
                   Inicia sesión
-                </a>
+                </Link>
               </p>
             </div>
           </form>
