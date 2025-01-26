@@ -12,7 +12,7 @@ NIXPKGS_ALLOW_INSECURE = "1"
 NEXT_TELEMETRY_DISABLED = "1"
 
 [deployment]
-build = ["npm", "run", "build"]
+build = ["npm", "run", "deploy"]
 run = ["npm", "run", "start"]
 deploymentTarget = "cloudrun"
 
