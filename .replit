@@ -1,16 +1,18 @@
 run = "npm run dev"
-hidden = [".config", "package-lock.json", "tsconfig.json"]
-modules = ["nodejs-18:v27-20240117-0bd73cd"]
-disableGuessImports = true
+entrypoint = "index.js"
+modules = ["nodejs-20:v9-20231020-a3526c9"]
+hidden = [".config", "package-lock.json", ".next", ".swc"]
 
 [nix]
-channel = "stable-22_11"
+channel = "stable-23_05"
 
 [env]
+# https://discourse.nixos.org/t/stubborn-openssl-is-insecure-error-in-nixos-23-05/29555
+NIXPKGS_ALLOW_INSECURE = "1"
 NEXT_TELEMETRY_DISABLED = "1"
 
 [deployment]
-build = ["sh", "-c", "npm run deploy"]
+build = ["npm", "run", "deploy"]
 run = ["npm", "run", "start"]
 deploymentTarget = "cloudrun"
 
