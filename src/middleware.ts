@@ -17,6 +17,8 @@ const withAuthPaths = [
   "/registro",
   "/oauth",
   "/updateContactData",
+  "/api/ofmi/upsertParticipation",
+  "/api/user/updateContactData",
 ];
 
 const unauthenticatedPaths = ["changePassword", "/forgotPassword", "/signup"];
@@ -72,9 +74,6 @@ export const middleware: CustomMiddleware = async (
   if (request.nextUrl.pathname.startsWith("/api/admin")) {
     return asAdminOrImpersonatingOfmiUser(request);
   }
-  if (request.nextUrl.pathname.startsWith("/api/ofmi/upsertParticipation")) {
-    return withAuth(request);
-  }
 
   if (request.nextUrl.pathname.startsWith("/admin")) {
     return asAdmin(request);
@@ -85,7 +84,7 @@ export const middleware: CustomMiddleware = async (
     return withAuth(request);
   }
 
-  // Pages that requiresr to be unauthenticated
+  // Pages that requires to be unauthenticated
   if (
     unauthenticatedPaths.some((path) =>
       request.nextUrl.pathname.startsWith(path),

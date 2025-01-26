@@ -42,14 +42,10 @@ const validUserInput = {
 
 beforeAll(async () => {
   // Upsert the valid user Auth
-  await prisma.userAuth.upsert({
+  const authUser = await prisma.userAuth.upsert({
     where: { email: dummyEmail },
     update: {},
     create: { email: dummyEmail, password: hashPassword("pass") },
-  });
-
-  const authUser = await prisma.userAuth.findUnique({
-    where: { email: dummyEmail },
   });
 
   await prisma.user.upsert({
@@ -125,31 +121,28 @@ describe("/api/user/updateContactData API Endpoint", () => {
     const { req, res } = mockRequestResponse({ body: validRequest });
     await updateContactDataHandler(req, res);
 
-    //expect(res._getJSONData()["message"]).toBe("");
     expect(res.statusCode).toBe(201);
     expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
 
     // Check update in DB
-    const userAuth = await prisma.userAuth.findUnique({
+    const userAuth = await prisma.userAuth.findUniqueOrThrow({
       where: { email: dummyEmail },
     });
-
-    const updatedUser = await prisma.user.findUnique({
+    const updatedUser = await prisma.user.findUniqueOrThrow({
       where: {
-        userAuthId: userAuth?.id,
+        userAuthId: userAuth.id,
       },
     });
-
-    expect(updatedUser?.firstName).toBe(updatedFields.firstName);
-    expect(updatedUser?.lastName).toBe(updatedFields.lastName);
-    expect(updatedUser?.preferredName).toBe(updatedFields.preferredName);
-    expect(updatedUser?.birthDate.toISOString()).toBe(
+    expect(updatedUser.firstName).toBe(updatedFields.firstName);
+    expect(updatedUser.lastName).toBe(updatedFields.lastName);
+    expect(updatedUser.preferredName).toBe(updatedFields.preferredName);
+    expect(updatedUser.birthDate.toISOString()).toBe(
       updatedFields.birthDate.toString(),
     );
-    expect(updatedUser?.pronouns).toBe(updatedFields.pronouns);
-    expect(updatedUser?.governmentId).toBe(updatedFields.governmentId);
-    expect(updatedUser?.shirtSize).toBe(updatedFields.shirtSize);
-    expect(updatedUser?.shirtStyle).toBe(updatedFields.shirtStyle);
+    expect(updatedUser.pronouns).toBe(updatedFields.pronouns);
+    expect(updatedUser.governmentId).toBe(updatedFields.governmentId);
+    expect(updatedUser.shirtSize).toBe(updatedFields.shirtSize);
+    expect(updatedUser.shirtStyle).toBe(updatedFields.shirtStyle);
   });
 
   it("should fail due to invalid address", async () => {
@@ -172,5 +165,24 @@ describe("/api/user/updateContactData API Endpoint", () => {
     expect(res._getJSONData()).toMatchObject({
       message: "Campo: Dirección de envío. Municipio inválido.",
     });
+  });
+
+  it("should fail due to non existent user", async () => {
+    const validRequest = {
+      user: {
+        email: "fakemail@gmail.com",
+        ...updatedFields,
+        mailingAddress: {
+          ...mailingAddressDB,
+          municipality: "Invalid county",
+        },
+      },
+    };
+
+    const { req, res } = mockRequestResponse({ body: validRequest });
+    await updateContactDataHandler(req, res);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
   });
 });
