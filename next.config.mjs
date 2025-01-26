@@ -7,6 +7,11 @@ import remarkGfm from "remark-gfm";
 const nextConfig = {
   reactStrictMode: true,
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
+  experimental: {
+    optimizeCss: true,
+    forceSwcTransforms: true,
+  },
+  swcMinify: true,
   async redirects() {
     return [
       {
