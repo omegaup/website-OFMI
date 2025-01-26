@@ -29,7 +29,6 @@ export const getServerSideProps: GetServerSideProps<{
 }> = async ({ req }) => {
   const email = req.headers[X_USER_AUTH_EMAIL_HEADER];
   if (!email || typeof email !== "string") {
-    console.log(email);
     return {
       redirect: {
         destination: "/login",
@@ -50,7 +49,6 @@ export const getServerSideProps: GetServerSideProps<{
       email,
       ofmiEdition: ofmi.edition,
     });
-    console.log(gDriveFolderUrl);
     return {
       redirect: {
         destination: gDriveFolderUrl,
