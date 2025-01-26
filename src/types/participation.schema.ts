@@ -35,7 +35,7 @@ const SchoolStageSchema = Type.Enum(SchoolStage);
 export type ContestantParticipationInput = Static<
   typeof ContestantParticipationInputSchema
 >;
-const ContestantParticipationInputSchema = Type.Object({
+export const ContestantParticipationInputSchema = Type.Object({
   role: Type.Literal(ParticipationRole.CONTESTANT),
   schoolName: Type.String({ minLength: 1 }),
   schoolStage: SchoolStageSchema,
@@ -44,7 +44,7 @@ const ContestantParticipationInputSchema = Type.Object({
   schoolState: Type.String({ minLength: 1 }),
 });
 
-const VolunteerParticipationInputSchema = Type.Object({
+export const VolunteerParticipationInputSchema = Type.Object({
   role: Type.Literal(ParticipationRole.VOLUNTEER),
   educationalLinkageOptIn: Type.Boolean(),
   fundraisingOptIn: Type.Boolean(),
