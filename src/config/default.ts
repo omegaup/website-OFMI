@@ -3,8 +3,7 @@ const config = {
 
   BASE_URL: process.env.BASE_URL ?? "",
 
-  VERIFICATION_TOKEN_EXPIRATION:
-    process.env.VERIFICATION_TOKEN_EXPIRATION ?? "1d",
+  VERIFICATION_TOKEN_EXPIRATION: "1d",
 
   OFMI_EMAIL_SEND_EMAILS: process.env.OFMI_EMAIL_SEND_EMAILS !== "false",
 
