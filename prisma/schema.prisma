@@ -150,21 +150,24 @@ model Participation {
 }
 
 model ContestantParticipation {
-  id             String          @id @default(uuid())
-  schoolId       String
-  School         School          @relation(fields: [schoolId], references: [id])
-  schoolGrade    Int
-  medal          String?
-  place          Int?
-  disqualified   Boolean
-  omegaupUserId  String?
-  omegaupUser    OmegaupUser?    @relation(fields: [omegaupUserId], references: [id])
-  problemResults ProblemResult[]
-  Participation  Participation[]
-  Mentorias      Mentoria[]
-  File           File[]
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  id                 String            @id @default(uuid())
+  schoolId           String
+  School             School            @relation(fields: [schoolId], references: [id])
+  schoolGrade        Int
+  medal              String?
+  place              Int?
+  omegaupUserId      String?
+  omegaupUser        OmegaupUser?      @relation(fields: [omegaupUserId], references: [id])
+  problemResults     ProblemResult[]
+  Participation      Participation[]
+  File               File[]
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  Disqualification   Disqualification? @relation(fields: [DisqualificationId], references: [id])
+  DisqualificationId String?
+  Mentoria           Mentoria[]
+
+  @@unique([DisqualificationId])
 }
 
 model VolunteerParticipation {
@@ -240,4 +243,13 @@ model OmegaupUser {
   ContestantParticipation ContestantParticipation[]
   createdAt               DateTime                  @default(now())
   updatedAt               DateTime                  @updatedAt
+}
+
+model Disqualification {
+  id                      String                   @id @default(uuid())
+  reason                  String
+  appealed                Boolean                  @default(false)
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  ContestantParticipation ContestantParticipation?
 }
