@@ -11,6 +11,9 @@ import {
   isImpersonatingOfmiUser,
 } from "@/lib/auth";
 
+// Prefix routes that are temporarily disabled
+const disabledPaths = ["/mentorias", "/registro"];
+
 // Prefix routes that requires only to be log in
 const withAuthPaths = [
   "/mentorias",
@@ -22,7 +25,7 @@ const withAuthPaths = [
   "/api/user/updateContactData",
 ];
 
-const unauthenticatedPaths = ["changePassword", "/forgotPassword", "/signup"];
+const unauthenticatedPaths = ["/changePassword", "/forgotPassword", "/signup"];
 
 export type CustomMiddleware = (
   request: NextRequest,
@@ -71,6 +74,10 @@ const asAdminOrImpersonatingOfmiUser: CustomMiddleware = (request) => {
 export const middleware: CustomMiddleware = async (
   request,
 ): Promise<NextMiddlewareResult> => {
+  if (disabledPaths.some((path) => request.nextUrl.pathname.startsWith(path))) {
+    return NextResponse.error();
+  }
+
   // API paths
   if (request.nextUrl.pathname.startsWith("/api/admin")) {
     return asAdminOrImpersonatingOfmiUser(request);
