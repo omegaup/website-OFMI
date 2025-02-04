@@ -52,6 +52,8 @@ async function findOrCreateResource({
 
   const { data } = await service.files.list({
     q: `trashed=false and name='${name}' and '${parentFolderId}' in parents and mimeType = '${mimeType}'`,
+    includeItemsFromAllDrives: true,
+    supportsAllDrives: true,
   });
   if (!data.files) {
     throw Error("Google Drive API failed. findOrCreateResource -> not files");
