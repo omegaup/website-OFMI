@@ -1,4 +1,7 @@
-import { SendEmailRequestSchema } from "@/types/admin.schema";
+import {
+  FindOrCreateDriveFolderForParticipantRequestSchema,
+  SendEmailRequestSchema,
+} from "@/types/admin.schema";
 import { TObject, Type } from "@sinclair/typebox";
 
 export const APIS: {
@@ -13,5 +16,9 @@ export const APIS: {
         description: "Exporta a google sheets la lista de participantes",
       },
     ),
+  ],
+  "/api/admin/findOrCreateDriveFolderForParticipant": [
+    "POST",
+    FindOrCreateDriveFolderForParticipantRequestSchema,
   ],
 };

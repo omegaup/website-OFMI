@@ -15,3 +15,18 @@ export const SendEmailRequestSchema = Type.Object(
   },
   { description: "Envía un correo desde la cuenta de ofmi-no-reply" },
 );
+
+export type FindOrCreateDriveFolderForParticipantResponse = Static<
+  typeof FindOrCreateDriveFolderForParticipantResponseSchema
+>;
+export const FindOrCreateDriveFolderForParticipantResponseSchema = Type.Object({
+  gDriveFolderUrl: Type.String(),
+});
+
+export type FindOrCreateDriveFolderForParticipantRequest = Static<
+  typeof FindOrCreateDriveFolderForParticipantRequestSchema
+>;
+export const FindOrCreateDriveFolderForParticipantRequestSchema = Type.Object({
+  email: Type.String(),
+  ofmiEdition: Type.Integer(),
+});
