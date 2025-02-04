@@ -71,6 +71,7 @@ async function findOrCreateResource({
             parents: [parentFolderId],
           },
           fields: "id",
+          supportsAllDrives: true,
         })
       ).data.id ?? null;
   } else {
