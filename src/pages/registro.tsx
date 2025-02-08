@@ -2,7 +2,7 @@ import type {
   GetServerSideProps,
   InferGetServerSidePropsType,
 } from "next/types";
-import Registro from "@/components/registro";
+import Registro from "@/components/contactData/registro";
 import { findMostRecentOfmi, findParticipation } from "@/lib/ofmi";
 import { Alert } from "@/components/alert";
 import { Value } from "@sinclair/typebox/value";

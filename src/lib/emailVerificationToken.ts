@@ -25,7 +25,7 @@ export default async function generateAndSendVerificationToken(
     payload,
     getSecretOrError(VERIFICATION_EMAIL_SECRET_KEY),
     {
-      expiresIn: config.VERIFICATION_TOKEN_EXPIRATION,
+      expiresIn: config.VERIFICATION_TOKEN_EXPIRATION_MS,
     },
   );
 

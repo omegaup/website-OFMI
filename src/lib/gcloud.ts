@@ -2,7 +2,7 @@ import path from "path";
 import * as google from "googleapis";
 import { getAccessToken } from "./oauth";
 import { OauthProvider, Ofmi, ParticipationRole } from "@prisma/client";
-import { findParticipants } from "./ofmi";
+import { findParticipants, friendlyOfmiName } from "./ofmi";
 import { PronounName } from "@/types/pronouns";
 import { jsonToCsv } from "@/utils";
 import config from "@/config/default";
@@ -52,6 +52,8 @@ async function findOrCreateResource({
 
   const { data } = await service.files.list({
     q: `trashed=false and name='${name}' and '${parentFolderId}' in parents and mimeType = '${mimeType}'`,
+    includeItemsFromAllDrives: true,
+    supportsAllDrives: true,
   });
   if (!data.files) {
     throw Error("Google Drive API failed. findOrCreateResource -> not files");
@@ -69,6 +71,7 @@ async function findOrCreateResource({
             parents: [parentFolderId],
           },
           fields: "id",
+          supportsAllDrives: true,
         })
       ).data.id ?? null;
   } else {
@@ -215,6 +218,32 @@ export async function getOrCreateDriveFolder({
   return `https://drive.google.com/drive/folders/${id}`;
 }
 
+async function listFolderChildren({
+  userAuthId,
+  dir,
+  rootFolderId,
+}: {
+  userAuthId: string;
+  dir: string;
+  rootFolderId: string;
+}): Promise<google.drive_v3.Schema$File[]> {
+  const auth = await getGoogleAuth(userAuthId);
+  const service = new google.drive_v3.Drive({
+    auth,
+  });
+  const id = await getOrCreateFolder({
+    dir,
+    service,
+    parentFolderId: rootFolderId,
+  });
+  const { data } = await service.files.list({
+    q: `trashed=false and '${id}' in parents and mimeType = '${FOLDER_MIME_TYPE}'`,
+    includeItemsFromAllDrives: true,
+    supportsAllDrives: true,
+  });
+  return data.files || [];
+}
+
 export async function exportParticipants({
   userAuthId,
   ofmi,
@@ -255,6 +284,11 @@ export async function exportParticipants({
 
   // Retrieve data
   const participants = await findParticipants(ofmi);
+  const driveFolders = await listFolderChildren({
+    dir: path.join(friendlyOfmiName(ofmi.edition), "Assets", "Participants"),
+    userAuthId,
+    rootFolderId: config.GDRIVE_OFMI_ROOT_FOLDER,
+  });
 
   const createData = (role: ParticipationRole): string => {
     const json = participants
@@ -268,6 +302,10 @@ export async function exportParticipants({
           Email: participation.user.email.trim(),
           Pronombre: PronounName(participation.user.pronouns),
           "Fecha de nacimiento": `=DATEVALUE(MID("${participation.user.birthDate}",1,10))+TIMEVALUE(MID("${participation.user.birthDate}",12,8))`,
+          "Google Drive Folder": `https://drive.google.com/drive/folders/${
+            driveFolders.find((file) => file.name === participation.user.email)
+              ?.id || ""
+          }`,
         };
         const { userParticipation } = participation;
         if (userParticipation.role === "CONTESTANT") {

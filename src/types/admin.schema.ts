@@ -66,3 +66,18 @@ export const DisqualifyParticipantRequestSchema = Type.Union([
 export type DisqualifyParticipantRequest = Static<
   typeof DisqualifyParticipantRequestSchema
 >;
+
+export type FindOrCreateDriveFolderForParticipantResponse = Static<
+  typeof FindOrCreateDriveFolderForParticipantResponseSchema
+>;
+export const FindOrCreateDriveFolderForParticipantResponseSchema = Type.Object({
+  gDriveFolderUrl: Type.String(),
+});
+
+export type FindOrCreateDriveFolderForParticipantRequest = Static<
+  typeof FindOrCreateDriveFolderForParticipantRequestSchema
+>;
+export const FindOrCreateDriveFolderForParticipantRequestSchema = Type.Object({
+  email: Type.String(),
+  ofmiEdition: Type.Integer(),
+});

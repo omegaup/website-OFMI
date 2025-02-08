@@ -1,7 +1,6 @@
 import "@/styles/globals.css";
 import "@/styles/react-calendar.css";
 import "@/styles/rjsf.css";
-import { Provider } from "jotai";
 import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
 import Head from "next/head";
@@ -15,11 +14,9 @@ export default function App({ Component, pageProps }: AppProps): JSX.Element {
         <title>OFMI</title>
         <link rel="icon" href="lightLogo.svg" />
       </Head>
-      <Provider>
-        <Navbar />
-        <Component {...pageProps} />
-        <Footer />
-      </Provider>
+      <Navbar />
+      <Component {...pageProps} />
+      <Footer />
     </SessionProvider>
   );
 }

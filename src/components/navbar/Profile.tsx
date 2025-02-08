@@ -30,13 +30,27 @@ export const ProfileDropdown = (): JSX.Element => {
             <Menu.Item>
               {({ active }: { active: boolean }) => (
                 <a
-                  href="mentorias"
+                  href="updateContactData"
                   className={classNames(
                     active ? "bg-gray-100" : "",
                     "block px-4 py-2 text-sm text-gray-700",
                   )}
                 >
-                  Mentorías
+                  Actualizar datos
+                </a>
+              )}
+            </Menu.Item>
+            <Menu.Item>
+              {({ active }: { active: boolean }) => (
+                <a
+                  href="/repository"
+                  className={classNames(
+                    active ? "bg-gray-100" : "",
+                    "block px-4 py-2 text-sm text-gray-700",
+                  )}
+                  target="_blank"
+                >
+                  Ver mi carpeta
                 </a>
               )}
             </Menu.Item>

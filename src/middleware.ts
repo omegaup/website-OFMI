@@ -11,10 +11,21 @@ import {
   isImpersonatingOfmiUser,
 } from "@/lib/auth";
 
-// Prefix routes that requires only to be log in
-const withAuthPaths = ["/mentorias", "/registro", "/oauth"];
+// Prefix routes that are temporarily disabled
+const disabledPaths = ["/mentorias", "/registro"];
 
-const unauthenticatedPaths = ["changePassword", "/forgotPassword", "/signup"];
+// Prefix routes that requires only to be log in
+const withAuthPaths = [
+  "/mentorias",
+  "/registro",
+  "/oauth",
+  "/updateContactData",
+  "/repository",
+  "/api/ofmi/upsertParticipation",
+  "/api/user/updateContactData",
+];
+
+const unauthenticatedPaths = ["/changePassword", "/forgotPassword", "/signup"];
 
 export type CustomMiddleware = (
   request: NextRequest,
@@ -63,12 +74,13 @@ const asAdminOrImpersonatingOfmiUser: CustomMiddleware = (request) => {
 export const middleware: CustomMiddleware = async (
   request,
 ): Promise<NextMiddlewareResult> => {
+  if (disabledPaths.some((path) => request.nextUrl.pathname.startsWith(path))) {
+    return NextResponse.error();
+  }
+
   // API paths
   if (request.nextUrl.pathname.startsWith("/api/admin")) {
     return asAdminOrImpersonatingOfmiUser(request);
-  }
-  if (request.nextUrl.pathname.startsWith("/api/ofmi/upsertParticipation")) {
-    return withAuth(request);
   }
 
   if (request.nextUrl.pathname.startsWith("/admin")) {
@@ -80,7 +92,7 @@ export const middleware: CustomMiddleware = async (
     return withAuth(request);
   }
 
-  // Pages that requiresr to be unauthenticated
+  // Pages that requires to be unauthenticated
   if (
     unauthenticatedPaths.some((path) =>
       request.nextUrl.pathname.startsWith(path),
