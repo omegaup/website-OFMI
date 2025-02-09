@@ -130,3 +130,11 @@ beforeEach(async () => {
     where: { id: disqualification.DisqualificationId ?? "" },
   });
 });
+
+describe("/api/admin/disqualifyParticipant API Endpoint", () => {
+  it("should disqualify", async () => {});
+  it("should update disqualification", async () => {});
+  it("should disqualify", async () => {});
+  it("should send email on disqualification update", async () => {});
+  it("should not send email on disqualification update", async () => {});
+});
