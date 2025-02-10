@@ -147,6 +147,7 @@ beforeEach(async () => {
       },
     },
   });
+  mockEmailer.resetMock();
 });
 
 describe("/api/admin/disqualifyParticipant API Endpoint", () => {
