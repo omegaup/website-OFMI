@@ -20,7 +20,16 @@ const dummyEmail = "disqualifyParticipant@test.com";
 
 const today = new Date(Date.now());
 
-const generateOfmi = (edition: number, year: number) => {
+const generateOfmi = (
+  edition: number,
+  year: number,
+): {
+  edition: number;
+  year: number;
+  birthDateRequirement: Date;
+  registrationOpenTime: Date;
+  registrationCloseTime: Date;
+} => {
   return {
     edition,
     year,
