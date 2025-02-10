@@ -81,10 +81,10 @@ beforeAll(async () => {
   ofmi = await prisma.ofmi.upsert({
     where: { edition: validRequest.ofmiEdition },
     update: {
-      ...generateOfmi(1, today.getFullYear()),
+      ...generateOfmi(validRequest.ofmiEdition, today.getFullYear()),
     },
     create: {
-      ...generateOfmi(1, today.getFullYear()),
+      ...generateOfmi(validRequest.ofmiEdition, today.getFullYear()),
     },
   });
 
@@ -172,7 +172,7 @@ describe("/api/admin/disqualifyParticipant API Endpoint", () => {
     res: APiResponse;
   } {
     const { req, res } = createMocks<ApiRequest, APiResponse>({
-      method,
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
@@ -345,8 +345,9 @@ describe("/api/admin/disqualifyParticipant API Endpoint", () => {
   });
 
   it("should update disqualification", async () => {
+    const { reason, ...others } = validRequest;
     const { req, res } = mockRequestResponse({
-      body: { appealed: true },
+      body: { ...others, appealed: true },
     });
 
     const { contestantParticipationId } = await prisma.participation.create({
@@ -424,8 +425,9 @@ describe("/api/admin/disqualifyParticipant API Endpoint", () => {
   });
 
   it("should not update non-existent disqualification", async () => {
+    const { reason, ...others } = validRequest;
     const { req, res } = mockRequestResponse({
-      body: { appealed: true },
+      body: { ...others, appealed: true },
     });
 
     await updateParticipantDisqualification(req, res);
@@ -504,8 +506,9 @@ describe("/api/admin/disqualifyParticipant API Endpoint", () => {
   });
 
   it("should not send email when sendEmail is false", async () => {
+    const { reason, ...others } = validRequest;
     const { req, res } = mockRequestResponse({
-      body: { appealed: false, sendEmail: false },
+      body: { ...others, appealed: true, sendEmail: false },
     });
 
     const { contestantParticipationId } = await prisma.participation.create({
