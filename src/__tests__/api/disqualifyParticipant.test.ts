@@ -172,7 +172,7 @@ describe("/api/admin/disqualifyParticipant API Endpoint", () => {
     res: APiResponse;
   } {
     const { req, res } = createMocks<ApiRequest, APiResponse>({
-      method: "POST",
+      method,
       headers: {
         "Content-Type": "application/json",
       },
@@ -345,9 +345,8 @@ describe("/api/admin/disqualifyParticipant API Endpoint", () => {
   });
 
   it("should update disqualification", async () => {
-    const { reason, ...others } = validRequest;
     const { req, res } = mockRequestResponse({
-      body: { ...others, appealed: true },
+      body: { ...validRequest, appealed: true },
     });
 
     const { contestantParticipationId } = await prisma.participation.create({
@@ -425,9 +424,8 @@ describe("/api/admin/disqualifyParticipant API Endpoint", () => {
   });
 
   it("should not update non-existent disqualification", async () => {
-    const { reason, ...others } = validRequest;
     const { req, res } = mockRequestResponse({
-      body: { ...others, appealed: true },
+      body: { ...validRequest, appealed: true },
     });
 
     await updateParticipantDisqualification(req, res);
@@ -506,9 +504,8 @@ describe("/api/admin/disqualifyParticipant API Endpoint", () => {
   });
 
   it("should not send email when sendEmail is false", async () => {
-    const { reason, ...others } = validRequest;
     const { req, res } = mockRequestResponse({
-      body: { ...others, appealed: true, sendEmail: false },
+      body: { ...validRequest, appealed: true, sendEmail: false },
     });
 
     const { contestantParticipationId } = await prisma.participation.create({
