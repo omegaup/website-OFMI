@@ -17,6 +17,7 @@ type ofmiAndContestantInfo = {
   ofmiName: string;
   preferredName: string;
   disqualificationId: string | null;
+  participationId: string;
   message: string;
 };
 
@@ -69,12 +70,13 @@ const fetchOfmiAndContestantInfo = async (
     message: `Descalificación de ${fullName} de la ${ofmiName}`,
     disqualificationId:
       participation.ContestantParticipation.DisqualificationId,
+    participationId: participation.ContestantParticipation.id,
     preferredName: contestant.preferredName,
     ofmiName: ofmiName,
   };
 };
 
-async function createParticipantDisqualification(
+export async function createParticipantDisqualification(
   req: NextApiRequest,
   res: NextApiResponse,
 ): Promise<void> {
@@ -97,14 +99,23 @@ async function createParticipantDisqualification(
     if (typeof sharedInfo === "string") {
       return res.status(404).json({ message: sharedInfo });
     }
-    const { message, ofmiName, preferredName, disqualificationId } = sharedInfo;
+    const {
+      message,
+      ofmiName,
+      preferredName,
+      disqualificationId,
+      participationId,
+    } = sharedInfo;
     if (disqualificationId) {
       return res.status(401).json({
         message: `Esta concursante ya ha sido descalificada de la ${ofmiName}.`,
       });
     }
     await prisma.disqualification.create({
-      data: others,
+      data: {
+        ...others,
+        ContestantParticipation: { connect: { id: participationId } },
+      },
     });
     if (sendEmail) {
       await emailer.notifyContestantDisqualification(
@@ -123,7 +134,7 @@ async function createParticipantDisqualification(
   }
 }
 
-async function updateParticipantDisqualification(
+export async function updateParticipantDisqualification(
   req: NextApiRequest,
   res: NextApiResponse,
 ): Promise<void> {

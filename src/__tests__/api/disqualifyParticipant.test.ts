@@ -1,31 +1,81 @@
+import {
+  createMocks,
+  RequestMethod,
+  createRequest,
+  createResponse,
+} from "node-mocks-http";
+import {
+  createParticipantDisqualification,
+  updateParticipantDisqualification,
+} from "@/pages/api/admin/disqualifyParticipant";
 import { describe, it, expect, beforeEach, beforeAll } from "vitest";
+import type { NextApiRequest, NextApiResponse } from "next";
 import { hashPassword } from "@/lib/hashPassword";
 import { prisma } from "@/lib/prisma";
+import { ShirtSize } from "@prisma/client";
+import { mockEmailer } from "./mocks/emailer";
+import { friendlyOfmiName } from "@/lib/ofmi";
 
 const dummyEmail = "disqualifyParticipant@test.com";
 
-const validOfmi = {
-  edition: 1,
-  birthDateRequirement: new Date("2005-07-01"),
-  year: 2024,
-  registrationOpenTime: new Date("2024-07-07"),
-  registrationCloseTime: new Date("2050-08-08"),
+const today = new Date(Date.now());
+
+const generateOfmi = (edition: number, year: number) => {
+  return {
+    edition,
+    year,
+    birthDateRequirement: new Date(`${year - 18}-07-01`),
+    registrationOpenTime: new Date(`${year}-07-07`),
+    registrationCloseTime: new Date(`${year}-08-08`),
+  };
 };
 
-let ofmi,
-  participation: {
+const validRequest = {
+  ofmiEdition: today.getFullYear() - 2021,
+  email: dummyEmail,
+  sendEmail: true,
+  reason: "IA",
+  appealed: false,
+};
+
+type ApiRequest = NextApiRequest & ReturnType<typeof createRequest>;
+type APiResponse = NextApiResponse & ReturnType<typeof createResponse>;
+
+let user: {
     id: string;
-    contestantParticipationId: string | null;
-  } | null;
+    userAuthId: string;
+    firstName: string;
+    lastName: string;
+    birthDate: Date;
+    governmentId: string;
+    preferredName: string;
+    pronouns: string;
+    shirtSize: ShirtSize;
+    shirtStyle: string;
+    mailingAddressId: string;
+    createdAt: Date;
+    updatedAt: Date;
+  },
+  ofmi: {
+    id: string;
+    edition: number;
+    year: number;
+    registrationOpenTime: Date;
+    registrationCloseTime: Date;
+    birthDateRequirement: Date | null;
+    highSchoolGraduationDateLimit: Date | null;
+    createdAt: Date;
+    updatedAt: Date;
+  };
 
 beforeAll(async () => {
   ofmi = await prisma.ofmi.upsert({
-    where: { edition: validOfmi.edition },
+    where: { edition: validRequest.ofmiEdition },
     update: {
-      ...validOfmi,
+      ...generateOfmi(1, today.getFullYear()),
     },
     create: {
-      ...validOfmi,
+      ...generateOfmi(1, today.getFullYear()),
     },
   });
 
@@ -35,106 +85,476 @@ beforeAll(async () => {
     create: { email: dummyEmail, password: hashPassword("pass") },
   });
 
-  const user = await prisma.user.create({
-    data: {
+  const maildingAddress = {
+    street: "Calle",
+    externalNumber: "#8Bis",
+    zipcode: "01234",
+    country: "MEX",
+    state: "Aguascalientes",
+    neighborhood: "Aguascalientes",
+    county: "Aguascalientes",
+    phone: "5511223344",
+    references: "Hasta el fondo",
+    name: "Juan Carlos",
+  };
+
+  const userData = {
+    firstName: "Juan Carlos",
+    lastName: "Sigler Priego",
+    birthDate: new Date("2006-11-24").toISOString(),
+    governmentId: "HEGG061124MVZRRL02",
+    preferredName: "Juanito",
+    pronouns: "HE",
+    shirtSize: "M" as ShirtSize,
+    shirtStyle: "STRAIGHT",
+  };
+
+  user = await prisma.user.upsert({
+    where: { userAuthId: userAuth.id },
+    create: {
       UserAuth: {
         connect: {
           id: userAuth.id,
         },
       },
       MailingAddress: {
-        create: {
-          street: "Calle",
-          externalNumber: "#8Bis",
-          zipcode: "01234",
-          country: "MEX",
-          state: "Aguascalientes",
-          neighborhood: "Aguascalientes",
-          county: "Aguascalientes",
-          phone: "5511223344",
-          references: "Hasta el fondo",
-          name: "Juan Carlos",
-        },
+        create: maildingAddress,
       },
-      firstName: "Juan Carlos",
-      lastName: "Sigler Priego",
-      birthDate: new Date("2006-11-24").toISOString(),
-      governmentId: "HEGG061124MVZRRL02",
-      preferredName: "Juanito",
-      pronouns: "HE",
-      shirtSize: "M",
-      shirtStyle: "STRAIGHT",
+      ...userData,
+    },
+    update: {
+      MailingAddress: {
+        update: maildingAddress,
+      },
+      ...userData,
     },
   });
+});
 
-  participation = await prisma.participation.create({
-    data: {
-      role: "CONTESTANT",
-      user: {
-        connect: {
-          id: user.id,
-        },
-      },
-      ofmi: {
-        connect: {
-          id: ofmi.id,
-        },
-      },
+beforeEach(async () => {
+  await prisma.contestantParticipation.deleteMany({
+    where: {
+      Participation: { every: { user: { UserAuth: { email: dummyEmail } } } },
+    },
+  });
+  await prisma.participation.deleteMany({
+    where: { user: { UserAuth: { email: dummyEmail } } },
+  });
+  await prisma.disqualification.deleteMany({
+    where: {
       ContestantParticipation: {
-        create: {
-          schoolGrade: 3,
-          School: {
-            connectOrCreate: {
-              where: {
-                name_stage_state_country: {
+        Participation: { every: { user: { UserAuth: { email: dummyEmail } } } },
+      },
+    },
+  });
+});
+
+describe("/api/admin/disqualifyParticipant API Endpoint", () => {
+  function mockRequestResponse({
+    method = "POST",
+    body,
+  }: {
+    method?: RequestMethod;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    body: any;
+  }): {
+    req: ApiRequest;
+    res: APiResponse;
+  } {
+    const { req, res } = createMocks<ApiRequest, APiResponse>({
+      method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: body,
+    });
+    return { req, res };
+  }
+
+  it("should disqualify", async () => {
+    const { req, res } = mockRequestResponse({ body: validRequest });
+
+    const participation = await prisma.participation.create({
+      data: {
+        role: "CONTESTANT",
+        user: {
+          connect: {
+            id: user.id,
+          },
+        },
+        ofmi: {
+          connect: {
+            id: ofmi.id,
+          },
+        },
+        ContestantParticipation: {
+          create: {
+            schoolGrade: 3,
+            School: {
+              connectOrCreate: {
+                where: {
+                  name_stage_state_country: {
+                    name: "Colegio Carol Baur",
+                    stage: "HIGH",
+                    state: "Aguascalientes",
+                    country: "MEX",
+                  },
+                },
+                create: {
                   name: "Colegio Carol Baur",
                   stage: "HIGH",
                   state: "Aguascalientes",
                   country: "MEX",
                 },
               },
-              create: {
-                name: "Colegio Carol Baur",
-                stage: "HIGH",
-                state: "Aguascalientes",
-                country: "MEX",
+            },
+          },
+        },
+      },
+      select: {
+        id: true,
+        contestantParticipationId: true,
+      },
+    });
+
+    await createParticipantDisqualification(req, res);
+
+    expect(res.statusCode).toBe(201);
+    expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
+
+    const disqualificationModel = await prisma.disqualification.findFirst({
+      where: {
+        ContestantParticipation: {
+          id: participation.contestantParticipationId!,
+        },
+      },
+    });
+
+    expect(disqualificationModel).not.toBeNull();
+  });
+
+  it("should not disqualify non-contestant", async () => {
+    const { req, res } = mockRequestResponse({ body: validRequest });
+
+    await createParticipantDisqualification(req, res);
+
+    expect(res.statusCode).toBe(404);
+    expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
+
+    const disqualificationModel = await prisma.disqualification.findMany({
+      where: {
+        ContestantParticipation: {
+          Participation: {
+            every: {
+              userId: user.id,
+              ofmiId: ofmi.id,
+            },
+          },
+        },
+      },
+    });
+
+    expect(disqualificationModel.length).toBe(0);
+  });
+
+  it("should not disqualify already disqualified participant", async () => {
+    const { req, res } = mockRequestResponse({ body: validRequest });
+
+    const participation = await prisma.participation.create({
+      data: {
+        role: "CONTESTANT",
+        user: {
+          connect: {
+            id: user.id,
+          },
+        },
+        ofmi: {
+          connect: {
+            id: ofmi.id,
+          },
+        },
+        ContestantParticipation: {
+          create: {
+            schoolGrade: 3,
+            School: {
+              connectOrCreate: {
+                where: {
+                  name_stage_state_country: {
+                    name: "Colegio Carol Baur",
+                    stage: "HIGH",
+                    state: "Aguascalientes",
+                    country: "MEX",
+                  },
+                },
+                create: {
+                  name: "Colegio Carol Baur",
+                  stage: "HIGH",
+                  state: "Aguascalientes",
+                  country: "MEX",
+                },
               },
             },
           },
         },
       },
-    },
-    select: {
-      id: true,
-      contestantParticipationId: true,
-    },
-  });
-});
-
-beforeEach(async () => {
-  const disqualification = await prisma.contestantParticipation.update({
-    where: {
-      id: participation!.contestantParticipationId!,
-    },
-    data: {
-      Disqualification: {
-        disconnect: true,
+      select: {
+        id: true,
+        contestantParticipationId: true,
       },
-    },
-    select: {
-      DisqualificationId: true,
-    },
+    });
+
+    const disqualification = await prisma.disqualification.create({
+      data: {
+        reason: validRequest.reason,
+        appealed: validRequest.appealed,
+        ContestantParticipation: {
+          connect: { id: participation.contestantParticipationId! },
+        },
+      },
+    });
+
+    await createParticipantDisqualification(req, res);
+
+    expect(res.statusCode).toBe(401);
+    expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
+
+    const linkedDisqualification =
+      await prisma.contestantParticipation.findUnique({
+        where: {
+          id: participation.contestantParticipationId!,
+        },
+        select: {
+          DisqualificationId: true,
+        },
+      });
+
+    expect(linkedDisqualification).not.toBeNull();
+    expect(linkedDisqualification!.DisqualificationId).toBe(
+      disqualification.id,
+    );
   });
 
-  await prisma.disqualification.delete({
-    where: { id: disqualification.DisqualificationId ?? "" },
-  });
-});
+  it("should update disqualification", async () => {
+    const { req, res } = mockRequestResponse({
+      body: { appealed: true },
+    });
 
-describe("/api/admin/disqualifyParticipant API Endpoint", () => {
-  it("should disqualify", async () => {});
-  it("should update disqualification", async () => {});
-  it("should disqualify", async () => {});
-  it("should send email on disqualification update", async () => {});
-  it("should not send email on disqualification update", async () => {});
+    const { contestantParticipationId } = await prisma.participation.create({
+      data: {
+        role: "CONTESTANT",
+        user: {
+          connect: {
+            id: user.id,
+          },
+        },
+        ofmi: {
+          connect: {
+            id: ofmi.id,
+          },
+        },
+        ContestantParticipation: {
+          create: {
+            schoolGrade: 3,
+            School: {
+              connectOrCreate: {
+                where: {
+                  name_stage_state_country: {
+                    name: "Colegio Carol Baur",
+                    stage: "HIGH",
+                    state: "Aguascalientes",
+                    country: "MEX",
+                  },
+                },
+                create: {
+                  name: "Colegio Carol Baur",
+                  stage: "HIGH",
+                  state: "Aguascalientes",
+                  country: "MEX",
+                },
+              },
+            },
+          },
+        },
+      },
+      select: {
+        id: true,
+        contestantParticipationId: true,
+      },
+    });
+
+    const disqualification = await prisma.disqualification.create({
+      data: {
+        reason: validRequest.reason,
+        appealed: validRequest.appealed,
+        ContestantParticipation: {
+          connect: { id: contestantParticipationId! },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    await updateParticipantDisqualification(req, res);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.getHeaders()).toEqual({
+      "content-type": "application/json",
+    });
+
+    const updatedDisqualification = await prisma.disqualification.findUnique({
+      where: { id: disqualification.id },
+      select: {
+        appealed: true,
+      },
+    });
+
+    expect(updatedDisqualification).not.toBeNull();
+    expect(updatedDisqualification!.appealed).toBe(true);
+  });
+
+  it("should not update non-existent disqualification", async () => {
+    const { req, res } = mockRequestResponse({
+      body: { appealed: true },
+    });
+
+    await updateParticipantDisqualification(req, res);
+
+    expect(res.statusCode).toBe(404);
+    expect(res.getHeaders()).toEqual({
+      "content-type": "application/json",
+    });
+
+    const updatedDisqualification = await prisma.disqualification.findMany({
+      where: {
+        ContestantParticipation: {
+          Participation: { every: { userId: user.id, ofmiId: ofmi.id } },
+        },
+      },
+    });
+
+    expect(updatedDisqualification.length).toBe(0);
+  });
+
+  it("should send email when sendEmail is true", async () => {
+    const { req, res } = mockRequestResponse({ body: validRequest });
+
+    await prisma.participation.create({
+      data: {
+        role: "CONTESTANT",
+        user: {
+          connect: {
+            id: user.id,
+          },
+        },
+        ofmi: {
+          connect: {
+            id: ofmi.id,
+          },
+        },
+        ContestantParticipation: {
+          create: {
+            schoolGrade: 3,
+            School: {
+              connectOrCreate: {
+                where: {
+                  name_stage_state_country: {
+                    name: "Colegio Carol Baur",
+                    stage: "HIGH",
+                    state: "Aguascalientes",
+                    country: "MEX",
+                  },
+                },
+                create: {
+                  name: "Colegio Carol Baur",
+                  stage: "HIGH",
+                  state: "Aguascalientes",
+                  country: "MEX",
+                },
+              },
+            },
+          },
+        },
+      },
+      select: {
+        id: true,
+        contestantParticipationId: true,
+      },
+    });
+
+    await createParticipantDisqualification(req, res);
+    expect(mockEmailer.getSentEmails()).toMatchObject([
+      {
+        mailOptions: {
+          to: dummyEmail,
+          subject: `Descalificación de la ${friendlyOfmiName(validRequest.ofmiEdition, true)}`,
+        },
+      },
+    ]);
+  });
+
+  it("should not send email when sendEmail is false", async () => {
+    const { req, res } = mockRequestResponse({
+      body: { appealed: false, sendEmail: false },
+    });
+
+    const { contestantParticipationId } = await prisma.participation.create({
+      data: {
+        role: "CONTESTANT",
+        user: {
+          connect: {
+            id: user.id,
+          },
+        },
+        ofmi: {
+          connect: {
+            id: ofmi.id,
+          },
+        },
+        ContestantParticipation: {
+          create: {
+            schoolGrade: 3,
+            School: {
+              connectOrCreate: {
+                where: {
+                  name_stage_state_country: {
+                    name: "Colegio Carol Baur",
+                    stage: "HIGH",
+                    state: "Aguascalientes",
+                    country: "MEX",
+                  },
+                },
+                create: {
+                  name: "Colegio Carol Baur",
+                  stage: "HIGH",
+                  state: "Aguascalientes",
+                  country: "MEX",
+                },
+              },
+            },
+          },
+        },
+      },
+      select: {
+        id: true,
+        contestantParticipationId: true,
+      },
+    });
+
+    await prisma.disqualification.create({
+      data: {
+        reason: validRequest.reason,
+        appealed: validRequest.appealed,
+        ContestantParticipation: {
+          connect: { id: contestantParticipationId! },
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    await updateParticipantDisqualification(req, res);
+    expect(mockEmailer.getSentEmails()).toMatchObject([]);
+  });
 });
