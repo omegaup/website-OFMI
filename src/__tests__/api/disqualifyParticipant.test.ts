@@ -181,7 +181,7 @@ describe("/api/admin/disqualifyParticipant API Endpoint", () => {
 
   it("should disqualify", async () => {
     const { req, res } = mockRequestResponse({ body: validRequest });
-    
+
     const participation = await prisma.participation.create({
       data: {
         role: "CONTESTANT",
@@ -493,12 +493,14 @@ describe("/api/admin/disqualifyParticipant API Endpoint", () => {
     });
 
     await createParticipantDisqualification(req, res);
-    expect(mockEmailer.getSentEmails()).toMatchObject([{
-      mailOptions: {
-        to: dummyEmail,
-        subject: 'Descalificación de la 4a OFMI',
-      }
-    }]);
+    expect(mockEmailer.getSentEmails()).toMatchObject([
+      {
+        mailOptions: {
+          to: dummyEmail,
+          subject: `Descalificación de la ${friendlyOfmiName(validRequest.ofmiEdition)}`,
+        },
+      },
+    ]);
   });
 
   it("should not send email when sendEmail is false", async () => {
