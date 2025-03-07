@@ -76,7 +76,7 @@ const fetchOfmiAndContestantInfo = async (
   };
 };
 
-export async function createParticipantDisqualification(
+async function createParticipantDisqualification(
   req: NextApiRequest,
   res: NextApiResponse,
 ): Promise<void> {
@@ -134,7 +134,7 @@ export async function createParticipantDisqualification(
   }
 }
 
-export async function updateParticipantDisqualification(
+async function updateParticipantDisqualification(
   req: NextApiRequest,
   res: NextApiResponse,
 ): Promise<void> {

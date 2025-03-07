@@ -4,10 +4,8 @@ import {
   createRequest,
   createResponse,
 } from "node-mocks-http";
-import {
-  createParticipantDisqualification,
-  updateParticipantDisqualification,
-} from "@/pages/api/admin/disqualifyParticipant";
+import createParticipantDisqualification from "@/pages/api/admin/disqualifyParticipant";
+import updateParticipantDisqualification from "@/pages/api/admin/disqualifyParticipant";
 import { describe, it, expect, beforeEach, beforeAll } from "vitest";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { hashPassword } from "@/lib/hashPassword";
