@@ -1,3 +1,4 @@
+import { emailer } from "@/lib/emailer";
 import { prisma } from "@/lib/prisma";
 import { Value } from "@sinclair/typebox/value";
 import { parseValueError } from "@/lib/typebox";
@@ -11,7 +12,6 @@ import {
   findOfmiByEdition,
   friendlyOfmiName,
 } from "@/lib/ofmi";
-import { emailer } from "@/lib/emailer";
 
 type ofmiAndContestantInfo = {
   ofmiName: string;

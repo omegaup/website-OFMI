@@ -1,3 +1,4 @@
+import { mockEmailer } from "./mocks/emailer";
 import {
   createMocks,
   RequestMethod,
@@ -11,7 +12,6 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { hashPassword } from "@/lib/hashPassword";
 import { prisma } from "@/lib/prisma";
 import { ShirtSize } from "@prisma/client";
-import { mockEmailer } from "./mocks/emailer";
 import { friendlyOfmiName } from "@/lib/ofmi";
 
 const dummyEmail = "disqualifyParticipant@test.com";
@@ -181,7 +181,7 @@ describe("/api/admin/disqualifyParticipant API Endpoint", () => {
 
   it("should disqualify", async () => {
     const { req, res } = mockRequestResponse({ body: validRequest });
-
+    
     const participation = await prisma.participation.create({
       data: {
         role: "CONTESTANT",
@@ -344,6 +344,7 @@ describe("/api/admin/disqualifyParticipant API Endpoint", () => {
 
   it("should update disqualification", async () => {
     const { req, res } = mockRequestResponse({
+      method: "PUT",
       body: { ...validRequest, appealed: true },
     });
 
@@ -423,6 +424,7 @@ describe("/api/admin/disqualifyParticipant API Endpoint", () => {
 
   it("should not update non-existent disqualification", async () => {
     const { req, res } = mockRequestResponse({
+      method: "PUT",
       body: { ...validRequest, appealed: true },
     });
 
@@ -491,14 +493,12 @@ describe("/api/admin/disqualifyParticipant API Endpoint", () => {
     });
 
     await createParticipantDisqualification(req, res);
-    expect(mockEmailer.getSentEmails()).toMatchObject([
-      {
-        mailOptions: {
-          to: dummyEmail,
-          subject: `Descalificación de la ${friendlyOfmiName(validRequest.ofmiEdition, true)}`,
-        },
-      },
-    ]);
+    expect(mockEmailer.getSentEmails()).toMatchObject([{
+      mailOptions: {
+        to: dummyEmail,
+        subject: 'Descalificación de la 4a OFMI',
+      }
+    }]);
   });
 
   it("should not send email when sendEmail is false", async () => {
