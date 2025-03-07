@@ -497,7 +497,7 @@ describe("/api/admin/disqualifyParticipant API Endpoint", () => {
       {
         mailOptions: {
           to: dummyEmail,
-          subject: `Descalificación de la ${friendlyOfmiName(validRequest.ofmiEdition)}`,
+          subject: `Descalificación de la ${friendlyOfmiName(validRequest.ofmiEdition, true)}`,
         },
       },
     ]);
