@@ -76,7 +76,7 @@ const fetchOfmiAndContestantInfo = async (
   };
 };
 
-async function createParticipantDisqualification(
+async function createParticipantDisqualificationHandler(
   req: NextApiRequest,
   res: NextApiResponse,
 ): Promise<void> {
@@ -134,7 +134,7 @@ async function createParticipantDisqualification(
   }
 }
 
-async function updateParticipantDisqualification(
+async function updateParticipantDisqualificationHandler(
   req: NextApiRequest,
   res: NextApiResponse,
 ): Promise<void> {
@@ -192,9 +192,9 @@ export default async function handle(
 ): Promise<void> {
   const { method } = req;
   if (method === "POST") {
-    await createParticipantDisqualification(req, res);
+    await createParticipantDisqualificationHandler(req, res);
   } else if (method === "PUT") {
-    await updateParticipantDisqualification(req, res);
+    await updateParticipantDisqualificationHandler(req, res);
   } else {
     return res.status(405).json({ message: "Method Not Allowed" });
   }

@@ -5,8 +5,8 @@ import {
   createRequest,
   createResponse,
 } from "node-mocks-http";
-import createParticipantDisqualification from "@/pages/api/admin/disqualifyParticipant";
-import updateParticipantDisqualification from "@/pages/api/admin/disqualifyParticipant";
+import createParticipantDisqualificationHandler from "@/pages/api/admin/disqualifyParticipant";
+import updateParticipantDisqualificationHandler from "@/pages/api/admin/disqualifyParticipant";
 import { describe, it, expect, beforeEach, beforeAll } from "vitest";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { hashPassword } from "@/lib/hashPassword";
@@ -225,7 +225,7 @@ describe("/api/admin/disqualifyParticipant API Endpoint", () => {
       },
     });
 
-    await createParticipantDisqualification(req, res);
+    await createParticipantDisqualificationHandler(req, res);
 
     expect(res.statusCode).toBe(201);
     expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
@@ -244,7 +244,7 @@ describe("/api/admin/disqualifyParticipant API Endpoint", () => {
   it("should not disqualify non-contestant", async () => {
     const { req, res } = mockRequestResponse({ body: validRequest });
 
-    await createParticipantDisqualification(req, res);
+    await createParticipantDisqualificationHandler(req, res);
 
     expect(res.statusCode).toBe(404);
     expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
@@ -321,7 +321,7 @@ describe("/api/admin/disqualifyParticipant API Endpoint", () => {
       },
     });
 
-    await createParticipantDisqualification(req, res);
+    await createParticipantDisqualificationHandler(req, res);
 
     expect(res.statusCode).toBe(401);
     expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
@@ -404,7 +404,7 @@ describe("/api/admin/disqualifyParticipant API Endpoint", () => {
       },
     });
 
-    await updateParticipantDisqualification(req, res);
+    await updateParticipantDisqualificationHandler(req, res);
 
     expect(res.statusCode).toBe(200);
     expect(res.getHeaders()).toEqual({
@@ -428,7 +428,7 @@ describe("/api/admin/disqualifyParticipant API Endpoint", () => {
       body: { ...validRequest, appealed: true },
     });
 
-    await updateParticipantDisqualification(req, res);
+    await updateParticipantDisqualificationHandler(req, res);
 
     expect(res.statusCode).toBe(404);
     expect(res.getHeaders()).toEqual({
@@ -492,7 +492,7 @@ describe("/api/admin/disqualifyParticipant API Endpoint", () => {
       },
     });
 
-    await createParticipantDisqualification(req, res);
+    await createParticipantDisqualificationHandler(req, res);
     expect(mockEmailer.getSentEmails()).toMatchObject([
       {
         mailOptions: {
@@ -564,7 +564,7 @@ describe("/api/admin/disqualifyParticipant API Endpoint", () => {
       },
     });
 
-    await updateParticipantDisqualification(req, res);
+    await updateParticipantDisqualificationHandler(req, res);
     expect(mockEmailer.getSentEmails()).toMatchObject([]);
   });
 });
