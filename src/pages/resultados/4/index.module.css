@@ -1,0 +1,31 @@
+.mdx_table tbody tr:nth-child(-n + 6) {
+  background-color: #ffecb3;
+}
+
+.mdx_table tbody tr:nth-child(n + 7):nth-child(-n + 16) {
+  background-color: #c9c9c9;
+}
+
+.mdx_table tbody tr:nth-child(n + 17):nth-child(-n + 32) {
+  background-color: #d6a071;
+}
+
+.mdx_table tbody tr:nth-child(n + 33):nth-child(-n + 33) {
+  background-color: #bf7eff;
+}
+
+.mdx_table tbody tr:nth-child(n + 37):nth-child(-n + 37) {
+  background-color: #bf7eff;
+}
+
+.mdx_table tbody tr:nth-child(n + 41):nth-child(-n + 41) {
+  background-color: #bf7eff;
+}
+
+.mdx_table tbody tr:nth-child(n + 45):nth-child(-n + 45) {
+  background-color: #bf7eff;
+}
+
+.mdx_table tbody tr:nth-child(n + 47):nth-child(-n + 47) {
+  background-color: #bf7eff;
+}
