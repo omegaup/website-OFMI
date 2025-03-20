@@ -4,11 +4,11 @@ Next-Prisma-Starter is a boilerplate project designed to help you quickly set up
 
 ## Tech Stack
 
-- **Next.js**: A popular React framework for building server-rendered and statically generated applications.
-- **Prisma**: A modern database toolkit for Node.js and TypeScript, making database access and management more efficient and developer-friendly.
-- **Redux Toolkit**: A library that simplifies state management in React applications, enabling you to write scalable and maintainable code.
-- **RTK Query**: A powerful data-fetching library that simplifies fetching, caching, and updating data in your React components.
-- **Tailwind CSS**: A utility-first CSS framework for rapidly building custom user interfaces with minimal CSS code.
+* **Next.js**: A popular React framework for building server-rendered and statically generated applications.
+* **Prisma**: A modern database toolkit for Node.js and TypeScript, making database access and management more efficient and developer-friendly.
+* **Redux Toolkit**: A library that simplifies state management in React applications, enabling you to write scalable and maintainable code.
+* **RTK Query**: A powerful data-fetching library that simplifies fetching, caching, and updating data in your React components.
+* **Tailwind CSS**: A utility-first CSS framework for rapidly building custom user interfaces with minimal CSS code.
 
 ## Getting Started
 
@@ -20,37 +20,163 @@ To get started with Next-Prisma-Starter, follow these steps:
 docker compose up
 ```
 
-This is the current DB design
+## Database Management
 
-[![](https://mermaid.ink/img/pako:eNqdVm1vmzAQ_ivIn7MqtGkS-LatqjRV06pW-zJFQg5cgjW_sLPZSqr89xnIC8FOSssnuLvHd3783JlXkqoMSEwA7xhdIxULGdjnpwbUwWv7UT_fpAlYFjw-HE3PBplcByAo4451xVCbRFIBjotTx3NHDQRLhiZPMvvqQNbqL6AUIE3CMsdbIKwAETJ_vgKVVKXUjkPnNmOi2QbOuUzFO75TNupt29CEZhmC1raw4H7HznYh25fvbcznNgQGMqoNAhiX6BdjSaA8kaVYAjp-Ji_7N6xI6tP25PNxnlrODFaOXQJb50uFuVKZH-TBeM8lVxJ6hD2ndlk-kKfjqgf8j5Vgb6FrUwUUe9AnxeHjiR8pGpayghqmpLvK6Xdpu6url71d2ep9drSl9e3Dz-6oRts_Ci9WWnSdvlLOBhyyfFVWh7Ysad6X6fFh5GTTjRx8dew8dmJ5BC0go7yXjtO0E_jFgoOM6T8l5WzFwFWyErCmZZHUZ-WV7z6goFr_U5j1BYFqyUE8gS656W6-B7f5qXb0qVOFcGpKD7wmB-6aeegewT3jMEzJKxvp3V3tSErk763hRISH4FSJenj7s5iqcNq4JWcnpXez5-sj7yRq7p3jjbNtp3z3CrQjKjAq2ACqQGHz6Qz1OMip9oAElVVvMHRC21E1KLQdTYNCfT1-CSia-L3-P4bWvhHoIe7cZIgbqVC2v6LPxXUr2V8Una2_AdtX0sCbDrl4GD0JDs_TEnXS_Q2YjIgAtH8Nmf3dahS9ICYHK0cS29eM4u8FWcitjaOlUc-VTEm8olzDiJRFLdLdH9rBanuPxK_khcTXYXR1E41n45somk0m19F0RCoSf5pMrqa38-t5OIui28k0DLcjslHKLhFejW9uo_k4moaz8TychLNmvV-N02AJ2_-YjTC4?type=png)](https://mermaid.live/edit#pako:eNqdVm1vmzAQ_ivIn7MqtGkS-LatqjRV06pW-zJFQg5cgjW_sLPZSqr89xnIC8FOSssnuLvHd3783JlXkqoMSEwA7xhdIxULGdjnpwbUwWv7UT_fpAlYFjw-HE3PBplcByAo4451xVCbRFIBjotTx3NHDQRLhiZPMvvqQNbqL6AUIE3CMsdbIKwAETJ_vgKVVKXUjkPnNmOi2QbOuUzFO75TNupt29CEZhmC1raw4H7HznYh25fvbcznNgQGMqoNAhiX6BdjSaA8kaVYAjp-Ji_7N6xI6tP25PNxnlrODFaOXQJb50uFuVKZH-TBeM8lVxJ6hD2ndlk-kKfjqgf8j5Vgb6FrUwUUe9AnxeHjiR8pGpayghqmpLvK6Xdpu6url71d2ep9drSl9e3Dz-6oRts_Ci9WWnSdvlLOBhyyfFVWh7Ysad6X6fFh5GTTjRx8dew8dmJ5BC0go7yXjtO0E_jFgoOM6T8l5WzFwFWyErCmZZHUZ-WV7z6goFr_U5j1BYFqyUE8gS656W6-B7f5qXb0qVOFcGpKD7wmB-6aeegewT3jMEzJKxvp3V3tSErk763hRISH4FSJenj7s5iqcNq4JWcnpXez5-sj7yRq7p3jjbNtp3z3CrQjKjAq2ACqQGHz6Qz1OMip9oAElVVvMHRC21E1KLQdTYNCfT1-CSia-L3-P4bWvhHoIe7cZIgbqVC2v6LPxXUr2V8Una2_AdtX0sCbDrl4GD0JDs_TEnXS_Q2YjIgAtH8Nmf3dahS9ICYHK0cS29eM4u8FWcitjaOlUc-VTEm8olzDiJRFLdLdH9rBanuPxK_khcTXYXR1E41n45somk0m19F0RCoSf5pMrqa38-t5OIui28k0DLcjslHKLhFejW9uo_k4moaz8TychLNmvV-N02AJ2_-YjTC4)
+### Database Schema
 
-2. **Run Migrations**: If needed, apply database migrations to create the database schema.
+The current database schema is represented in the following diagram:
 
-   ```bash
-   docker compose exec app npm run migrate:dev
-   ```
+```mermaid
+erDiagram
+    Users {
+        Int id PK
+        String email
+        String first_name
+        String last_name
+        Date birth_date
+        String government_id
+        String preferred_name
+        String pronouns
+        String shirt_size
+        String shirt_style
+        
+        Int mailing_address_id FK
+    }
 
-   For an existing schema you can update it without creating a migration folder with following command:
+    MailingAddresses {
+        Int id PK
+        String street
+        String external_number
+        String internal_number
+        String zip_code
+        String state
+        String country
+        String neighborhood
+        String county
+        String name
+        String phone
+    }
 
-   ```bash
-   docker compose exec app npm run push
-   ```
+    Schools {
+        Int id PK
+        String name
+    }
 
-3. **Seed Database**: To seed your database with dummy data.
+    Ofmis {
+        Int id PK
+        Int year
+    }
 
-   ```bash
-   docker compose exec app npm run prisma:seed
-   ```
+    Roles {
+        Int id PK
+        String name
+    }
 
-To see db you can open [http://localhost:5555](http://localhost:5555) in your browser
+    Participation {
+        Int id
+        Int user_id FK
+        Int ofmi_id FK
+        Int role_id FK
+        String state
+        String country
+    }
 
-4. **Open Your App**: Your application should now be running at [http://localhost:3000](http://localhost:3000). You can start building your project by modifying the source code located in the `src` directory.
+    MentorParticipation {
+        Int participation_id FK
+        Int participation_id FK
+    }
+
+    ContestantParticipation {
+        Int participation_id PK, FK
+        Int school_id FK
+        Int school_grade
+        String medal
+        Int place
+        Bool disqualified
+        String omegaup_username
+        String omegaup_password
+    }
+
+    ProblemResult {
+        String omegaup_alias PK
+        Int score
+        Int contestant_participant_id FK
+    }
+
+    File {
+        Int id PK
+        String filename
+        String file_url
+        Int contestant_participant_id FK
+        String contestant_comment
+        String file_type
+    }
+
+    OmegaupContest {
+        String omegaup_alias PK
+        Int ofmi_id FK
+        String name
+        Date date
+    }    
+
+    Users one to zero or one MailingAddresses : has
+    Users one to many Participation : has
+    Ofmis one to many Participation : has
+    Roles one to many Participation : has
+    MentorParticipation one to many Participation : mentored
+    MentorParticipation one to many Participation : mentors
+    Participation one to zero or one ContestantParticipation : contains
+    ContestantParticipation one to many Schools : has
+    ContestantParticipation one to zero or many File : has
+    Ofmis one to many OmegaupContest : has
+    ContestantParticipation one to many ProblemResult : has
+```
+
+### Database Schema Updates
+
+**Important:** When making any modifications to the Prisma schema (`schema.prisma`), please ensure that you also update the database diagram in this README to reflect the changes. This will help maintain consistent and up-to-date documentation for all developers working on the project.
+
+To update the schema diagram:
+1. Make your changes to the Prisma schema
+2. Update the Mermaid diagram code in this README
+3. Verify that the diagram renders correctly in the README preview
+4. Include both the schema changes and README updates in the same commit
+
+For more information about Mermaid diagrams, visit [Mermaid's documentation](https://mermaid-js.github.io/mermaid/#/).
+
+### Database Operations
+
+1. **Run Migrations**: If needed, apply database migrations to create the database schema.
+
+```bash
+docker compose exec app npm run migrate:dev
+```
+
+For an existing schema you can update it without creating a migration folder with following command:
+
+```bash
+docker compose exec app npm run push
+```
+
+2. **Seed Database**: To seed your database with dummy data.
+
+```bash
+docker compose exec app npm run prisma:seed
+```
+
+### Database Visualization
+
+To see the database in a visual interface, you can open the Prisma Studio at http://localhost:5555 in your browser.
+
+## Application Access
+
+1. **Open Your App**: Your application should now be running at http://localhost:3000. You can start building your project by modifying the source code located in the `src` directory.
 
 ## Testing
 
 To run the tests: Run the app and execute the following command in another terminal
 
-```
+```bash
 docker compose exec app npm run test
 ```
 
@@ -58,14 +184,14 @@ docker compose exec app npm run test
 
 Next-Prisma-Starter follows a well-organized folder structure to keep your codebase clean and maintainable. Here's a brief overview:
 
-- `src`: Contains the application's source code, including pages, components, Redux Toolkit setup, and React Query API endpoints.
-- `prisma`: Contains Prisma-related files, including the database schema (`schema.prisma`) and migrations.
-- `public`: Public assets such as images and fonts can be placed in this directory.
-- `styles`: Styling files, including Tailwind CSS configurations and global styles.
-- `pages`: Next.js pages for routing and rendering components.
-- `api`: Custom API routes for server-side logic.
+* `src`: Contains the application's source code, including pages, components, Redux Toolkit setup, and React Query API endpoints.
+* `prisma`: Contains Prisma-related files, including the database schema (`schema.prisma`) and migrations.
+* `public`: Public assets such as images and fonts can be placed in this directory.
+* `styles`: Styling files, including Tailwind CSS configurations and global styles.
+* `pages`: Next.js pages for routing and rendering components.
+* `api`: Custom API routes for server-side logic.
 
-```bash
+```
 next-prisma-starter/
 ├── prisma/
 ├── public/
@@ -82,27 +208,32 @@ next-prisma-starter/
 ├── package.json
 ├── tsconfig.json
 ├── ...
-
 ```
+
+## Development Guidelines
+
+Before creating a commit make sure you run:
+
+```bash
+docker compose exec app npm run format
+```
+
+### Code Quality
+
+#### StandardJS
+- Install the StandardJS extension in your code editor.
+- Activate Auto Fix On Save in the VSCode settings.
 
 ## Documentation
 
-For more detailed documentation on how to use Next-Prisma-Starter and its features, refer to the [Wiki](https://github.com/ManishPJha/next-prisma-starter/wiki).
+For more detailed documentation on how to use Next-Prisma-Starter and its features, refer to the Wiki.
 
 ## License
 
-This project is licensed under the MIT License. Feel free to use, modify, and distribute it as needed for your projects. Please refer to the [LICENSE](LICENSE) file for more information.
+This project is licensed under the MIT License. Feel free to use, modify, and distribute it as needed for your projects. Please refer to the LICENSE file for more information.
 
 ## Contributions
 
 Contributions are welcome! If you have suggestions, bug reports, or want to contribute to this project, please open an issue or create a pull request.
 
 Happy coding with Next-Prisma-Starter! 🚀
-
-Before creating the commit make sure you run `docker compose exec app npm run format`.
-
-## StandardJS
-
-Install the [StandardJS](https://marketplace.visualstudio.com/items?itemName=standard.vscode-standard) extension.
-
-Activate Auto Fix On Save in the VSCode settings.
