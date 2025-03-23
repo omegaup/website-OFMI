@@ -53,7 +53,10 @@ export const getServerSideProps: GetServerSideProps<{
     participation.contestantParticipantId,
   );
 
-  if (contestantParticipation?.medal == null) {
+  if (
+    contestantParticipation != null &&
+    contestantParticipation.medal == null
+  ) {
     return {
       redirect: {
         destination: "/",
