@@ -12,7 +12,7 @@ import {
 } from "@/lib/auth";
 
 // Prefix routes that are temporarily disabled
-const disabledPaths: string[] = [];
+const disabledPaths: string[] = ["/registro"];
 
 // Prefix routes that requires only to be log in
 const withAuthPaths = [

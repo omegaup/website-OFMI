@@ -9,35 +9,30 @@ export function validateOFMIOpenAndCloseTime(
     role,
   }: { registrationTime: Date; role: ParticipationRole },
 ): ValidationResult {
-  if (role === "VOLUNTEER") {
-    return {
-      ok: true,
-    };
-  }
   if (ofmi.registrationOpenTime.getTime() > registrationTime.getTime()) {
     return {
       ok: false,
       message: `Las inscripciones para esta OFMI aun no han abierto.`,
     };
   }
-  // if (role === "VOLUNTEER") {
-  //   // Vamos a darles todo el año para registrarse
-  //   if (
-  //     ofmi.registrationCloseTime.getFullYear() < registrationTime.getFullYear()
-  //   ) {
-  //     return {
-  //       ok: false,
-  //       message: "Ya no puedes ser mentor para esta OFMI.",
-  //     };
-  //   }
-  // } else {
-  if (ofmi.registrationCloseTime.getTime() < registrationTime.getTime()) {
-    return {
-      ok: false,
-      message: "Las inscripciones para esta OFMI han finalizado.",
-    };
+  if (role === "VOLUNTEER") {
+    // Vamos a darles todo el año para registrarse
+    if (
+      ofmi.registrationCloseTime.getFullYear() < registrationTime.getFullYear()
+    ) {
+      return {
+        ok: false,
+        message: "Ya no puedes ser mentor para esta OFMI.",
+      };
+    }
+  } else {
+    if (ofmi.registrationCloseTime.getTime() < registrationTime.getTime()) {
+      return {
+        ok: false,
+        message: "Las inscripciones para esta OFMI han finalizado.",
+      };
+    }
   }
-  // }
   return {
     ok: true,
   };
