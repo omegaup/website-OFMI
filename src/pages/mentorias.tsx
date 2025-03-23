@@ -2,7 +2,11 @@ import type {
   GetServerSideProps,
   InferGetServerSidePropsType,
 } from "next/types";
-import { findMostRecentOfmi, findParticipation } from "@/lib/ofmi";
+import {
+  findContestantParticipation,
+  findMostRecentOfmi,
+  findParticipation,
+} from "@/lib/ofmi";
 import Mentorias from "@/components/mentorias";
 import { X_USER_AUTH_EMAIL_HEADER } from "@/lib/auth";
 
@@ -36,6 +40,20 @@ export const getServerSideProps: GetServerSideProps<{
   const participation = await findParticipation(ofmi, email);
 
   if (participation === null) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
+  // TODO: cambiar esto a un campo bool o algo así y que se pueda hacer un bulk update para cada etapa
+  const contestantParticipation = await findContestantParticipation(
+    participation.contestantParticipantId,
+  );
+
+  if (contestantParticipation?.medal == null) {
     return {
       redirect: {
         destination: "/",

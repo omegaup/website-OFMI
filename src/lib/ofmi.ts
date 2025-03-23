@@ -9,7 +9,7 @@ import {
 import { Pronoun, PronounsOfString } from "@/types/pronouns";
 import { ShirtStyle, ShirtStyleOfString } from "@/types/shirt";
 import { filterNull } from "@/utils";
-import { Ofmi } from "@prisma/client";
+import { Ofmi, ContestantParticipation } from "@prisma/client";
 import { Value } from "@sinclair/typebox/value";
 import { TTLCache } from "./cache";
 import path from "path";
@@ -47,6 +47,22 @@ export async function findMostRecentOfmi(): Promise<Ofmi> {
 
   ttlCache.set(cacheKey, ofmi);
   return ofmi;
+}
+
+export async function findContestantParticipation(
+  contestantParticipationId: string | null,
+): Promise<ContestantParticipation | null> {
+  if (contestantParticipationId == null) {
+    return null;
+  }
+
+  const contestantParticipation =
+    await prisma.contestantParticipation.findUnique({
+      where: { id: contestantParticipationId },
+      include: {},
+    });
+
+  return contestantParticipation;
 }
 
 export async function findParticipants(
