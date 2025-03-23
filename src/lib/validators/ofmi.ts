@@ -9,6 +9,11 @@ export function validateOFMIOpenAndCloseTime(
     role,
   }: { registrationTime: Date; role: ParticipationRole },
 ): ValidationResult {
+  if (role === "VOLUNTEER") {
+    return {
+      ok: true,
+    };
+  }
   if (ofmi.registrationOpenTime.getTime() > registrationTime.getTime()) {
     return {
       ok: false,
