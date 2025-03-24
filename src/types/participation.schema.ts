@@ -120,3 +120,11 @@ export const UpsertParticipationRequestSchema = ParticipationRequestInputSchema;
 export interface UpsertParticipationResponse {
   participation: Participation;
 }
+
+export type GenerateIdentitiesRequest = Static<
+  typeof GenerateIdentitiesRequestInputSchema
+>;
+
+export const GenerateIdentitiesRequestInputSchema = Type.Object({
+  ofmiEdition: Type.Integer({ minimum: 1 }),
+});
