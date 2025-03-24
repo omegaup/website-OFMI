@@ -9,6 +9,7 @@ import {
   shuffleArray,
   generatePassword,
 } from "@/utils";
+import { Participation } from "@/pages/api/admin/generateIdentities";
 import { Ofmi, ShirtSize } from "@prisma/client";
 import { hashPassword } from "@/lib/hashPassword";
 import { ShirtStyles } from "@/types/shirt";
@@ -26,7 +27,7 @@ class MockContestantParticipations {
     );
   }
 
-  private get emailDomain() {
+  private get emailDomain(): string {
     return `${this.testName}.test.com`;
   }
 
@@ -39,9 +40,7 @@ class MockContestantParticipations {
     county: string,
     state: string,
     school: string,
-  ) {
-    console.log(`First: ${firstName}`);
-    console.log(`Last: ${lastName}`);
+  ): Promise<void> {
     const firstNames = firstName.split(" ");
     const lastNames = lastName.split(" ");
     await prisma.participation.create({
@@ -107,7 +106,7 @@ class MockContestantParticipations {
     });
   }
 
-  public async getAllMockParticipations() {
+  public async getAllMockParticipations(): Promise<Participation[]> {
     return await prisma.participation.findMany({
       where: {
         user: { UserAuth: { email: `@${this.emailDomain}` } },
@@ -124,13 +123,15 @@ class MockContestantParticipations {
     });
   }
 
-  public async getRandomMockParticipations(num: number) {
+  public async getRandomMockParticipations(
+    num: number,
+  ): Promise<Participation[]> {
     const participations = await this.getAllMockParticipations();
     shuffleArray(participations);
     return participations.slice(0, num);
   }
 
-  public async createMockParticipations(num: number) {
+  public async createMockParticipations(num: number): Promise<void> {
     const postalCodes = postalCodesJson as Address[];
     for (let i = 0; i < num - 1; i++) {
       const address = postalCodes[i];
@@ -163,7 +164,7 @@ class MockContestantParticipations {
     );
   }
 
-  public async clearMockParticipations() {
+  public async clearMockParticipations(): Promise<void> {
     await prisma.contestantParticipation.deleteMany({
       where: {
         Participation: {

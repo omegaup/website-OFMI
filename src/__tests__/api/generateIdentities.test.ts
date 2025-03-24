@@ -45,7 +45,11 @@ beforeEach(async () => {
   await identitiesMocker.clearMockParticipations();
 });
 
-const parseCsv = (csv: string) => {
+const parseCsv = (
+  csv: string,
+): {
+  [key: string]: string;
+}[] => {
   return csv.split("\n").map((identity) => {
     const fields = identity.split(",");
     return {

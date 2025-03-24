@@ -8,7 +8,7 @@ import { parseValueError } from "@/lib/typebox";
 import { GenerateIdentitiesRequestInputSchema } from "@/types/participation.schema";
 import { Prisma } from "@prisma/client";
 
-type Participation = Prisma.ParticipationGetPayload<{
+export type Participation = Prisma.ParticipationGetPayload<{
   include: {
     user: true;
     ContestantParticipation: {
@@ -19,7 +19,9 @@ type Participation = Prisma.ParticipationGetPayload<{
   };
 }>;
 
-export function generateIdentities(onlyContestants: Participation[]) {
+export function generateIdentities(onlyContestants: Participation[]): {
+  [key: string]: string;
+}[] {
   const states = new Map<string, number>();
 
   const getMaxContestantsCount = (
@@ -136,7 +138,7 @@ export async function generateIdentitiesHandler(
 
   const identities = generateIdentities(onlyContestants);
 
-  let rows = ["username,name,country_id,state_id,gender,school_name"];
+  const rows = ["username,name,country_id,state_id,gender,school_name"];
 
   for (const participant of identities) {
     rows.push(

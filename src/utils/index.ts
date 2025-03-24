@@ -113,7 +113,7 @@ export const generatePhoneNumber = (): string => {
   return phone;
 };
 
-export const replaceSpanishLetters = (original: string) => {
+export const replaceSpanishLetters = (original: string): string => {
   const substitutions = new Map([
     ["Á", "A"],
     ["É", "E"],
@@ -134,15 +134,15 @@ export const replaceSpanishLetters = (original: string) => {
   return changed;
 };
 
-export const findNthVowel = (str: string, pos = 0) => {
+export const findNthVowel = (str: string, pos = 0): string | undefined => {
   return str.match(/[AEIOU]/g)?.at(pos);
 };
 
-export const findNthConsonant = (str: string, pos = 0) => {
+export const findNthConsonant = (str: string, pos = 0): string | undefined => {
   return str.match(/[^AEIOU]/g)?.at(pos);
 };
 
-export const isVowel = (letter: string) => {
+export const isVowel = (letter: string): boolean => {
   return letter in ["A", "E", "I", "O", "U"];
 };
 
@@ -152,7 +152,7 @@ export const generateCURP = (
   birthday: Date,
   state: string,
   sex: "H" | "M",
-) => {
+): string => {
   state.toUpperCase();
   const firstNames = replaceSpanishLetters(fullFirstName.toUpperCase()).split(
     " ",
@@ -188,7 +188,7 @@ export const generateCURP = (
   );
 };
 
-export const generateRandomDateBetween = (start: Date, end: Date) => {
+export const generateRandomDateBetween = (start: Date, end: Date): Date => {
   return new Date(
     start.getTime() + Math.random() * (end.getTime() - start.getTime()),
   );
