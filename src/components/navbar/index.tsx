@@ -15,6 +15,7 @@ const navigation = {
   Material: "/material",
   FAQ: "/faq",
   Donaciones: "/dona",
+  Resultados: "/resultados",
 };
 
 export type NavigationItem = keyof typeof navigation;

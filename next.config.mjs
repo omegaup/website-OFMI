@@ -14,6 +14,11 @@ const nextConfig = {
         destination: "/convocatoria",
         permanent: true,
       },
+      {
+        source: "/resultados",
+        destination: "/resultados/4",
+        permanent: true,
+      },
     ];
   },
 };
