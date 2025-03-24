@@ -88,7 +88,6 @@ export default function Admin(): JSX.Element {
             );
           }}
         >
-          <option value={""}></option>
           {Object.keys(APIS).map((name) => (
             <option value={name} key={name}>
               {name}

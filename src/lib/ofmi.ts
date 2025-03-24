@@ -5,6 +5,7 @@ import {
   ParticipationRequestInputSchema,
   ParticipationOutputSchema,
   UserParticipation,
+  UserParticipationSchema,
 } from "@/types/participation.schema";
 import { Pronoun, PronounsOfString } from "@/types/pronouns";
 import { ShirtStyle, ShirtStyleOfString } from "@/types/shirt";
@@ -18,9 +19,18 @@ const caches = {
   findMostRecentOfmi: new TTLCache<Ofmi>(),
 };
 
-export function friendlyOfmiName(ofmiEdition: number): string {
-  return `${ofmiEdition}a-ofmi`;
+export function friendlyOfmiName(
+  ofmiEdition: number,
+  humanReadable = false,
+): string {
+  return `${ofmiEdition}a${humanReadable ? " OFMI" : "-ofmi"}`;
 }
+
+export const findOfmiByEdition = async (
+  edition: number,
+): Promise<Ofmi | null> => {
+  return prisma.ofmi.findFirst({ where: { edition } });
+};
 
 export function registrationSpreadsheetsPath(ofmiEdition: number): string {
   return path.join(
@@ -69,7 +79,7 @@ export async function findParticipants(
   ofmi: Ofmi,
 ): Promise<Array<ParticipationRequestInput>> {
   const participants = await prisma.participation.findMany({
-    where: { ofmiId: ofmi.id },
+    where: { ofmiId: ofmi.id, volunteerParticipationId: null },
     include: {
       user: {
         include: {
@@ -82,11 +92,30 @@ export async function findParticipants(
       ContestantParticipation: {
         include: {
           School: true,
+          Disqualification: {
+            select: {
+              appealed: true,
+              reason: true,
+              id: true,
+            },
+          },
         },
       },
       VolunteerParticipation: true,
     },
   });
+
+  const mappedDisqualifications = new Map<string, string>();
+
+  for (const participant of participants) {
+    let reason = "N/A";
+    const participation = participant.ContestantParticipation!;
+    const disqualification = participation.Disqualification;
+    if (disqualification && !disqualification.appealed) {
+      reason = disqualification.reason;
+    }
+    mappedDisqualifications.set(participant.id, reason);
+  }
 
   const res = participants.map((participation) => {
     // TODO: Share code with findParticipation
@@ -100,14 +129,16 @@ export async function findParticipants(
 
     const userParticipation: UserParticipation | null =
       (role === "CONTESTANT" &&
-        contestantParticipation && {
+        contestantParticipation &&
+        Value.Cast(UserParticipationSchema, {
           role,
           schoolName: contestantParticipation.School.name,
           schoolStage: contestantParticipation.School.stage,
           schoolGrade: contestantParticipation.schoolGrade,
           schoolCountry: contestantParticipation.School.country,
           schoolState: contestantParticipation.School.state,
-        }) ||
+          disqualificationReason: mappedDisqualifications.get(user.id),
+        })) ||
       (role === "VOLUNTEER" &&
         volunteerParticipation && {
           role,
@@ -154,6 +185,9 @@ export async function findParticipation(
     where: { ofmiId: ofmi.id, user: { UserAuth: { email: email } } },
     include: {
       user: {
+        select: {
+          id: true,
+        },
         include: {
           MailingAddress: true,
           UserAuth: {
