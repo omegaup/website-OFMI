@@ -109,7 +109,7 @@ class MockContestantParticipations {
   public async getAllMockParticipations(): Promise<Participation[]> {
     return await prisma.participation.findMany({
       where: {
-        user: { UserAuth: { email: `@${this.emailDomain}` } },
+        user: { UserAuth: { email: { endsWith: `@${this.emailDomain}` } } },
         ofmiId: this.ofmi.id,
       },
       include: {

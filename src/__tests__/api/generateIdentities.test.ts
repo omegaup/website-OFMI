@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, beforeEach } from "vitest";
+import { describe, it, expect, beforeAll, afterEach } from "vitest";
 import {
   createMocks,
   RequestMethod,
@@ -41,7 +41,7 @@ beforeAll(async () => {
   identitiesMocker = new MockContestantParticipations("identities", ofmi);
 });
 
-beforeEach(async () => {
+afterEach(async () => {
   await identitiesMocker.clearMockParticipations();
 });
 
@@ -50,17 +50,20 @@ const parseCsv = (
 ): {
   [key: string]: string;
 }[] => {
-  return csv.split("\n").map((identity) => {
-    const fields = identity.split(",");
-    return {
-      username: fields[0],
-      name: fields[1],
-      country_id: fields[2],
-      state_id: fields[3],
-      gender: fields[4],
-      school_name: fields[5],
-    };
-  });
+  return csv
+    .split("\n")
+    .slice(1)
+    .map((identity) => {
+      const fields = identity.split(",");
+      return {
+        username: fields[0],
+        name: fields[1],
+        country_id: fields[2],
+        state_id: fields[3],
+        gender: fields[4],
+        school_name: fields[5],
+      };
+    });
 };
 
 describe("/api/admin/generateIdentities API Endpoint", () => {
@@ -94,6 +97,7 @@ describe("/api/admin/generateIdentities API Endpoint", () => {
     await generateIdentitiesHandler(req, res);
 
     expect(res.statusCode).toBe(201);
+    expect(res._getData().length).toBeGreaterThan(0);
     expect(res.getHeaders()).toMatchObject({ "content-type": "text/csv" });
   });
 
@@ -103,22 +107,30 @@ describe("/api/admin/generateIdentities API Endpoint", () => {
     });
 
     await identitiesMocker.createMockParticipations(10);
-    await generateIdentitiesHandler(req, res);
 
     const toDisqualify = await identitiesMocker.getRandomMockParticipations(5);
 
     for (const contestant of toDisqualify) {
       await prisma.contestantParticipation.update({
         where: {
-          id: contestant.id,
+          id: contestant.contestantParticipationId!,
         },
         data: {
           disqualified: true,
         },
       });
     }
-    expect(parseCsv(res._getData())).not.toContain(
-      generateIdentities(toDisqualify),
+
+    await generateIdentitiesHandler(req, res);
+    const generatedIdentities = parseCsv(res._getData()).map(
+      (identity) => identity.name,
     );
+    const disqualifiedIdentities = generateIdentities(toDisqualify).map(
+      (identity) => identity.name,
+    );
+
+    for (const name of disqualifiedIdentities) {
+      expect(generatedIdentities).not.toContain(name);
+    }
   });
 });
