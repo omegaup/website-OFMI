@@ -30,6 +30,22 @@ export async function getGoogleAuth(
   });
 }
 
+export async function trashResource({
+  id,
+  service,
+}: {
+  id: string;
+  service: google.drive_v3.Drive;
+}): Promise<void> {
+  await service.files.update({
+    fileId: id,
+    requestBody: {
+      trashed: true,
+    },
+    supportsAllDrives: true,
+  });
+}
+
 // Returns the id of the resource
 async function findOrCreateResource({
   mimeType,
@@ -196,6 +212,30 @@ async function getOrCreateSheets({
   });
 }
 
+async function listResourceChildren({
+  dir,
+  rootFolderId,
+  mimeType,
+  service,
+}: {
+  dir: string;
+  rootFolderId: string;
+  mimeType: string;
+  service: google.drive_v3.Drive;
+}): Promise<google.drive_v3.Schema$File[]> {
+  const id = await getOrCreateFolder({
+    dir,
+    service,
+    parentFolderId: rootFolderId,
+  });
+  const { data } = await service.files.list({
+    q: `trashed=false and '${id}' in parents and mimeType = '${mimeType}'`,
+    includeItemsFromAllDrives: true,
+    supportsAllDrives: true,
+  });
+  return data.files || [];
+}
+
 // Returns the URL of the Drive Folder
 export async function getOrCreateDriveFolder({
   userAuthId,
@@ -231,17 +271,12 @@ async function listFolderChildren({
   const service = new google.drive_v3.Drive({
     auth,
   });
-  const id = await getOrCreateFolder({
+  return await listResourceChildren({
     dir,
+    rootFolderId,
+    mimeType: FOLDER_MIME_TYPE,
     service,
-    parentFolderId: rootFolderId,
   });
-  const { data } = await service.files.list({
-    q: `trashed=false and '${id}' in parents and mimeType = '${FOLDER_MIME_TYPE}'`,
-    includeItemsFromAllDrives: true,
-    supportsAllDrives: true,
-  });
-  return data.files || [];
 }
 
 export async function exportParticipants({
