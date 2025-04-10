@@ -212,15 +212,17 @@ async function getOrCreateSheets({
   });
 }
 
-async function listResourceChildren({
+export async function listResourceChildren({
   dir,
   rootFolderId,
   mimeType,
+  mimeTypeOp = "=",
   service,
 }: {
   dir: string;
   rootFolderId: string;
   mimeType: string;
+  mimeTypeOp?: string;
   service: google.drive_v3.Drive;
 }): Promise<google.drive_v3.Schema$File[]> {
   const id = await getOrCreateFolder({
@@ -229,11 +231,28 @@ async function listResourceChildren({
     parentFolderId: rootFolderId,
   });
   const { data } = await service.files.list({
-    q: `trashed=false and '${id}' in parents and mimeType = '${mimeType}'`,
+    q: `trashed=false and '${id}' in parents and mimeType ${mimeTypeOp} '${mimeType}'`,
     includeItemsFromAllDrives: true,
     supportsAllDrives: true,
   });
   return data.files || [];
+}
+
+export async function listFolderChildren({
+  dir,
+  rootFolderId,
+  service,
+}: {
+  dir: string;
+  rootFolderId: string;
+  service: google.drive_v3.Drive;
+}): Promise<google.drive_v3.Schema$File[]> {
+  return await listResourceChildren({
+    dir,
+    rootFolderId,
+    mimeType: FOLDER_MIME_TYPE,
+    service,
+  });
 }
 
 // Returns the URL of the Drive Folder
@@ -256,27 +275,6 @@ export async function getOrCreateDriveFolder({
     parentFolderId: rootFolderId,
   });
   return `https://drive.google.com/drive/folders/${id}`;
-}
-
-async function listFolderChildren({
-  userAuthId,
-  dir,
-  rootFolderId,
-}: {
-  userAuthId: string;
-  dir: string;
-  rootFolderId: string;
-}): Promise<google.drive_v3.Schema$File[]> {
-  const auth = await getGoogleAuth(userAuthId);
-  const service = new google.drive_v3.Drive({
-    auth,
-  });
-  return await listResourceChildren({
-    dir,
-    rootFolderId,
-    mimeType: FOLDER_MIME_TYPE,
-    service,
-  });
 }
 
 export async function exportParticipants({
@@ -321,8 +319,8 @@ export async function exportParticipants({
   const participants = await findParticipants(ofmi);
   const driveFolders = await listFolderChildren({
     dir: path.join(friendlyOfmiName(ofmi.edition), "Assets", "Participants"),
-    userAuthId,
     rootFolderId: config.GDRIVE_OFMI_ROOT_FOLDER,
+    service,
   });
 
   const createData = (role: ParticipationRole): string => {
