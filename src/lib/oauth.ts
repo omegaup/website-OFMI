@@ -37,7 +37,7 @@ export class GCloud {
       redirect_uri: GCloud.REDIRECT_URI,
       response_type: "code",
       scope:
-        "https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.metadata.readonly",
+        "https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.metadata.readonly",
       access_type: "offline",
     },
   ).toString()}`;
