@@ -104,7 +104,7 @@ async function findOrCreateResource({
   return id;
 }
 
-async function getOrCreateFolder({
+export async function getOrCreateFolder({
   dir,
   service,
   parentFolderId,
@@ -213,25 +213,18 @@ async function getOrCreateSheets({
 }
 
 export async function listResourceChildren({
-  dir,
-  rootFolderId,
+  folderId,
   mimeType,
   mimeTypeOp = "=",
   service,
 }: {
-  dir: string;
-  rootFolderId: string;
+  folderId: string;
   mimeType: string;
   mimeTypeOp?: string;
   service: google.drive_v3.Drive;
 }): Promise<google.drive_v3.Schema$File[]> {
-  const id = await getOrCreateFolder({
-    dir,
-    service,
-    parentFolderId: rootFolderId,
-  });
   const { data } = await service.files.list({
-    q: `trashed=false and '${id}' in parents and mimeType ${mimeTypeOp} '${mimeType}'`,
+    q: `trashed=false and '${folderId}' in parents and mimeType ${mimeTypeOp} '${mimeType}'`,
     includeItemsFromAllDrives: true,
     supportsAllDrives: true,
   });
@@ -239,17 +232,14 @@ export async function listResourceChildren({
 }
 
 export async function listFolderChildren({
-  dir,
-  rootFolderId,
+  folderId,
   service,
 }: {
-  dir: string;
-  rootFolderId: string;
+  folderId: string;
   service: google.drive_v3.Drive;
 }): Promise<google.drive_v3.Schema$File[]> {
   return await listResourceChildren({
-    dir,
-    rootFolderId,
+    folderId,
     mimeType: FOLDER_MIME_TYPE,
     service,
   });
@@ -317,9 +307,14 @@ export async function exportParticipants({
 
   // Retrieve data
   const participants = await findParticipants(ofmi);
-  const driveFolders = await listFolderChildren({
+  const participantsFolderId = await getOrCreateFolder({
     dir: path.join(friendlyOfmiName(ofmi.edition), "Assets", "Participants"),
-    rootFolderId: config.GDRIVE_OFMI_ROOT_FOLDER,
+    service,
+    parentFolderId: config.GDRIVE_OFMI_ROOT_FOLDER,
+  });
+
+  const driveFolders = await listFolderChildren({
+    folderId: participantsFolderId,
     service,
   });
 
