@@ -1,4 +1,6 @@
 import {
+  contestantDisqualificationAppealTemplate,
+  contestantDisqualificationTemplate,
   newUserEmailTemplate,
   ofmiRegistrationCompleteTemplate,
   passwordRecoveryAttemptTemplate,
@@ -34,5 +36,37 @@ export abstract class BaseEmailer {
 
   public async notifySuccessfulPasswordRecovery(email: string): Promise<void> {
     await this.sendEmail(successfulPasswordRecoveryTemplate(email));
+  }
+
+  public async notifyContestantDisqualification(
+    email: string,
+    ofmiName: string,
+    preferredName: string,
+    reason: string,
+  ): Promise<void> {
+    await this.sendEmail(
+      contestantDisqualificationTemplate(
+        email,
+        ofmiName,
+        preferredName,
+        reason,
+      ),
+    );
+  }
+
+  public async notifyContestantDisqualificationUpdate(
+    email: string,
+    ofmiName: string,
+    preferredName: string,
+    appealed: boolean,
+  ): Promise<void> {
+    await this.sendEmail(
+      contestantDisqualificationAppealTemplate(
+        email,
+        ofmiName,
+        preferredName,
+        appealed,
+      ),
+    );
   }
 }
