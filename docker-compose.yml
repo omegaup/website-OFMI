@@ -14,7 +14,7 @@ services:
     depends_on:
       - db
   db:
-    image: postgres:14.1-alpine
+    image: docker.io/library/postgres:14.1-alpine #TODO: i use podman so i need to specify the docker hub url
     container_name: ofmi_db
     restart: always
     environment:
