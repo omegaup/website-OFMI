@@ -131,165 +131,180 @@ async function upsertParticipationHandler(
 
   const fullName = `${userInput.firstName} ${userInput.lastName}`;
 
-  // Upsert User - Mailing address
-  const userInputPayload = {
-    firstName: userInput.firstName,
-    lastName: userInput.lastName,
-    birthDate,
-    governmentId: userInput.governmentId,
-    preferredName: userInput.preferredName ?? fullName,
-    pronouns: userInput.pronouns,
-    shirtSize: userInput.shirtSize,
-    shirtStyle: userInput.shirtStyle,
-  };
-  const mailingAddressPayload = {
-    street: mailingAddressInput.street,
-    externalNumber: mailingAddressInput.externalNumber,
-    internalNumber: mailingAddressInput.internalNumber,
-    zipcode: mailingAddressInput.zipcode,
-    state: mailingAddressInput.state,
-    country: mailingAddressInput.country,
-    references: mailingAddressInput.references,
-    phone: mailingAddressInput.phone,
-    county: mailingAddressInput.municipality ?? "",
-    neighborhood: mailingAddressInput.locality ?? "",
-    name: mailingAddressInput.recipient ?? fullName,
-  };
-  const user = await prisma.user.upsert({
-    where: { userAuthId: authUser.id },
-    update: {
-      ...userInputPayload,
-      MailingAddress: {
-        update: {
-          ...mailingAddressPayload,
-        },
-      },
-    },
-    create: {
-      ...userInputPayload,
-      UserAuth: {
-        connect: {
-          id: authUser.id,
-        },
-      },
-      MailingAddress: {
-        create: { ...mailingAddressPayload },
-      },
-    },
-  });
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      //  Upsert User - Mailing address
+      const userInputPayload = {
+        firstName: userInput.firstName,
+        lastName: userInput.lastName,
+        birthDate,
+        governmentId: userInput.governmentId,
+        preferredName: userInput.preferredName ?? fullName,
+        pronouns: userInput.pronouns,
+        shirtSize: userInput.shirtSize,
+        shirtStyle: userInput.shirtStyle,
+      };
+      const mailingAddressPayload = {
+        street: mailingAddressInput.street,
+        externalNumber: mailingAddressInput.externalNumber,
+        internalNumber: mailingAddressInput.internalNumber,
+        zipcode: mailingAddressInput.zipcode,
+        state: mailingAddressInput.state,
+        country: mailingAddressInput.country,
+        references: mailingAddressInput.references,
+        phone: mailingAddressInput.phone,
+        county: mailingAddressInput.municipality ?? "",
+        neighborhood: mailingAddressInput.locality ?? "",
+        name: mailingAddressInput.recipient ?? fullName,
+      };
 
-  // ContestantParticipation
-  const contestantParticipationPayload = contestantParticipationInput
-    ? {
-        schoolGrade: contestantParticipationInput.schoolGrade,
-        disqualified: false,
-        School: {
-          connectOrCreate: {
-            where: {
-              name_stage_state_country: {
-                name: contestantParticipationInput.schoolName,
-                stage: contestantParticipationInput.schoolStage,
-                state: contestantParticipationInput.schoolState,
-                country: contestantParticipationInput.schoolCountry,
+      const user = await tx.user.upsert({
+        where: { userAuthId: authUser.id },
+        update: {
+          ...userInputPayload,
+          MailingAddress: { update: mailingAddressPayload },
+        },
+        create: {
+          ...userInputPayload,
+          UserAuth: { connect: { id: authUser.id } },
+          MailingAddress: { create: mailingAddressPayload },
+        },
+      });
+
+      if (contestantParticipationInput?.venueQuotaId) {
+        const existingParticipation = await tx.participation.findUnique({
+          where: { userId_ofmiId: { userId: user.id, ofmiId: ofmi.id } },
+          include: { ContestantParticipation: true },
+        });
+
+        const currentVenueId =
+          existingParticipation?.ContestantParticipation?.venueQuotaId;
+        const newVenueId = contestantParticipationInput.venueQuotaId;
+
+        if (currentVenueId !== newVenueId) {
+          if (currentVenueId) {
+            await tx.venueQuota.update({
+              where: { id: currentVenueId },
+              data: { occupied: { decrement: 1 } },
+            });
+          }
+
+          await tx.venueQuota.update({
+            where: { id: newVenueId },
+            data: { occupied: { increment: 1 } },
+          });
+        }
+      }
+
+      const contestantParticipationPayload = contestantParticipationInput
+        ? {
+            schoolGrade: contestantParticipationInput.schoolGrade,
+            disqualified: false,
+            venueQuotaId: contestantParticipationInput.venueQuotaId,
+            School: {
+              connectOrCreate: {
+                where: {
+                  name_stage_state_country: {
+                    name: contestantParticipationInput.schoolName,
+                    stage: contestantParticipationInput.schoolStage,
+                    state: contestantParticipationInput.schoolState,
+                    country: contestantParticipationInput.schoolCountry,
+                  },
+                },
+                create: {
+                  name: contestantParticipationInput.schoolName,
+                  stage: contestantParticipationInput.schoolStage,
+                  state: contestantParticipationInput.schoolState,
+                  country: contestantParticipationInput.schoolCountry,
+                },
               },
             },
-            create: {
-              name: contestantParticipationInput.schoolName,
-              stage: contestantParticipationInput.schoolStage,
-              state: contestantParticipationInput.schoolState,
-              country: contestantParticipationInput.schoolCountry,
+          }
+        : undefined;
+
+      const volunteerParticipationPayload = volunteerParticipationInput
+        ? {
+            educationalLinkageOptIn:
+              volunteerParticipationInput.educationalLinkageOptIn,
+            fundraisingOptIn: volunteerParticipationInput.fundraisingOptIn,
+            communityOptIn: volunteerParticipationInput.communityOptIn,
+            trainerOptIn: volunteerParticipationInput.trainerOptIn,
+            problemSetterOptIn: volunteerParticipationInput.problemSetterOptIn,
+            mentorOptIn: volunteerParticipationInput.mentorOptIn,
+          }
+        : undefined;
+
+      const participation = await tx.participation.upsert({
+        where: {
+          userId_ofmiId: {
+            userId: user.id,
+            ofmiId: ofmi.id,
+          },
+        },
+        update: {
+          role,
+          ContestantParticipation: contestantParticipationPayload && {
+            upsert: {
+              create: contestantParticipationPayload,
+              update: contestantParticipationPayload,
+            },
+          },
+          VolunteerParticipation: volunteerParticipationPayload && {
+            upsert: {
+              create: volunteerParticipationPayload,
+              update: volunteerParticipationPayload,
             },
           },
         },
-      }
-    : undefined;
-
-  // Volunteer participation
-  const volunteerParticipationPayload = volunteerParticipationInput
-    ? {
-        educationalLinkageOptIn:
-          volunteerParticipationInput.educationalLinkageOptIn,
-        fundraisingOptIn: volunteerParticipationInput.fundraisingOptIn,
-        communityOptIn: volunteerParticipationInput.communityOptIn,
-        trainerOptIn: volunteerParticipationInput.trainerOptIn,
-        problemSetterOptIn: volunteerParticipationInput.problemSetterOptIn,
-        mentorOptIn: volunteerParticipationInput.mentorOptIn,
-      }
-    : undefined;
-
-  const participation = await prisma.participation.upsert({
-    where: {
-      userId_ofmiId: {
-        userId: user.id,
-        ofmiId: ofmi.id,
-      },
-    },
-    update: {
-      role,
-      ContestantParticipation: contestantParticipationPayload && {
-        upsert: {
-          create: {
-            ...contestantParticipationPayload,
-          },
-          update: {
-            ...contestantParticipationPayload,
-          },
-        },
-      },
-      VolunteerParticipation: volunteerParticipationPayload && {
-        upsert: {
-          create: {
-            ...volunteerParticipationPayload,
-          },
-          update: {
-            ...volunteerParticipationPayload,
-          },
-        },
-      },
-    },
-    create: {
-      role,
-      user: {
-        connect: {
-          id: user.id,
-        },
-      },
-      ofmi: {
-        connect: {
-          id: ofmi.id,
-        },
-      },
-      ContestantParticipation: contestantParticipationPayload && {
         create: {
-          ...contestantParticipationPayload,
+          role,
+          user: { connect: { id: user.id } },
+          ofmi: { connect: { id: ofmi.id } },
+          ContestantParticipation: contestantParticipationPayload && {
+            create: contestantParticipationPayload,
+          },
+          VolunteerParticipation: volunteerParticipationPayload && {
+            create: volunteerParticipationPayload,
+          },
         },
-      },
-      VolunteerParticipation: volunteerParticipationPayload && {
-        create: { ...volunteerParticipationPayload },
-      },
-    },
-  });
+      });
 
-  // Create participant folder
-  let gDriveFolderUrl = "";
-  try {
-    gDriveFolderUrl = await findOrCreateDriveFolderForParticipant({
-      email: userInput.email,
-      ofmiEdition: ofmi.edition,
+      return participation;
     });
-  } catch (e) {
-    console.error("Error findOrCreateDriveFolderForParticipant", e);
-  }
 
-  if (requestStartTime.getTime() <= participation.createdAt.getTime()) {
-    // Participation was created
-    await emailer.notifySuccessfulOfmiRegistration(
-      userInput.email,
-      gDriveFolderUrl,
-    );
-  }
+    let gDriveFolderUrl = "";
+    try {
+      gDriveFolderUrl = await findOrCreateDriveFolderForParticipant({
+        email: userInput.email,
+        ofmiEdition: ofmi.edition,
+      });
+    } catch (e) {
+      console.error("Error findOrCreateDriveFolderForParticipant", e);
+    }
 
-  return res.status(201).json({ participation });
+    if (requestStartTime.getTime() <= result.createdAt.getTime()) {
+      await emailer.notifySuccessfulOfmiRegistration(
+        userInput.email,
+        gDriveFolderUrl,
+      );
+    }
+
+    return res.status(201).json({ participation: result });
+  } catch (error: any) {
+    console.error("Registration Error:", error);
+    // Detect Check Constraint violation
+    if (
+      error.code === "P2002" ||
+      error.message?.includes("check_venue_capacity")
+    ) {
+      return res
+        .status(409)
+        .json({ message: "La sede seleccionada ya no tiene cupo disponible." });
+    }
+    return res
+      .status(500)
+      .json({ message: "Error interno al procesar el registro." });
+  }
 }
 
 export default async function handle(
