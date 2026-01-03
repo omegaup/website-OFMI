@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import {
   UpsertParticipationRequestSchema,
@@ -312,7 +313,20 @@ async function upsertParticipationHandler(
     return res.status(201).json({ participation: result });
   } catch (error) {
     console.error("Registration Error:", error);
-    // TODO: check for constraint violation specifying types for error (error.code === 'P2002')
+    
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const isPrismaError = error instanceof Prisma.PrismaClientKnownRequestError;
+    const errorCode = isPrismaError ? error.code : undefined;
+
+    if (
+      errorCode === "P2002" ||
+      errorMessage.includes("check_venue_capacity")
+    ) {
+      return res
+        .status(409)
+        .json({ message: "La sede seleccionada ya no tiene cupo disponible." });
+    }
+    
     return res
       .status(500)
       .json({ message: "Error interno al procesar el registro." });

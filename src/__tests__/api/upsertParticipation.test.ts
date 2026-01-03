@@ -27,6 +27,7 @@ const validOfmi = {
 };
 const validRole: ParticipationRole = "CONTESTANT";
 let testVenueQuotaId: string;
+let fullVenueQuotaId: string;
 
 beforeAll(async () => {
   // ofmi is Needed
@@ -56,6 +57,23 @@ beforeAll(async () => {
     },
   });
   testVenueQuotaId = venueQuota.id;
+
+  const fullVenue = await prisma.venue.create({
+    data: {
+      name: "Full Venue",
+      address: "Full Address",
+      state: "CDMX",
+    },
+  });
+
+  const fullVenueQuota = await prisma.venueQuota.create({
+    data: {
+      venueId: fullVenue.id,
+      ofmiId: ofmi.id,
+      capacity: 0,
+    },
+  });
+  fullVenueQuotaId = fullVenueQuota.id;
 
   // Upsert the valid user Auth
   await prisma.userAuth.upsert({
@@ -433,5 +451,24 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
     });
 
     expect(cp?.venueQuotaId).toBe(testVenueQuotaId);
+  });
+
+  it("should return error when venue is full", async () => {
+    const { req, res } = mockRequestResponse({
+      body: {
+        ...validRequest,
+        userParticipation: {
+          ...validUserParticipationInput,
+          venueQuotaId: fullVenueQuotaId,
+        },
+      },
+    });
+
+    await upsertParticipationHandler(req, res);
+
+    expect(res.statusCode).toBe(409);
+    expect(res._getJSONData()).toMatchObject({
+      message: "La sede seleccionada ya no tiene cupo disponible.",
+    });
   });
 });
