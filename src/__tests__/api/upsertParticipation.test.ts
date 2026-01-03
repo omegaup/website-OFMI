@@ -26,10 +26,11 @@ const validOfmi = {
   registrationCloseTime: new Date("2050-08-08"),
 };
 const validRole: ParticipationRole = "CONTESTANT";
+let testVenueQuotaId: string;
 
 beforeAll(async () => {
   // ofmi is Needed
-  await prisma.ofmi.upsert({
+  const ofmi = await prisma.ofmi.upsert({
     where: { edition: validOfmi.edition },
     update: {
       ...validOfmi,
@@ -38,6 +39,24 @@ beforeAll(async () => {
       ...validOfmi,
     },
   });
+
+  const venue = await prisma.venue.create({
+    data: {
+      name: "Test Venue",
+      address: "Test Address",
+      state: "CDMX",
+    },
+  });
+
+  const venueQuota = await prisma.venueQuota.create({
+    data: {
+      venueId: venue.id,
+      ofmiId: ofmi.id,
+      capacity: 100,
+    },
+  });
+  testVenueQuotaId = venueQuota.id;
+
   // Upsert the valid user Auth
   await prisma.userAuth.upsert({
     where: { email: dummyEmail },
@@ -387,5 +406,32 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
 
     expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
     expect(res.statusCode).toBe(400);
+  });
+
+  it("should register with venue selection", async () => {
+    const { req, res } = mockRequestResponse({
+      body: {
+        ...validRequest,
+        userParticipation: {
+          ...validUserParticipationInput,
+          venueQuotaId: testVenueQuotaId,
+        },
+      },
+    });
+
+    await upsertParticipationHandler(req, res);
+
+    expect(res.statusCode).toBe(201);
+    const participationData = res._getJSONData()["participation"];
+
+    const cp = await prisma.contestantParticipation.findFirst({
+      where: {
+        Participation: {
+          some: { userId: participationData.userId },
+        },
+      },
+    });
+
+    expect(cp?.venueQuotaId).toBe(testVenueQuotaId);
   });
 });
