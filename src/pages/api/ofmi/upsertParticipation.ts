@@ -200,7 +200,11 @@ async function upsertParticipationHandler(
         ? {
             schoolGrade: contestantParticipationInput.schoolGrade,
             disqualified: false,
-            venueQuotaId: contestantParticipationInput.venueQuotaId,
+            venueQuota: contestantParticipationInput.venueQuotaId
+              ? {
+                  connect: { id: contestantParticipationInput.venueQuotaId },
+                }
+              : { disconnect: true },
             School: {
               connectOrCreate: {
                 where: {
