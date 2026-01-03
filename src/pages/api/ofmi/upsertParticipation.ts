@@ -195,15 +195,18 @@ async function upsertParticipationHandler(
         }
       }
 
-      const contestantParticipationPayload = contestantParticipationInput
+      const venueQuotaConnect = contestantParticipationInput?.venueQuotaId
+        ? { connect: { id: contestantParticipationInput.venueQuotaId } }
+        : undefined;
+
+      const venueQuotaDisconnect = !contestantParticipationInput?.venueQuotaId
+        ? { disconnect: true }
+        : undefined;
+
+      const baseContestantPayload = contestantParticipationInput
         ? {
             schoolGrade: contestantParticipationInput.schoolGrade,
             disqualified: false,
-            venueQuota: contestantParticipationInput.venueQuotaId
-              ? {
-                  connect: { id: contestantParticipationInput.venueQuotaId },
-                }
-              : { disconnect: true },
             School: {
               connectOrCreate: {
                 where: {
@@ -222,6 +225,20 @@ async function upsertParticipationHandler(
                 },
               },
             },
+          }
+        : undefined;
+
+      const contestantParticipationCreate = baseContestantPayload
+        ? {
+            ...baseContestantPayload,
+            venueQuota: venueQuotaConnect,
+          }
+        : undefined;
+
+      const contestantParticipationUpdate = baseContestantPayload
+        ? {
+            ...baseContestantPayload,
+            venueQuota: venueQuotaConnect || venueQuotaDisconnect,
           }
         : undefined;
 
@@ -246,10 +263,10 @@ async function upsertParticipationHandler(
         },
         update: {
           role,
-          ContestantParticipation: contestantParticipationPayload && {
+          ContestantParticipation: contestantParticipationUpdate && {
             upsert: {
-              create: contestantParticipationPayload,
-              update: contestantParticipationPayload,
+              create: contestantParticipationCreate!,
+              update: contestantParticipationUpdate,
             },
           },
           VolunteerParticipation: volunteerParticipationPayload && {
@@ -263,8 +280,8 @@ async function upsertParticipationHandler(
           role,
           user: { connect: { id: user.id } },
           ofmi: { connect: { id: ofmi.id } },
-          ContestantParticipation: contestantParticipationPayload && {
-            create: contestantParticipationPayload,
+          ContestantParticipation: contestantParticipationCreate && {
+            create: contestantParticipationCreate,
           },
           VolunteerParticipation: volunteerParticipationPayload && {
             create: volunteerParticipationPayload,
