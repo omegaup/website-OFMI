@@ -246,14 +246,14 @@ model OmegaupUser {
 }
 
 model Venue {
-  id          String       @id @default(uuid())
-  name        String
-  address     String
-  state       String
+  id            String       @id @default(uuid())
+  name          String
+  address       String
+  state         String
   googleMapsUrl String?
-  venueQuotas VenueQuota[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  venueQuotas   VenueQuota[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 }
 
 model VenueQuota {

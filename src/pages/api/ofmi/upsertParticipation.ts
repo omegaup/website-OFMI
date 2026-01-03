@@ -19,7 +19,6 @@ import {
   validateOFMIOpenAndCloseTime,
 } from "@/lib/validators/ofmi";
 import { findOrCreateDriveFolderForParticipant } from "@/lib/admin";
-
 // Function to register participation in our database
 async function upsertParticipationHandler(
   req: NextApiRequest,
@@ -294,17 +293,9 @@ async function upsertParticipationHandler(
     }
 
     return res.status(201).json({ participation: result });
-  } catch (error: any) {
+  } catch (error) {
     console.error("Registration Error:", error);
-    // Detect Check Constraint violation
-    if (
-      error.code === "P2002" ||
-      error.message?.includes("check_venue_capacity")
-    ) {
-      return res
-        .status(409)
-        .json({ message: "La sede seleccionada ya no tiene cupo disponible." });
-    }
+    // TODO: check for constraint violation specifying types for error (error.code === 'P2002')
     return res
       .status(500)
       .json({ message: "Error interno al procesar el registro." });

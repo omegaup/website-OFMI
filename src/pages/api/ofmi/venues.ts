@@ -1,8 +1,13 @@
 import { prisma } from "@/lib/prisma";
+import { Ofmi } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import { BadRequestError } from "@/types/errors";
+import { VenueQuotaSchema } from "@/types/venue.schema";
+import { Static } from "@sinclair/typebox";
 
-async function findOfmi(editionParam?: string | string[]) {
+async function findOfmi(
+  editionParam?: string | string[],
+): Promise<Ofmi | null> {
   const editionStr = Array.isArray(editionParam)
     ? editionParam[0]
     : editionParam;
@@ -16,9 +21,15 @@ async function findOfmi(editionParam?: string | string[]) {
   return prisma.ofmi.findFirst({ orderBy: { edition: "desc" } });
 }
 
+type VenueQuota = Static<typeof VenueQuotaSchema>;
+
+type VenueResponse = {
+  venues: VenueQuota[];
+};
+
 export default async function handle(
   req: NextApiRequest,
-  res: NextApiResponse<any | BadRequestError>,
+  res: NextApiResponse<VenueResponse | BadRequestError>,
 ): Promise<void> {
   if (req.method !== "GET") {
     return res.status(405).json({ message: "Method Not allowed" });
@@ -34,21 +45,23 @@ export default async function handle(
       return res.status(404).json({ message });
     }
 
-    const venueQuotas = await prisma.venueQuota.findMany({
+    const venueQuotasRaw = await prisma.venueQuota.findMany({
       where: { ofmiId: ofmi.id },
       include: { venue: true },
     });
 
-    const venues = venueQuotas.map((vq) => ({
+    const venues: VenueQuota[] = venueQuotasRaw.map((vq) => ({
       id: vq.id,
       venueId: vq.venueId,
-      name: vq.venue.name,
-      address: vq.venue.address,
-      state: vq.venue.state,
-      googleMapsUrl: vq.venue.googleMapsUrl,
+      ofmiId: vq.ofmiId,
       capacity: vq.capacity,
-      occupied: vq.occupied,
-      available: vq.capacity - vq.occupied,
+      venue: {
+        id: vq.venue.id,
+        name: vq.venue.name,
+        address: vq.venue.address,
+        state: vq.venue.state,
+        googleMapsUrl: vq.venue.googleMapsUrl,
+      },
     }));
 
     return res.status(200).json({ venues });
