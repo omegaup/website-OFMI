@@ -313,7 +313,7 @@ async function upsertParticipationHandler(
     return res.status(201).json({ participation: result });
   } catch (error) {
     console.error("Registration Error:", error);
-    
+
     const errorMessage = error instanceof Error ? error.message : String(error);
     const isPrismaError = error instanceof Prisma.PrismaClientKnownRequestError;
     const errorCode = isPrismaError ? error.code : undefined;
@@ -326,7 +326,7 @@ async function upsertParticipationHandler(
         .status(409)
         .json({ message: "La sede seleccionada ya no tiene cupo disponible." });
     }
-    
+
     return res
       .status(500)
       .json({ message: "Error interno al procesar el registro." });
