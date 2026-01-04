@@ -128,6 +128,7 @@ model Ofmi {
   highSchoolGraduationDateLimit DateTime?
   Participation                 Participation[]
   OmegaupContest                OmegaupContest[]
+  venueQuotas                   VenueQuota[]
   createdAt                     DateTime         @default(now())
   updatedAt                     DateTime         @updatedAt
 }
@@ -163,6 +164,8 @@ model ContestantParticipation {
   Participation  Participation[]
   Mentorias      Mentoria[]
   File           File[]
+  venueQuotaId   String?
+  venueQuota     VenueQuota?     @relation(fields: [venueQuotaId], references: [id])
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
 }
@@ -240,4 +243,30 @@ model OmegaupUser {
   ContestantParticipation ContestantParticipation[]
   createdAt               DateTime                  @default(now())
   updatedAt               DateTime                  @updatedAt
+}
+
+model Venue {
+  id            String       @id @default(uuid())
+  name          String
+  address       String
+  state         String
+  googleMapsUrl String?
+  venueQuotas   VenueQuota[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model VenueQuota {
+  id                       String                    @id @default(uuid())
+  venueId                  String
+  venue                    Venue                     @relation(fields: [venueId], references: [id])
+  ofmiId                   String
+  ofmi                     Ofmi                      @relation(fields: [ofmiId], references: [id])
+  capacity                 Int                       @default(50)
+  occupied                 Int                       @default(0)
+  contestantParticipations ContestantParticipation[]
+  createdAt                DateTime                  @default(now())
+  updatedAt                DateTime                  @updatedAt
+
+  @@unique([venueId, ofmiId])
 }
