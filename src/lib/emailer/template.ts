@@ -15,7 +15,7 @@ export const newUserEmailTemplate = (
     text: "Verifica tu cuenta de la página de la OFMI",
     html: `
       <p>Gracias por registrarte en la página de la OFMI.</p>
-      <p>Por favor da click en <a href="${url}">esta liga</a> para verificar 
+      <p>Por favor da click en <a href="${url}">esta liga</a> para verificar
       tu cuenta y que puedas empezar a usar la página.</p>
       <p>Si tienes alguna duda por favor envía un correo a
       <a href="mailto:ofmi@omegaup.com">ofmi@omegaup.com</a></p>
@@ -33,7 +33,7 @@ export const signUpSuccessfulEmailTemplate = (email: string): MailOptions => {
     text: "La página de la OFMI te da la bienvenida",
     html: `
         <p>Ahora ya tienes un login para usar la página de la OFMI.</p>
-        <p>Es muy importante que recuerdes que este login no significa que ya estés participando en la OFMI, para ese registro tienes que ir a la liga de 
+        <p>Es muy importante que recuerdes que este login no significa que ya estés participando en la OFMI, para ese registro tienes que ir a la liga de
         <a href="${config.BASE_URL}/registro">Registro</a> </p>
         <p>Si tienes alguna duda por favor envía un correo a
         <a href="mailto:ofmi@omegaup.com">ofmi@omegaup.com</a></p>
@@ -56,21 +56,21 @@ export const ofmiRegistrationCompleteTemplate = (
         <p>Ahora ya tienes un lugar en la OFMI.</p>
         ${
           gDriveFolder
-            ? `<p>¿Nos puedes compartir una foto tuya? Es para mostrarla 
+            ? `<p>¿Nos puedes compartir una foto tuya? Es para mostrarla
                   durante la ceremonia virtual de clausura. Lo recomendado
                   es que sea en un fondo liso que se vea tu cara y tus
                   hombros :)</p>
                <p>La puedes subir a <a href="${gDriveFolder}">esta carpeta</a>
-                  (si te pide acceso, solicítalo). Esta carpeta solo se 
+                  (si te pide acceso, solicítalo). Esta carpeta solo se
                   compartirá contigo y con el equipo organizador de la OFMI.</p>
-               <p>Por favor súbela junto con este formato de autorización de 
+               <p>Por favor súbela junto con este formato de autorización de
                   imagen:</p>
                <p>
-                  <a href="https://drive.google.com/file/d/14iOtI2OQnd3gkPBdUNdX1m0DCv3u7iP0/view?usp=sharing">
+                  <a href="https://drive.google.com/file/d/10luKnstOTS-SnwClH-UQEcgWzC_yoYhD/view?usp=sharing">
                   Formato de autorización de uso de imagen para menores de edad</a>
                </p>
                <p>
-                  <a href="https://drive.google.com/file/d/1TPzcGYJ9Mt0xWq-u_PcicwJTgs0YJYfG/view?usp=sharing">
+                  <a href="https://drive.google.com/file/d/1LgR6sU6r7BEJqtstCC7AQ_kt-cmJQZar/view?usp=sharing">
                   Formato de autorización de uso de imagen para mayores de edad</a>
                </p>`
             : ""
