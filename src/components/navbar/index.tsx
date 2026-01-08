@@ -9,6 +9,7 @@ import { usePathname } from "next/navigation";
 
 const navigation = {
   Convocatoria: "/convocatoria",
+  "Convocatoria sedes": "/sedes",
   Registro: "/registro",
   Reglamento: "/reglamento",
   "Código de conducta": "/conducta",
