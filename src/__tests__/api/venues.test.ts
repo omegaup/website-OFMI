@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { createMocks } from "node-mocks-http";
 import venuesHandler from "@/pages/api/ofmi/venues";
 import { prisma } from "@/lib/prisma";
+import { VenueQuota } from "@/types/venue.schema";
 
 describe("/api/ofmi/venues API Endpoint", () => {
   const testOfmiEdition = 5;
@@ -54,9 +55,11 @@ describe("/api/ofmi/venues API Endpoint", () => {
 
     expect(res.statusCode).toBe(200);
     const data = res._getJSONData();
-    
+
     // Find our specific test venue
-    const foundVenue = data.venues.find((v: any) => v.venueId === venueId);
+    const foundVenue = data.venues.find(
+      (v: VenueQuota) => v.venueId === venueId,
+    );
     expect(foundVenue).toBeDefined();
     expect(foundVenue.venue.name).toBe("Sede de Prueba Unit Test");
     expect(foundVenue.capacity).toBe(10);

@@ -12,12 +12,12 @@ export type Venue = Static<typeof VenueSchema>;
 
 export const VenueQuotaSchema = Type.Object({
   id: Type.String(),
-    venueId: Type.String(),
-    ofmiId: Type.String(),
-    capacity: Type.Integer(),
-    occupied: Type.Integer(),
-    venue: VenueSchema, 
-  });
+  venueId: Type.String(),
+  ofmiId: Type.String(),
+  capacity: Type.Integer(),
+  occupied: Type.Integer(),
+  venue: VenueSchema,
+});
 export type VenueQuota = Static<typeof VenueQuotaSchema>;
 
 export const CreateVenueInputSchema = Type.Object({
