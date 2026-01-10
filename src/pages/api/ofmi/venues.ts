@@ -58,6 +58,7 @@ export default async function handle(
       venueId: vq.venueId,
       ofmiId: vq.ofmiId,
       capacity: vq.capacity,
+      occupied: vq.occupied,
       venue: {
         id: vq.venue.id,
         name: vq.venue.name,

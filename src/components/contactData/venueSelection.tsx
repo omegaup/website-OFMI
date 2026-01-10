@@ -19,7 +19,7 @@ function getDistanceFromLatLonInKm(
   lat2: number,
   lon2: number,
 ) {
-  const R = 6371; 
+  const R = 6371;
   const dLat = deg2rad(lat2 - lat1);
   const dLon = deg2rad(lon2 - lon1);
   const a =
@@ -29,7 +29,7 @@ function getDistanceFromLatLonInKm(
       Math.sin(dLon / 2) *
       Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  const d = R * c; 
+  const d = R * c;
   return d;
 }
 
@@ -52,7 +52,7 @@ export function VenueSelection({
     `/api/ofmi/venues?ofmiEdition=${ofmiEdition}`,
     fetcher,
   );
-  
+
   const [sortedVenues, setSortedVenues] = useState<VenueQuota[]>([]);
   const [selectedVenueId, setSelectedVenueId] = useState<string>(
     initialVenueQuotaId || "",
@@ -94,7 +94,8 @@ export function VenueSelection({
   }, [userLocation, data]);
 
   if (error) return <Alert errorMsg="Error cargando sedes disponibles" />;
-  if (isLoading) return <div className="text-center p-4">Cargando sedes...</div>;
+  if (isLoading)
+    return <div className="p-4 text-center">Cargando sedes...</div>;
 
   const selectedVenue = sortedVenues.find((v) => v.id === selectedVenueId);
 
@@ -102,7 +103,7 @@ export function VenueSelection({
     <div className="border-b border-gray-900/10 pb-12">
       <SectionTitle
         title="Sede de Participación"
-        subtitle="Selecciona el lugar donde presentarás el examen."
+        // subtitle="Selecciona el lugar donde presentarás el examen."
       />
 
       <input type="hidden" name="venueQuotaId" value={selectedVenueId} />
@@ -125,7 +126,9 @@ export function VenueSelection({
               <option value="">-- Selecciona una sede --</option>
               {sortedVenues.map((v) => (
                 <option key={v.id} value={v.id}>
-                  {v.venue.state} - {v.venue.name} ({v.capacity - (v.occupied || 0)} lugares)
+                  {v.venue.state} - {v.venue.name} 
+
+                  ( {v.capacity - (v.occupied || 0)} lugares)
                 </option>
               ))}
             </select>
@@ -138,8 +141,10 @@ export function VenueSelection({
         </div>
 
         {selectedVenue && (
-          <div className="sm:col-span-6 rounded-md bg-blue-50 p-4">
-            <h4 className="text-sm font-bold text-blue-800">Detalles de la Sede</h4>
+          <div className="rounded-md bg-blue-50 p-4 sm:col-span-6">
+            <h4 className="text-sm font-bold text-blue-800">
+              Detalles de la Sede
+            </h4>
             <p className="mt-1 text-sm text-blue-700">
               <strong>Dirección:</strong> {selectedVenue.venue.address}
             </p>
