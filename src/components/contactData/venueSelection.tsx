@@ -4,7 +4,6 @@ import { SectionTitle } from "./sectionTitle";
 import { VenueQuota } from "@/types/venue.schema";
 import { Alert } from "../alert";
 
-// Fetcher con genérico para evitar 'any' y definir el retorno de la promesa
 const fetcher = async <T,>(url: string): Promise<T> => {
   const res = await fetch(url);
   return res.json();
@@ -15,7 +14,6 @@ interface VenueSelectionProps {
   initialVenueQuotaId?: string;
 }
 
-// Retorno explícito : number para funciones de ordenamiento
 function sortAlphabetically(a: VenueQuota, b: VenueQuota): number {
   if (a.venue.state === b.venue.state) {
     return a.venue.name.localeCompare(b.venue.name);
@@ -36,42 +34,12 @@ export function VenueSelection({
   const [selectedVenueId, setSelectedVenueId] = useState<string>(
     initialVenueQuotaId || "",
   );
-  const [userLocation, setUserLocation] = useState<{
-    lat: number;
-    lon: number;
-  } | null>(null);
-  const [permissionDenied, setPermissionDenied] = useState(false);
 
-  // Tipado de retornos en useEffect : void
   useEffect((): void => {
     if (data?.venues) {
       setSortedVenues([...data.venues].sort(sortAlphabetically));
     }
   }, [data]);
-
-  useEffect((): void => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position: GeolocationPosition): void => {
-          setUserLocation({
-            lat: position.coords.latitude,
-            lon: position.coords.longitude,
-          });
-        },
-        (error: GeolocationPositionError): void => {
-          if (error.code === error.PERMISSION_DENIED) {
-            setPermissionDenied(true);
-          }
-        },
-      );
-    }
-  }, []);
-
-  useEffect((): void => {
-    if (userLocation && data?.venues) {
-      // Futuro ordenamiento por distancia
-    }
-  }, [userLocation, data]);
 
   if (error) return <Alert errorMsg="Error cargando sedes disponibles" />;
   if (isLoading)
@@ -97,7 +65,6 @@ export function VenueSelection({
             <select
               id="venue-select"
               value={selectedVenueId}
-              // Tipado explícito del evento y retorno
               onChange={(e: ChangeEvent<HTMLSelectElement>): void =>
                 setSelectedVenueId(e.target.value)
               }
@@ -112,11 +79,6 @@ export function VenueSelection({
                 </option>
               ))}
             </select>
-            {permissionDenied && (
-              <p className="mt-1 text-xs text-gray-500">
-                (Activa tu ubicación para ver las sedes más cercanas primero)
-              </p>
-            )}
           </div>
         </div>
 
