@@ -46,7 +46,10 @@ export default async function handle(
     }
 
     const venueQuotasRaw = await prisma.venueQuota.findMany({
-      where: { ofmiId: ofmi.id },
+      where: {
+        ofmiId: ofmi.id,
+        occupied: { lt: prisma.venueQuota.fields.capacity },
+      },
       include: { venue: true },
     });
 
@@ -55,6 +58,7 @@ export default async function handle(
       venueId: vq.venueId,
       ofmiId: vq.ofmiId,
       capacity: vq.capacity,
+      occupied: vq.occupied,
       venue: {
         id: vq.venue.id,
         name: vq.venue.name,

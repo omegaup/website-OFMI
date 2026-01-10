@@ -18,6 +18,7 @@ import { sendUpsertParticipation } from "./client";
 import { useSession } from "next-auth/react";
 import { exhaustiveMatchingGuard, undefinedIfEmpty } from "@/utils";
 import { VolunteerDetails } from "../volunteerDetails";
+import { VenueSelection } from "../venueSelection";
 
 export default function Registro({
   ofmiEdition,
@@ -87,6 +88,7 @@ export default function Registro({
             schoolGrade: Number(data.get(fieldIds.schoolGrade)?.toString()),
             schoolCountry: data.get(fieldIds.schoolCountry)?.toString() ?? "",
             schoolState: data.get(fieldIds.schoolState)?.toString() ?? "",
+            venueQuotaId: data.get("venueQuotaId")?.toString(),
           };
         }
         case "VOLUNTEER": {
@@ -230,13 +232,23 @@ export default function Registro({
         {/* CONTESTANT specific */}
         {/* School */}
         {role === "CONTESTANT" && (
-          <SchoolDetails
-            contestantParticipation={
-              participation?.userParticipation.role === "CONTESTANT"
-                ? participation.userParticipation
-                : null
-            }
-          />
+          <>
+            <SchoolDetails
+              contestantParticipation={
+                participation?.userParticipation.role === "CONTESTANT"
+                  ? participation.userParticipation
+                  : null
+              }
+            />
+            <VenueSelection
+              ofmiEdition={ofmiEdition}
+              initialVenueQuotaId={
+                participation?.userParticipation.role === "CONTESTANT"
+                  ? participation.userParticipation.venueQuotaId
+                  : undefined
+              }
+            />
+          </>
         )}
 
         {/* VOLUNTEER specific */}
