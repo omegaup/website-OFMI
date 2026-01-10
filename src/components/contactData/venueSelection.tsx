@@ -1,43 +1,22 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, ChangeEvent } from "react";
 import useSWR from "swr";
 import { SectionTitle } from "./sectionTitle";
 import { VenueQuota } from "@/types/venue.schema";
 import { Alert } from "../alert";
-import { fieldIds } from "./constants";
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+// Fetcher con genérico para evitar 'any' y definir el retorno de la promesa
+const fetcher = async <T,>(url: string): Promise<T> => {
+  const res = await fetch(url);
+  return res.json();
+};
 
 interface VenueSelectionProps {
   ofmiEdition: number;
   initialVenueQuotaId?: string;
 }
 
-// futura implementacion de feature si queremos orden por distancia
-function getDistanceFromLatLonInKm(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number,
-) {
-  const R = 6371;
-  const dLat = deg2rad(lat2 - lat1);
-  const dLon = deg2rad(lon2 - lon1);
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(deg2rad(lat1)) *
-      Math.cos(deg2rad(lat2)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  const d = R * c;
-  return d;
-}
-
-function deg2rad(deg: number) {
-  return deg * (Math.PI / 180);
-}
-
-function sortAlphabetically(a: VenueQuota, b: VenueQuota) {
+// Retorno explícito : number para funciones de ordenamiento
+function sortAlphabetically(a: VenueQuota, b: VenueQuota): number {
   if (a.venue.state === b.venue.state) {
     return a.venue.name.localeCompare(b.venue.name);
   }
@@ -47,7 +26,7 @@ function sortAlphabetically(a: VenueQuota, b: VenueQuota) {
 export function VenueSelection({
   ofmiEdition,
   initialVenueQuotaId,
-}: VenueSelectionProps) {
+}: VenueSelectionProps): JSX.Element {
   const { data, error, isLoading } = useSWR<{ venues: VenueQuota[] }>(
     `/api/ofmi/venues?ofmiEdition=${ofmiEdition}`,
     fetcher,
@@ -63,22 +42,23 @@ export function VenueSelection({
   } | null>(null);
   const [permissionDenied, setPermissionDenied] = useState(false);
 
-  useEffect(() => {
+  // Tipado de retornos en useEffect : void
+  useEffect((): void => {
     if (data?.venues) {
       setSortedVenues([...data.venues].sort(sortAlphabetically));
     }
   }, [data]);
 
-  useEffect(() => {
+  useEffect((): void => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        (position: GeolocationPosition): void => {
           setUserLocation({
             lat: position.coords.latitude,
             lon: position.coords.longitude,
           });
         },
-        (error) => {
+        (error: GeolocationPositionError): void => {
           if (error.code === error.PERMISSION_DENIED) {
             setPermissionDenied(true);
           }
@@ -87,9 +67,9 @@ export function VenueSelection({
     }
   }, []);
 
-  useEffect(() => {
+  useEffect((): void => {
     if (userLocation && data?.venues) {
-      // Sort by distance
+      // Futuro ordenamiento por distancia
     }
   }, [userLocation, data]);
 
@@ -101,10 +81,7 @@ export function VenueSelection({
 
   return (
     <div className="border-b border-gray-900/10 pb-12">
-      <SectionTitle
-        title="Sede de Participación"
-        // subtitle="Selecciona el lugar donde presentarás el examen."
-      />
+      <SectionTitle title="Sede de Participación" />
 
       <input type="hidden" name="venueQuotaId" value={selectedVenueId} />
 
@@ -120,15 +97,18 @@ export function VenueSelection({
             <select
               id="venue-select"
               value={selectedVenueId}
-              onChange={(e) => setSelectedVenueId(e.target.value)}
-              className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-md sm:text-sm sm:leading-6"
+              // Tipado explícito del evento y retorno
+              onChange={(e: ChangeEvent<HTMLSelectElement>): void =>
+                setSelectedVenueId(e.target.value)
+              }
+              className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset
+   focus:ring-blue-600 sm:max-w-md sm:text-sm sm:leading-6"
             >
               <option value="">-- Selecciona una sede --</option>
               {sortedVenues.map((v) => (
                 <option key={v.id} value={v.id}>
-                  {v.venue.state} - {v.venue.name} 
-
-                  ( {v.capacity - (v.occupied || 0)} lugares)
+                  {v.venue.state} - {v.venue.name} (
+                  {v.capacity - (v.occupied || 0)} lugares)
                 </option>
               ))}
             </select>
