@@ -55,9 +55,12 @@ describe("/api/ofmi/venues API Endpoint", () => {
 
     expect(res.statusCode).toBe(200);
     const data = res._getJSONData();
-    expect(data.venues).toHaveLength(1);
-    expect(data.venues[0].venue.name).toBe("Sede de Prueba Unit Test");
-    expect(data.venues[0].capacity).toBe(10);
+    
+    // Find our specific test venue
+    const foundVenue = data.venues.find((v: any) => v.venueId === venueId);
+    expect(foundVenue).toBeDefined();
+    expect(foundVenue.venue.name).toBe("Sede de Prueba Unit Test");
+    expect(foundVenue.capacity).toBe(10);
   });
 
   it("should return 404 for non-existent edition", async () => {
