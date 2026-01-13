@@ -77,7 +77,7 @@ export const ofmiRegistrationCompleteTemplate = (
         }
         <p>
         Además, te invitamos a unirte a la comunidad oficial de WhatsApp de la 5ª OFMI, un espacio donde compartiremos avisos importantes, fechas clave, recursos de preparación y noticias relacionadas con la olimpiada. Unirte es totalmente opcional, pero muy recomendado para mantenerte al tanto de todo lo relacionado con esta edición.
-        Únete aquí:  https://chat.whatsapp.com/GezIY8iaWGkKenpcUzl0dE
+        Únete aquí: <a href="https://chat.whatsapp.com/GezIY8iaWGkKenpcUzl0dE">Grupo de whatsapp</a>
         </p>
         <p>Si tienes alguna duda por favor envía un correo a
         <a href="mailto:ofmi@omegaup.com">ofmi@omegaup.com</a></p>
