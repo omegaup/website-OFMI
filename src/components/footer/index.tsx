@@ -1,5 +1,4 @@
 import Image from "next/image";
-import JaneStreetImageData from "public/janestreet.svg";
 import OmegaUpImageData from "public/omegaup.svg";
 
 const email = "ofmi@omegaup.com";
@@ -33,7 +32,7 @@ export const Footer = (): JSX.Element => {
         <h2 className="mb-4">
           Página oficial de la Olimpiada Femenil Mexicana de Informática.
         </h2>
-        <div className="grid items-center md:grid-cols-2 md:gap-6">
+        <div className="grid items-center md:gap-6">
           {/* OmegaUp Section */}
           <div className="group relative z-0 mb-5 w-full">
             <a className="inline-block" href="https://omegaup.com">
@@ -52,19 +51,6 @@ export const Footer = (): JSX.Element => {
                 {email}
               </a>
             </p>
-          </div>
-
-          {/* Sponsors Section */}
-          <div className="group relative z-0 mb-5 w-full">
-            <a className="inline-block" href="https://janestreet.com/">
-              <Image
-                height={32}
-                width={82}
-                src={JaneStreetImageData}
-                alt="janestreet"
-              />
-            </a>
-            <p>Patrocinador</p>
           </div>
         </div>
         {/* Social Media Section */}
