@@ -10,3 +10,10 @@ export type State = {
 export type Country = {
   [state: StateName]: State;
 };
+
+export type Address = {
+  postalCode: string;
+  neighborhood: string;
+  county: string;
+  state: string;
+};

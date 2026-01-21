@@ -35,7 +35,7 @@ const SchoolStageSchema = Type.Enum(SchoolStage);
 export type ContestantParticipationInput = Static<
   typeof ContestantParticipationInputSchema
 >;
-const ContestantParticipationInputSchema = Type.Object({
+export const ContestantParticipationInputSchema = Type.Object({
   role: Type.Literal(ParticipationRole.CONTESTANT),
   schoolName: Type.String({ minLength: 1 }),
   schoolStage: SchoolStageSchema,
@@ -45,7 +45,7 @@ const ContestantParticipationInputSchema = Type.Object({
   venueQuotaId: Type.Optional(Type.String()),
 });
 
-const VolunteerParticipationInputSchema = Type.Object({
+export const VolunteerParticipationInputSchema = Type.Object({
   role: Type.Literal(ParticipationRole.VOLUNTEER),
   educationalLinkageOptIn: Type.Boolean(),
   fundraisingOptIn: Type.Boolean(),
@@ -103,3 +103,11 @@ export type ParticipationWithUserOauth = Prisma.ParticipationGetPayload<{
 export interface UpsertParticipationResponse {
   participation: Participation;
 }
+
+export type GenerateIdentitiesRequest = Static<
+  typeof GenerateIdentitiesRequestInputSchema
+>;
+
+export const GenerateIdentitiesRequestInputSchema = Type.Object({
+  ofmiEdition: Type.Integer({ minimum: 1 }),
+});
