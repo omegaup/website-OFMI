@@ -270,7 +270,8 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
       {
         mailOptions: {
           to: dummyEmail,
-          subject: "Te has registrado exitosamente a la OFMI",
+          subject:
+            "¡Bienvenida a la 5a Olimpiada Femenil Mexicana de Informática (OFMI)!",
         },
       },
     ]);

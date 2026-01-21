@@ -50,13 +50,50 @@ export const ofmiRegistrationCompleteTemplate = (
   return {
     from: getSecretOrError(OFMI_EMAIL_SMTP_USER_KEY),
     to: email,
-    subject: "Te has registrado exitosamente a la OFMI",
+    subject:
+      "¡Bienvenida a la 5a Olimpiada Femenil Mexicana de Informática (OFMI)!",
     text: "Te has registrado exitosamente a la OFMI",
     html: `
         <p>Ahora ya tienes un lugar en la OFMI.</p>
+        <p>
+        Hola 👋,
+¡Gracias por registrarte en la 5ª Olimpiada Femenil Mexicana de Informática (OFMI)! 🎉
+Nos emociona muchísimo que formes parte de esta edición. Queremos que sepas que la OFMI
+es una comunidad segura, incluyente y de aprendizaje, y esperamos que te sientas bienvenida
+desde este primer momento 💜
+        </p>
+        <p><strong>Recursos de preparación</strong></p>
+        <p>No necesitas saber programar previamente para participar. En esta edición contamos con
+        varios recursos para apoyarte durante todo el proceso:</p>
+        <br />
+        <ul>
+            <li>
+                <p><strong>Curso de la OFMI en OmegaUp (desde lo más básico) (opcional)</strong></p>
+                <p>Incluye videos y problemas recomendados para practicar a tu ritmo. <a href="https://omegaup.com/course/Intro-OFMI/">Curso</a>
+                </p>
+            </li>
+            <li>
+                <p><strong>Mentorías personalizadas (opcional)</strong></p>
+                <p>Si tienes dudas sobre algún tema o ejercicio, puedes agendar una sesión 1 a 1 con una
+mentora o mentor. Puedes ver los días y horarios disponibles en el siguiente link. <a href="https://ofmi.omegaup.com/mentorias">Mentorías</a>
+</p>
+            </li>
+            <li>
+                <p><strong>Office hours semanales (opcional)</strong></p>
+                <p>A partir de febrero tendremos sesiones abiertas para resolver dudas generales una vez a la
+semana. No necesitas reservar, solo conectarte.
+👉 El link, día de la semana y hora será mandado por correo en las siguientes semanas</p>
+            </li>
+            <li>
+                <p><strong>Días OFMI (fechas por confirmar) ✨</strong></p>
+                <p>Tendremos algunos días especiales para conocernos mejor, generar comunidad, hacer
+actividades juntas y llevarnos algunas sorpresas. Pronto compartiremos más información.</p>
+            </li>
+        </ul>
         ${
           gDriveFolder
-            ? `<p>¿Nos puedes compartir una foto tuya? Es para mostrarla
+            ? `<p><strong>📸 Foto para la inauguración</strong></p>
+            <p>¿Nos puedes compartir una foto tuya? Es para mostrarla
                   durante la ceremonia virtual de clausura. Lo recomendado
                   es que sea en un fondo liso que se vea tu cara y tus
                   hombros :)</p>
@@ -75,14 +112,22 @@ export const ofmiRegistrationCompleteTemplate = (
                </p>`
             : ""
         }
+        <p><strong>💬 Comunidad de WhatsApp</strong></p>
         <p>
-        Además, te invitamos a unirte a la comunidad oficial de WhatsApp de la 5ª OFMI, un espacio donde compartiremos avisos importantes, fechas clave, recursos de preparación y noticias relacionadas con la olimpiada. Unirte es totalmente opcional, pero muy recomendado para mantenerte al tanto de todo lo relacionado con esta edición.
+        También puedes unirte al grupo oficial de WhatsApp de participantes, donde compartiremos avisos importantes, recordatorios y novedades de la olimpiada. Unirte es opcional, pero muy recomendado.
         Únete aquí: <a href="https://chat.whatsapp.com/GezIY8iaWGkKenpcUzl0dE">Grupo de whatsapp</a>
         </p>
-        <p>Si tienes alguna duda por favor envía un correo a
-        <a href="mailto:ofmi@omegaup.com">ofmi@omegaup.com</a></p>
-        <br />
+        <p>
+            Finalmente, <strong>te recordamos que desde el 2 de febrero de 2026 podrás elegir la sede donde
+            presentarás el examen</strong>, una vez que las sedes oficiales sean publicadas.
+            Si tienes cualquier duda, puedes escribirnos con toda confianza a ofmi@omegaup.com.
+            ¡Gracias por ser parte de esta edición y nos vemos pronto! 💜 
+        </p>
+        <p>Con cariño,<p>
         <p>Equipo organizador de la OFMI</p>
+        <p>Olimpiada Femenil Mexicana de Informática (OFMI)</p>
+        <p>OmegaUp</p>
+        <a href="mailto:ofmi@omegaup.com">ofmi@omegaup.com</a></p>
       `,
   };
 };
