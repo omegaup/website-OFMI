@@ -2,11 +2,7 @@ import type {
   GetServerSideProps,
   InferGetServerSidePropsType,
 } from "next/types";
-import {
-  findContestantParticipation,
-  findMostRecentOfmi,
-  findParticipation,
-} from "@/lib/ofmi";
+import { findMostRecentOfmi, findParticipation } from "@/lib/ofmi";
 import Mentorias from "@/components/mentorias";
 import { X_USER_AUTH_EMAIL_HEADER } from "@/lib/auth";
 
@@ -49,21 +45,22 @@ export const getServerSideProps: GetServerSideProps<{
   }
 
   // TODO: cambiar esto a un campo bool o algo así y que se pueda hacer un bulk update para cada etapa
-  const contestantParticipation = await findContestantParticipation(
-    participation.contestantParticipantId,
-  );
+  //   Comentando, ahora todas las participantes pueden agendar mentoria.
+  //   const contestantParticipation = await findContestantParticipation(
+  //     participation.contestantParticipantId,
+  //   );
+  //  if (
+  //     contestantParticipation != null &&
+  //     contestantParticipation.medal == null
+  //   ) {
 
-  if (
-    contestantParticipation != null &&
-    contestantParticipation.medal == null
-  ) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: false,
-      },
-    };
-  }
+  //     return {
+  //       redirect: {
+  //         destination: "/",
+  //         permanent: false,
+  //       },
+  //     };
+  //   }
 
   return {
     props: {
