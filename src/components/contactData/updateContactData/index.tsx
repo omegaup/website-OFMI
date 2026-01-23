@@ -14,17 +14,19 @@ import {
   type UpdateContactDataRequest,
   type UserRequestInput,
 } from "@/types/user.schema";
+import { VenueSelection } from "../venueSelection";
 
 export default function UpdateContactData({
   user,
+  ofmiEdition,
 }: {
   user: UserRequestInput | null;
+  ofmiEdition: number;
 }): JSX.Element {
   const { data: session } = useSession();
   const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState(false);
   const [successfulUpdate, setSuccessfulUpdate] = useState(false);
-
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>,
   ): Promise<void> {
@@ -127,6 +129,7 @@ export default function UpdateContactData({
         <ContactData user={user} isUpdate={true} />
         {/* Mailing address */}
         <UserMailingAddress user={user} />
+        <VenueSelection ofmiEdition={ofmiEdition} />
 
         {/* Submit form */}
         <div className="flex justify-center">
