@@ -91,7 +91,7 @@ async function updateContactDataHandler(
         neighborhood: mailingAddressInput.locality ?? "",
         name: mailingAddressInput.recipient ?? fullName,
       };
-      
+
       const user = await tx.user.update({
         where: { userAuthId: authUser.id },
         data: {
@@ -108,49 +108,52 @@ async function updateContactDataHandler(
         // Identify which OFMI edition we are talking about
         // If venueQuotaId is set, use it to find OFMI.
         // If empty string (unselect), we need to find the user's active participation another way.
-        
+
         let ofmiId: string | undefined;
-        
+
         if (venueQuotaId) {
-            const targetQuota = await tx.venueQuota.findUnique({ where: { id: venueQuotaId }});
-            if (!targetQuota) throw new Error("La sede seleccionada no existe");
-            ofmiId = targetQuota.ofmiId;
+          const targetQuota = await tx.venueQuota.findUnique({
+            where: { id: venueQuotaId },
+          });
+          if (!targetQuota) throw new Error("La sede seleccionada no existe");
+          ofmiId = targetQuota.ofmiId;
         }
 
         const participation = await tx.participation.findFirst({
-            where: {
-                userId: user.id,
-                role: "CONTESTANT",
-                ...(ofmiId ? { ofmiId } : {}) 
-            },
-            orderBy: { ofmi: { edition: 'desc' } }, 
-            include: { ContestantParticipation: true }
+          where: {
+            userId: user.id,
+            role: "CONTESTANT",
+            ...(ofmiId ? { ofmiId } : {}),
+          },
+          orderBy: { ofmi: { edition: "desc" } },
+          include: { ContestantParticipation: true },
         });
 
         if (participation && participation.ContestantParticipation) {
-            const currentVenueId = participation.ContestantParticipation.venueQuotaId;
-            const newVenueId = venueQuotaId || null; 
+          const currentVenueId =
+            participation.ContestantParticipation.venueQuotaId;
+          const newVenueId = venueQuotaId || null;
 
-            if (currentVenueId !== newVenueId) {
-                if (currentVenueId) {
-                    await tx.venueQuota.update({
-                        where: { id: currentVenueId },
-                        data: { occupied: { decrement: 1 } }
-                    });
-                }
-
-                if (newVenueId) {
-                    await tx.venueQuota.update({
-                        where: { id: newVenueId },
-                        data: { occupied: { increment: 1 } }
-                    });
-                }
-
-                await tx.contestantParticipation.update({
-                    where: { id: participation.ContestantParticipation.id },
-                    data: { venueQuotaId: newVenueId }
-                });
+          if (currentVenueId !== newVenueId) {
+            if (currentVenueId) {
+              await tx.venueQuota.update({
+                where: { id: currentVenueId },
+                data: { occupied: { decrement: 1 } },
+              });
             }
+
+            if (newVenueId) {
+              await tx.venueQuota.update({
+                where: { id: newVenueId },
+                data: { occupied: { increment: 1 } },
+              });
+            }
+
+            await tx.contestantParticipation.update({
+              where: { id: participation.ContestantParticipation.id },
+              data: { venueQuotaId: newVenueId },
+            });
+          }
         }
       }
 
