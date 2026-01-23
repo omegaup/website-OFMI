@@ -19,9 +19,11 @@ import { VenueSelection } from "../venueSelection";
 export default function UpdateContactData({
   user,
   ofmiEdition,
+  venueId,
 }: {
   user: UserRequestInput | null;
   ofmiEdition: number;
+  venueId: string | null;
 }): JSX.Element {
   const { data: session } = useSession();
   const [error, setError] = useState<Error | null>(null);
@@ -130,7 +132,10 @@ export default function UpdateContactData({
         <ContactData user={user} isUpdate={true} />
         {/* Mailing address */}
         <UserMailingAddress user={user} />
-        <VenueSelection ofmiEdition={ofmiEdition} />
+        <VenueSelection
+          ofmiEdition={ofmiEdition}
+          initialVenueQuotaId={venueId}
+        />
 
         {/* Submit form */}
         <div className="flex justify-center">
