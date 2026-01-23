@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, beforeAll } from "vitest";
+import { describe, it, expect, beforeEach, beforeAll, afterAll } from "vitest";
 import { mockEmailer } from "./mocks/emailer";
 import {
   createMocks,
@@ -28,6 +28,8 @@ const validOfmi = {
 const validRole: ParticipationRole = "CONTESTANT";
 let testVenueQuotaId: string;
 let fullVenueQuotaId: string;
+let testVenueId: string;
+let fullVenueId: string;
 
 beforeAll(async () => {
   // ofmi is Needed
@@ -48,6 +50,7 @@ beforeAll(async () => {
       state: "CDMX",
     },
   });
+  testVenueId = venue.id;
 
   const venueQuota = await prisma.venueQuota.create({
     data: {
@@ -65,6 +68,7 @@ beforeAll(async () => {
       state: "CDMX",
     },
   });
+  fullVenueId = fullVenue.id;
 
   const fullVenueQuota = await prisma.venueQuota.create({
     data: {
@@ -80,6 +84,15 @@ beforeAll(async () => {
     where: { email: dummyEmail },
     update: {},
     create: { email: dummyEmail, password: hashPassword("pass") },
+  });
+});
+
+afterAll(async () => {
+  await prisma.venueQuota.deleteMany({
+    where: { id: { in: [testVenueQuotaId, fullVenueQuotaId] } }
+  });
+  await prisma.venue.deleteMany({
+    where: { id: { in: [testVenueId, fullVenueId] } }
   });
 });
 

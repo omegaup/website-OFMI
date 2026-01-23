@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, afterAll, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/hashPassword";
 import {
@@ -19,6 +19,9 @@ const dummyEmail = "upsertUser@test.com";
 // Setup vars
 let sourceVenueQuotaId: string;
 let destVenueQuotaId: string;
+let sourceVenueId: string;
+let destVenueId: string;
+const testOfmiEdition = 100;
 
 const mailingAddressDB = {
   street: "Calle",
@@ -69,10 +72,10 @@ beforeAll(async () => {
   });
 
   const ofmi = await prisma.ofmi.upsert({
-    where: { edition: 100 },
+    where: { edition: testOfmiEdition },
     update: {},
     create: {
-      edition: 100,
+      edition: testOfmiEdition,
       year: 2030,
       registrationOpenTime: new Date(),
       registrationCloseTime: new Date(),
@@ -82,9 +85,12 @@ beforeAll(async () => {
   const venue1 = await prisma.venue.create({
     data: { name: "V1", address: "A1", state: "S1" },
   });
+  sourceVenueId = venue1.id;
+  
   const venue2 = await prisma.venue.create({
     data: { name: "V2", address: "A2", state: "S2" },
   });
+  destVenueId = venue2.id;
 
   const q1 = await prisma.venueQuota.create({
     data: { venueId: venue1.id, ofmiId: ofmi.id, capacity: 10, occupied: 5 },
@@ -130,6 +136,27 @@ beforeAll(async () => {
       contestantParticipationId: cp.id,
     },
   });
+});
+
+afterAll(async () => {
+  const authUser = await prisma.userAuth.findUnique({ where: { email: dummyEmail }, include: { User: true } });
+  if (authUser?.User) {
+      await prisma.participation.deleteMany({ where: { userId: authUser.User.id, ofmi: { edition: testOfmiEdition } } });
+  }
+  
+  await prisma.contestantParticipation.deleteMany({
+      where: { venueQuotaId: { in: [sourceVenueQuotaId, destVenueQuotaId] } }
+  });
+
+  await prisma.venueQuota.deleteMany({
+    where: { id: { in: [sourceVenueQuotaId, destVenueQuotaId] } }
+  });
+  
+  await prisma.venue.deleteMany({
+    where: { id: { in: [sourceVenueId, destVenueId] } }
+  });
+  
+  await prisma.ofmi.delete({ where: { edition: testOfmiEdition } });
 });
 
 describe("/api/user/updateContactData API Endpoint", () => {
