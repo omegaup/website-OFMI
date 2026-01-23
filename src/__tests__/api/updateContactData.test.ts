@@ -71,35 +71,55 @@ beforeAll(async () => {
   const ofmi = await prisma.ofmi.upsert({
     where: { edition: 100 },
     update: {},
-    create: { edition: 100, year: 2030, registrationOpenTime: new Date(), registrationCloseTime: new Date() }
+    create: {
+      edition: 100,
+      year: 2030,
+      registrationOpenTime: new Date(),
+      registrationCloseTime: new Date(),
+    },
   });
 
-  const venue1 = await prisma.venue.create({ data: { name: "V1", address: "A1", state: "S1" } });
-  const venue2 = await prisma.venue.create({ data: { name: "V2", address: "A2", state: "S2" } });
+  const venue1 = await prisma.venue.create({
+    data: { name: "V1", address: "A1", state: "S1" },
+  });
+  const venue2 = await prisma.venue.create({
+    data: { name: "V2", address: "A2", state: "S2" },
+  });
 
-  const q1 = await prisma.venueQuota.create({ data: { venueId: venue1.id, ofmiId: ofmi.id, capacity: 10, occupied: 5 } });
-  const q2 = await prisma.venueQuota.create({ data: { venueId: venue2.id, ofmiId: ofmi.id, capacity: 10, occupied: 0 } });
-  
+  const q1 = await prisma.venueQuota.create({
+    data: { venueId: venue1.id, ofmiId: ofmi.id, capacity: 10, occupied: 5 },
+  });
+  const q2 = await prisma.venueQuota.create({
+    data: { venueId: venue2.id, ofmiId: ofmi.id, capacity: 10, occupied: 0 },
+  });
+
   sourceVenueQuotaId = q1.id;
   destVenueQuotaId = q2.id;
 
   const school = await prisma.school.upsert({
-    where: { name_stage_state_country: { name: "S", stage: "HIGH", state: "S", country: "C" } },
+    where: {
+      name_stage_state_country: {
+        name: "S",
+        stage: "HIGH",
+        state: "S",
+        country: "C",
+      },
+    },
     update: {},
-    create: { name: "S", stage: "HIGH", state: "S", country: "C" }
+    create: { name: "S", stage: "HIGH", state: "S", country: "C" },
   });
-  
+
   const cp = await prisma.contestantParticipation.create({
     data: {
-        schoolId: school.id,
-        schoolGrade: 1,
-        disqualified: false,
-        venueQuotaId: sourceVenueQuotaId
-    }
+      schoolId: school.id,
+      schoolGrade: 1,
+      disqualified: false,
+      venueQuotaId: sourceVenueQuotaId,
+    },
   });
 
   await prisma.participation.deleteMany({
-    where: { userId: user.id, ofmiId: ofmi.id }
+    where: { userId: user.id, ofmiId: ofmi.id },
   });
 
   await prisma.participation.create({
@@ -107,8 +127,8 @@ beforeAll(async () => {
       userId: user.id,
       ofmiId: ofmi.id,
       role: ParticipationRole.CONTESTANT,
-      contestantParticipationId: cp.id
-    }
+      contestantParticipationId: cp.id,
+    },
   });
 });
 
@@ -198,7 +218,7 @@ describe("/api/user/updateContactData API Endpoint", () => {
         email: dummyEmail,
         ...updatedFields,
       },
-      venueQuotaId: destVenueQuotaId
+      venueQuotaId: destVenueQuotaId,
     };
 
     const { req, res } = mockRequestResponse({ body: validRequest });
@@ -206,18 +226,24 @@ describe("/api/user/updateContactData API Endpoint", () => {
 
     expect(res.statusCode).toBe(201);
 
-    const userAuth = await prisma.userAuth.findUniqueOrThrow({ 
-        where: { email: dummyEmail },
-        include: { User: true } 
+    const userAuth = await prisma.userAuth.findUniqueOrThrow({
+      where: { email: dummyEmail },
+      include: { User: true },
     });
     const participation = await prisma.participation.findFirstOrThrow({
-        where: { userId: userAuth.User!.id, ofmi: { edition: 100 } },
-        include: { ContestantParticipation: true }
+      where: { userId: userAuth.User!.id, ofmi: { edition: 100 } },
+      include: { ContestantParticipation: true },
     });
-    expect(participation.ContestantParticipation?.venueQuotaId).toBe(destVenueQuotaId);
+    expect(participation.ContestantParticipation?.venueQuotaId).toBe(
+      destVenueQuotaId,
+    );
 
-    const q1 = await prisma.venueQuota.findUniqueOrThrow({ where: { id: sourceVenueQuotaId }});
-    const q2 = await prisma.venueQuota.findUniqueOrThrow({ where: { id: destVenueQuotaId }});
+    const q1 = await prisma.venueQuota.findUniqueOrThrow({
+      where: { id: sourceVenueQuotaId },
+    });
+    const q2 = await prisma.venueQuota.findUniqueOrThrow({
+      where: { id: destVenueQuotaId },
+    });
 
     expect(q1.occupied).toBe(4);
     expect(q2.occupied).toBe(1);
