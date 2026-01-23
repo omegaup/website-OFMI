@@ -88,7 +88,7 @@ export default function Registro({
             schoolGrade: Number(data.get(fieldIds.schoolGrade)?.toString()),
             schoolCountry: data.get(fieldIds.schoolCountry)?.toString() ?? "",
             schoolState: data.get(fieldIds.schoolState)?.toString() ?? "",
-            venueQuotaId: data.get("venueQuotaId")?.toString(),
+            venueQuotaId: data.get(fieldIds.venueSelection)?.toString(),
           };
         }
         case "VOLUNTEER": {
