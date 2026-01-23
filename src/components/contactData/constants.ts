@@ -18,6 +18,7 @@ export const fieldIds = {
   mailingLocality: "mailing_locality",
   mailingReferences: "references",
   mailingPhone: "phone",
+  venueSelection: "venueQuotaId",
 
   // CONTESTANT specific
   schoolCountry: "school_country",
