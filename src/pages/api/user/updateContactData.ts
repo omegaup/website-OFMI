@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import { Value } from "@sinclair/typebox/value";
 import { BadRequestError } from "@/types/errors";
@@ -26,7 +27,7 @@ async function updateContactDataHandler(
     });
   }
 
-  const { user: userInput } = body;
+  const { user: userInput, venueQuotaId } = body;
   const { mailingAddress: mailingAddressInput } = userInput;
   const birthDate = new Date(userInput.birthDate);
 
@@ -67,41 +68,114 @@ async function updateContactDataHandler(
 
   const fullName = `${userInput.firstName} ${userInput.lastName}`;
 
-  // Upsert User - Mailing address
-  const userInputPayload = {
-    firstName: userInput.firstName,
-    lastName: userInput.lastName,
-    preferredName: userInput.preferredName ?? fullName,
-    pronouns: userInput.pronouns,
-    shirtSize: userInput.shirtSize,
-    shirtStyle: userInput.shirtStyle,
-  };
-  const mailingAddressPayload = {
-    street: mailingAddressInput.street,
-    externalNumber: mailingAddressInput.externalNumber,
-    internalNumber: mailingAddressInput.internalNumber,
-    zipcode: mailingAddressInput.zipcode,
-    state: mailingAddressInput.state,
-    country: mailingAddressInput.country,
-    references: mailingAddressInput.references,
-    phone: mailingAddressInput.phone,
-    county: mailingAddressInput.municipality ?? "",
-    neighborhood: mailingAddressInput.locality ?? "",
-    name: mailingAddressInput.recipient ?? fullName,
-  };
-  const user = await prisma.user.update({
-    where: { userAuthId: authUser.id },
-    data: {
-      ...userInputPayload,
-      MailingAddress: {
-        update: {
-          ...mailingAddressPayload,
+  try {
+    const result = await prisma.$transaction(async (tx) => {
+      const userInputPayload = {
+        firstName: userInput.firstName,
+        lastName: userInput.lastName,
+        preferredName: userInput.preferredName ?? fullName,
+        pronouns: userInput.pronouns,
+        shirtSize: userInput.shirtSize,
+        shirtStyle: userInput.shirtStyle,
+      };
+      const mailingAddressPayload = {
+        street: mailingAddressInput.street,
+        externalNumber: mailingAddressInput.externalNumber,
+        internalNumber: mailingAddressInput.internalNumber,
+        zipcode: mailingAddressInput.zipcode,
+        state: mailingAddressInput.state,
+        country: mailingAddressInput.country,
+        references: mailingAddressInput.references,
+        phone: mailingAddressInput.phone,
+        county: mailingAddressInput.municipality ?? "",
+        neighborhood: mailingAddressInput.locality ?? "",
+        name: mailingAddressInput.recipient ?? fullName,
+      };
+      
+      const user = await tx.user.update({
+        where: { userAuthId: authUser.id },
+        data: {
+          ...userInputPayload,
+          MailingAddress: {
+            update: {
+              ...mailingAddressPayload,
+            },
+          },
         },
-      },
-    },
-  });
+      });
 
-  return res.status(201).json({ user });
+      if (venueQuotaId !== undefined) {
+        // Identify which OFMI edition we are talking about
+        // If venueQuotaId is set, use it to find OFMI.
+        // If empty string (unselect), we need to find the user's active participation another way.
+        
+        let ofmiId: string | undefined;
+        
+        if (venueQuotaId) {
+            const targetQuota = await tx.venueQuota.findUnique({ where: { id: venueQuotaId }});
+            if (!targetQuota) throw new Error("La sede seleccionada no existe");
+            ofmiId = targetQuota.ofmiId;
+        }
+
+        const participation = await tx.participation.findFirst({
+            where: {
+                userId: user.id,
+                role: "CONTESTANT",
+                ...(ofmiId ? { ofmiId } : {}) 
+            },
+            orderBy: { ofmi: { edition: 'desc' } }, 
+            include: { ContestantParticipation: true }
+        });
+
+        if (participation && participation.ContestantParticipation) {
+            const currentVenueId = participation.ContestantParticipation.venueQuotaId;
+            const newVenueId = venueQuotaId || null; 
+
+            if (currentVenueId !== newVenueId) {
+                if (currentVenueId) {
+                    await tx.venueQuota.update({
+                        where: { id: currentVenueId },
+                        data: { occupied: { decrement: 1 } }
+                    });
+                }
+
+                if (newVenueId) {
+                    await tx.venueQuota.update({
+                        where: { id: newVenueId },
+                        data: { occupied: { increment: 1 } }
+                    });
+                }
+
+                await tx.contestantParticipation.update({
+                    where: { id: participation.ContestantParticipation.id },
+                    data: { venueQuotaId: newVenueId }
+                });
+            }
+        }
+      }
+
+      return user;
+    });
+
+    return res.status(201).json({ user: result });
+  } catch (error) {
+    console.error("Update Error:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const isPrismaError = error instanceof Prisma.PrismaClientKnownRequestError;
+    const errorCode = isPrismaError ? error.code : undefined;
+
+    if (
+      errorCode === "P2002" ||
+      errorMessage.includes("check_venue_capacity")
+    ) {
+      return res
+        .status(409)
+        .json({ message: "La sede seleccionada ya no tiene cupo disponible." });
+    }
+    return res
+      .status(500)
+      .json({ message: "Error interno al actualizar datos." });
+  }
 }
 
 export default async function handle(

@@ -94,6 +94,7 @@ export default function UpdateContactData({
           phone: data.get(fieldIds.mailingPhone)?.toString() ?? "",
         },
       },
+      venueQuotaId: data.get(fieldIds.venueSelection)?.toString(),
     };
 
     setLoading(true);
