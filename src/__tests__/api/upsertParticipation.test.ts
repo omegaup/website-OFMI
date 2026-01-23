@@ -89,10 +89,10 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await prisma.venueQuota.deleteMany({
-    where: { id: { in: [testVenueQuotaId, fullVenueQuotaId] } }
+    where: { id: { in: [testVenueQuotaId, fullVenueQuotaId] } },
   });
   await prisma.venue.deleteMany({
-    where: { id: { in: [testVenueId, fullVenueId] } }
+    where: { id: { in: [testVenueId, fullVenueId] } },
   });
 });
 

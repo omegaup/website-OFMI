@@ -86,7 +86,7 @@ beforeAll(async () => {
     data: { name: "V1", address: "A1", state: "S1" },
   });
   sourceVenueId = venue1.id;
-  
+
   const venue2 = await prisma.venue.create({
     data: { name: "V2", address: "A2", state: "S2" },
   });
@@ -139,23 +139,28 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  const authUser = await prisma.userAuth.findUnique({ where: { email: dummyEmail }, include: { User: true } });
+  const authUser = await prisma.userAuth.findUnique({
+    where: { email: dummyEmail },
+    include: { User: true },
+  });
   if (authUser?.User) {
-      await prisma.participation.deleteMany({ where: { userId: authUser.User.id, ofmi: { edition: testOfmiEdition } } });
+    await prisma.participation.deleteMany({
+      where: { userId: authUser.User.id, ofmi: { edition: testOfmiEdition } },
+    });
   }
-  
+
   await prisma.contestantParticipation.deleteMany({
-      where: { venueQuotaId: { in: [sourceVenueQuotaId, destVenueQuotaId] } }
+    where: { venueQuotaId: { in: [sourceVenueQuotaId, destVenueQuotaId] } },
   });
 
   await prisma.venueQuota.deleteMany({
-    where: { id: { in: [sourceVenueQuotaId, destVenueQuotaId] } }
+    where: { id: { in: [sourceVenueQuotaId, destVenueQuotaId] } },
   });
-  
+
   await prisma.venue.deleteMany({
-    where: { id: { in: [sourceVenueId, destVenueId] } }
+    where: { id: { in: [sourceVenueId, destVenueId] } },
   });
-  
+
   await prisma.ofmi.delete({ where: { edition: testOfmiEdition } });
 });
 
