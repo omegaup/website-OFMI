@@ -11,7 +11,7 @@ const fetcher = async <T,>(url: string): Promise<T> => {
 
 interface VenueSelectionProps {
   ofmiEdition: number;
-  initialVenueQuotaId: string | null;
+  initialVenueQuotaId?: string | null;
 }
 
 function sortAlphabetically(a: VenueQuota, b: VenueQuota): number {
