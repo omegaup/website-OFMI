@@ -120,7 +120,7 @@ export default function UpdateContactData({
   return (
     <div className="mx-auto max-w-3xl px-2 pt-4">
       <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-        Actualización de datos de contacto
+        Actualizar datos
       </h2>
       <form
         className="mb-8"
