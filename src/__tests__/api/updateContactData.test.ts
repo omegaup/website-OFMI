@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, afterAll, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/hashPassword";
 import {
@@ -8,13 +8,20 @@ import {
   RequestMethod,
 } from "node-mocks-http";
 import { NextApiRequest, NextApiResponse } from "next";
-import { ShirtSize } from "@prisma/client";
+import { ParticipationRole, ShirtSize } from "@prisma/client";
 import { ShirtStyles } from "@/types/shirt";
 import updateContactDataHandler from "@/pages/api/user/updateContactData";
 type ApiRequest = NextApiRequest & ReturnType<typeof createRequest>;
 type APiResponse = NextApiResponse & ReturnType<typeof createResponse>;
 
 const dummyEmail = "upsertUser@test.com";
+
+// Setup vars
+let sourceVenueQuotaId: string;
+let destVenueQuotaId: string;
+let sourceVenueId: string;
+let destVenueId: string;
+const testOfmiEdition = 100;
 
 const mailingAddressDB = {
   street: "Calle",
@@ -48,7 +55,7 @@ beforeAll(async () => {
     create: { email: dummyEmail, password: hashPassword("pass") },
   });
 
-  await prisma.user.upsert({
+  const user = await prisma.user.upsert({
     where: { userAuthId: authUser?.id },
     update: {},
     create: {
@@ -63,6 +70,98 @@ beforeAll(async () => {
       },
     },
   });
+
+  const ofmi = await prisma.ofmi.upsert({
+    where: { edition: testOfmiEdition },
+    update: {},
+    create: {
+      edition: testOfmiEdition,
+      year: 2030,
+      registrationOpenTime: new Date(),
+      registrationCloseTime: new Date(),
+    },
+  });
+
+  const venue1 = await prisma.venue.create({
+    data: { name: "V1", address: "A1", state: "S1" },
+  });
+  sourceVenueId = venue1.id;
+
+  const venue2 = await prisma.venue.create({
+    data: { name: "V2", address: "A2", state: "S2" },
+  });
+  destVenueId = venue2.id;
+
+  const q1 = await prisma.venueQuota.create({
+    data: { venueId: venue1.id, ofmiId: ofmi.id, capacity: 10, occupied: 5 },
+  });
+  const q2 = await prisma.venueQuota.create({
+    data: { venueId: venue2.id, ofmiId: ofmi.id, capacity: 10, occupied: 0 },
+  });
+
+  sourceVenueQuotaId = q1.id;
+  destVenueQuotaId = q2.id;
+
+  const school = await prisma.school.upsert({
+    where: {
+      name_stage_state_country: {
+        name: "S",
+        stage: "HIGH",
+        state: "S",
+        country: "C",
+      },
+    },
+    update: {},
+    create: { name: "S", stage: "HIGH", state: "S", country: "C" },
+  });
+
+  const cp = await prisma.contestantParticipation.create({
+    data: {
+      schoolId: school.id,
+      schoolGrade: 1,
+      disqualified: false,
+      venueQuotaId: sourceVenueQuotaId,
+    },
+  });
+
+  await prisma.participation.deleteMany({
+    where: { userId: user.id, ofmiId: ofmi.id },
+  });
+
+  await prisma.participation.create({
+    data: {
+      userId: user.id,
+      ofmiId: ofmi.id,
+      role: ParticipationRole.CONTESTANT,
+      contestantParticipationId: cp.id,
+    },
+  });
+});
+
+afterAll(async () => {
+  const authUser = await prisma.userAuth.findUnique({
+    where: { email: dummyEmail },
+    include: { User: true },
+  });
+  if (authUser?.User) {
+    await prisma.participation.deleteMany({
+      where: { userId: authUser.User.id, ofmi: { edition: testOfmiEdition } },
+    });
+  }
+
+  await prisma.contestantParticipation.deleteMany({
+    where: { venueQuotaId: { in: [sourceVenueQuotaId, destVenueQuotaId] } },
+  });
+
+  await prisma.venueQuota.deleteMany({
+    where: { id: { in: [sourceVenueQuotaId, destVenueQuotaId] } },
+  });
+
+  await prisma.venue.deleteMany({
+    where: { id: { in: [sourceVenueId, destVenueId] } },
+  });
+
+  await prisma.ofmi.delete({ where: { edition: testOfmiEdition } });
 });
 
 describe("/api/user/updateContactData API Endpoint", () => {
@@ -143,6 +242,43 @@ describe("/api/user/updateContactData API Endpoint", () => {
     expect(updatedUser.governmentId).toBe(updatedFields.governmentId);
     expect(updatedUser.shirtSize).toBe(updatedFields.shirtSize);
     expect(updatedUser.shirtStyle).toBe(updatedFields.shirtStyle);
+  });
+
+  it("should update venue selection and adjust quotas", async () => {
+    const validRequest = {
+      user: {
+        email: dummyEmail,
+        ...updatedFields,
+      },
+      venueQuotaId: destVenueQuotaId,
+    };
+
+    const { req, res } = mockRequestResponse({ body: validRequest });
+    await updateContactDataHandler(req, res);
+
+    expect(res.statusCode).toBe(201);
+
+    const userAuth = await prisma.userAuth.findUniqueOrThrow({
+      where: { email: dummyEmail },
+      include: { User: true },
+    });
+    const participation = await prisma.participation.findFirstOrThrow({
+      where: { userId: userAuth.User!.id, ofmi: { edition: 100 } },
+      include: { ContestantParticipation: true },
+    });
+    expect(participation.ContestantParticipation?.venueQuotaId).toBe(
+      destVenueQuotaId,
+    );
+
+    const q1 = await prisma.venueQuota.findUniqueOrThrow({
+      where: { id: sourceVenueQuotaId },
+    });
+    const q2 = await prisma.venueQuota.findUniqueOrThrow({
+      where: { id: destVenueQuotaId },
+    });
+
+    expect(q1.occupied).toBe(4);
+    expect(q2.occupied).toBe(1);
   });
 
   it("should fail due to invalid address", async () => {

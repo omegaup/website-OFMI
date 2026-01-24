@@ -42,3 +42,25 @@ export async function findUser(email: string): Promise<UserOutput | null> {
 
   return Value.Cast(UserOutputSchema, payload);
 }
+
+export async function findUserVenueId(
+  email?: string,
+  edition?: number,
+): Promise<string | null> {
+  if (!email || !edition) return null;
+
+  const venue = await prisma.participation.findFirst({
+    where: {
+      user: { UserAuth: { email } },
+      ofmi: { edition },
+    },
+    select: {
+      ContestantParticipation: {
+        select: { venueQuotaId: true },
+      },
+    },
+  });
+
+  if (!venue || !venue.ContestantParticipation?.venueQuotaId) return null;
+  return venue.ContestantParticipation?.venueQuotaId;
+}

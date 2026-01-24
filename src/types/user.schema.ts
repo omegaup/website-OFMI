@@ -59,6 +59,7 @@ export type UpdateContactDataRequest = Static<
 
 export const UpdateContactDataRequestSchema = Type.Object({
   user: UserInputSchema,
+  venueQuotaId: Type.Optional(Type.String()),
 });
 
 export interface UpdateContactDataResponse {

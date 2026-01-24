@@ -11,7 +11,7 @@ const fetcher = async <T,>(url: string): Promise<T> => {
 
 interface VenueSelectionProps {
   ofmiEdition: number;
-  initialVenueQuotaId?: string;
+  initialVenueQuotaId?: string | null;
 }
 
 function sortAlphabetically(a: VenueQuota, b: VenueQuota): number {
@@ -34,6 +34,12 @@ export function VenueSelection({
   const [selectedVenueId, setSelectedVenueId] = useState<string>(
     initialVenueQuotaId || "",
   );
+
+  useEffect((): void => {
+    if (initialVenueQuotaId) {
+      setSelectedVenueId(initialVenueQuotaId);
+    }
+  }, [initialVenueQuotaId]);
 
   useEffect((): void => {
     if (data?.venues) {

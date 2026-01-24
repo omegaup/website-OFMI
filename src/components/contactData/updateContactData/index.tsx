@@ -14,17 +14,21 @@ import {
   type UpdateContactDataRequest,
   type UserRequestInput,
 } from "@/types/user.schema";
+import { VenueSelection } from "../venueSelection";
 
 export default function UpdateContactData({
   user,
+  ofmiEdition,
+  venueId,
 }: {
   user: UserRequestInput | null;
+  ofmiEdition: number;
+  venueId: string | null;
 }): JSX.Element {
   const { data: session } = useSession();
   const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState(false);
   const [successfulUpdate, setSuccessfulUpdate] = useState(false);
-
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>,
   ): Promise<void> {
@@ -92,6 +96,7 @@ export default function UpdateContactData({
           phone: data.get(fieldIds.mailingPhone)?.toString() ?? "",
         },
       },
+      venueQuotaId: data.get(fieldIds.venueSelection)?.toString(),
     };
 
     setLoading(true);
@@ -115,7 +120,7 @@ export default function UpdateContactData({
   return (
     <div className="mx-auto max-w-3xl px-2 pt-4">
       <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-        Actualización de datos de contacto
+        Actualizar datos
       </h2>
       <form
         className="mb-8"
@@ -127,6 +132,10 @@ export default function UpdateContactData({
         <ContactData user={user} isUpdate={true} />
         {/* Mailing address */}
         <UserMailingAddress user={user} />
+        <VenueSelection
+          ofmiEdition={ofmiEdition}
+          initialVenueQuotaId={venueId}
+        />
 
         {/* Submit form */}
         <div className="flex justify-center">

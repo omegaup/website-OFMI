@@ -6,10 +6,13 @@ import { Value } from "@sinclair/typebox/value";
 import { X_USER_AUTH_EMAIL_HEADER } from "@/lib/auth";
 import UpdateContactData from "@/components/contactData/updateContactData";
 import { UserRequestInput, UserInputSchema } from "@/types/user.schema";
-import { findUser } from "@/lib/user";
+import { findUser, findUserVenueId } from "@/lib/user";
+import { findMostRecentOfmi } from "@/lib/ofmi";
 
 export default function UpdateContacDataPage({
   userJSON,
+  ofmiEdition,
+  venueId,
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
   const user: UserRequestInput | null = userJSON ? JSON.parse(userJSON) : null;
 
@@ -22,11 +25,19 @@ export default function UpdateContacDataPage({
     }
   }
 
-  return <UpdateContactData user={user} />;
+  return (
+    <UpdateContactData
+      user={user}
+      ofmiEdition={ofmiEdition}
+      venueId={venueId}
+    />
+  );
 }
 
 export const getServerSideProps: GetServerSideProps<{
   userJSON: string | null;
+  ofmiEdition: number;
+  venueId: string | null;
 }> = async ({ req }) => {
   const email = req.headers[X_USER_AUTH_EMAIL_HEADER];
   if (!email || typeof email !== "string") {
@@ -38,11 +49,16 @@ export const getServerSideProps: GetServerSideProps<{
     };
   }
 
-  const user = await findUser(email);
-
+  const [user, ofmiEdition] = await Promise.all([
+    findUser(email),
+    findMostRecentOfmi(),
+  ]);
+  const venueId = await findUserVenueId(user?.input.email, ofmiEdition.edition);
   return {
     props: {
       userJSON: user && JSON.stringify(user.input),
+      ofmiEdition: ofmiEdition.edition || 0,
+      venueId,
     },
   };
 };
