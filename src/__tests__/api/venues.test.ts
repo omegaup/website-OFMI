@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { VenueQuota } from "@/types/venue.schema";
 
 describe("/api/ofmi/venues API Endpoint", () => {
-  const testOfmiEdition = 5;
+  const testOfmiEdition = 1;
   let ofmiId: string;
   let venueId: string;
 
@@ -15,7 +15,7 @@ describe("/api/ofmi/venues API Endpoint", () => {
       update: {},
       create: {
         edition: testOfmiEdition,
-        year: 2026,
+        year: 2027,
         registrationOpenTime: new Date(),
         registrationCloseTime: new Date(),
       },
@@ -43,6 +43,7 @@ describe("/api/ofmi/venues API Endpoint", () => {
   afterAll(async () => {
     await prisma.venueQuota.deleteMany({ where: { ofmiId } });
     await prisma.venue.delete({ where: { id: venueId } });
+    await prisma.ofmi.delete({ where: { id: ofmiId } });
   });
 
   it("should return venues for specific edition", async () => {

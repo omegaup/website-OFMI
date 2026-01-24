@@ -30,6 +30,7 @@ let testVenueQuotaId: string;
 let fullVenueQuotaId: string;
 let testVenueId: string;
 let fullVenueId: string;
+let ofmiId: string;
 
 beforeAll(async () => {
   // ofmi is Needed
@@ -42,6 +43,8 @@ beforeAll(async () => {
       ...validOfmi,
     },
   });
+
+  ofmiId = ofmi.id;
 
   const venue = await prisma.venue.create({
     data: {
@@ -93,6 +96,9 @@ afterAll(async () => {
   });
   await prisma.venue.deleteMany({
     where: { id: { in: [testVenueId, fullVenueId] } },
+  });
+  await prisma.ofmi.delete({
+    where: { id: ofmiId },
   });
 });
 
