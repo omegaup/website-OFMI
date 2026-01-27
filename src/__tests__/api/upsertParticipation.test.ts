@@ -457,7 +457,6 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
       },
     });
 
-
     await upsertParticipationHandler(req, res);
 
     expect(res.statusCode).toBe(201);
