@@ -48,7 +48,18 @@ const validUserInput = {
 };
 
 beforeAll(async () => {
-  // Upsert the valid user Auth
+  const existingAuth = await prisma.userAuth.findUnique({ where: { email: dummyEmail } });
+  if (existingAuth) {
+      await prisma.contestantParticipation.deleteMany({ where: { Participation: { every: { user: { userAuthId: existingAuth.id } } } } });
+      await prisma.participation.deleteMany({ where: { user: { userAuthId: existingAuth.id } } });
+      await prisma.user.deleteMany({ where: { userAuthId: existingAuth.id } });
+      await prisma.userAuth.delete({ where: { id: existingAuth.id } });
+  }
+  
+  await prisma.venueQuota.deleteMany({ where: { ofmi: { edition: testOfmiEdition } } });
+  await prisma.ofmi.deleteMany({ where: { edition: testOfmiEdition } });
+
+
   const authUser = await prisma.userAuth.upsert({
     where: { email: dummyEmail },
     update: {},

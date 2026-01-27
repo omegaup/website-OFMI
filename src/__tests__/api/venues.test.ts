@@ -43,7 +43,6 @@ describe("/api/ofmi/venues API Endpoint", () => {
   afterAll(async () => {
     await prisma.venueQuota.deleteMany({ where: { ofmiId } });
     await prisma.venue.delete({ where: { id: venueId } });
-    await prisma.ofmi.delete({ where: { id: ofmiId } });
   });
 
   it("should return venues for specific edition", async () => {
