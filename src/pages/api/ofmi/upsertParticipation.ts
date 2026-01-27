@@ -171,7 +171,7 @@ async function upsertParticipationHandler(
         },
       });
 
-      if (contestantParticipationInput?.venueQuotaId) {
+      if (contestantParticipationInput) {
         const existingParticipation = await tx.participation.findUnique({
           where: { userId_ofmiId: { userId: user.id, ofmiId: ofmi.id } },
           include: { ContestantParticipation: true },
@@ -189,10 +189,12 @@ async function upsertParticipationHandler(
             });
           }
 
-          await tx.venueQuota.update({
-            where: { id: newVenueId },
-            data: { occupied: { increment: 1 } },
-          });
+          if (newVenueId) {
+            await tx.venueQuota.update({
+              where: { id: newVenueId },
+              data: { occupied: { increment: 1 } },
+            });
+          }
         }
       }
 
