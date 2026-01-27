@@ -135,6 +135,7 @@ export default function UpdateContactData({
         <VenueSelection
           ofmiEdition={ofmiEdition}
           initialVenueQuotaId={venueId}
+          subtitle="Sede Seleccionada"
         />
 
         {/* Submit form */}

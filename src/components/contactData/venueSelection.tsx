@@ -9,9 +9,23 @@ const fetcher = async <T,>(url: string): Promise<T> => {
   return res.json();
 };
 
+const EmptyVenues: React.FC = () => {
+  return (
+    <div className="my-4 rounded-md bg-blue-50 p-4 sm:col-span-6">
+      <h4 className="text-sm font-bold text-blue-800">
+        No hay sedes disponibles.
+      </h4>
+      <p className="mt-1 text-sm text-blue-700">
+        No te preocupes, aún podrás participar de forma virtual.
+      </p>
+    </div>
+  );
+};
+
 interface VenueSelectionProps {
   ofmiEdition: number;
   initialVenueQuotaId?: string | null;
+  subtitle?: string;
 }
 
 function sortAlphabetically(a: VenueQuota, b: VenueQuota): number {
@@ -24,6 +38,7 @@ function sortAlphabetically(a: VenueQuota, b: VenueQuota): number {
 export function VenueSelection({
   ofmiEdition,
   initialVenueQuotaId,
+  subtitle = "sedes disponibles",
 }: VenueSelectionProps): JSX.Element {
   const { data, error, isLoading } = useSWR<{ venues: VenueQuota[] }>(
     `/api/ofmi/venues?ofmiEdition=${ofmiEdition}`,
@@ -43,13 +58,20 @@ export function VenueSelection({
 
   useEffect((): void => {
     if (data?.venues) {
-      setSortedVenues([...data.venues].sort(sortAlphabetically));
+      const availableVenues = data.venues.filter((venue) => {
+        if (initialVenueQuotaId && venue.id === initialVenueQuotaId)
+          return true;
+        if (venue.capacity > venue.occupied) return true;
+        return false;
+      });
+      setSortedVenues(availableVenues.sort(sortAlphabetically));
     }
   }, [data]);
 
   if (error) return <Alert errorMsg="Error cargando sedes disponibles" />;
   if (isLoading)
     return <div className="p-4 text-center">Cargando sedes...</div>;
+  if (!sortedVenues.length) return <EmptyVenues />;
 
   const selectedVenue = sortedVenues.find((v) => v.id === selectedVenueId);
 
@@ -63,9 +85,9 @@ export function VenueSelection({
         <div className="sm:col-span-4">
           <label
             htmlFor="venue-select"
-            className="block text-sm font-medium leading-6 text-gray-900"
+            className="block text-sm font-medium capitalize leading-6 text-gray-900"
           >
-            Sede Disponible
+            {subtitle}
           </label>
           <div className="mt-2">
             <select
@@ -77,7 +99,7 @@ export function VenueSelection({
               className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset
    focus:ring-blue-600 sm:max-w-md sm:text-sm sm:leading-6"
             >
-              <option value="">-- Selecciona una sede --</option>
+              <option value="">Participación Virtual</option>
               {sortedVenues.map((v) => (
                 <option key={v.id} value={v.id}>
                   {v.venue.state} - {v.venue.name} (
