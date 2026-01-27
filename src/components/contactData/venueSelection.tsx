@@ -38,7 +38,7 @@ function sortAlphabetically(a: VenueQuota, b: VenueQuota): number {
 export function VenueSelection({
   ofmiEdition,
   initialVenueQuotaId,
-  subtitle = "sedes disponibles",
+  subtitle = "Sedes Disponibles",
 }: VenueSelectionProps): JSX.Element {
   const { data, error, isLoading } = useSWR<{ venues: VenueQuota[] }>(
     `/api/ofmi/venues?ofmiEdition=${ofmiEdition}`,
@@ -66,7 +66,7 @@ export function VenueSelection({
       });
       setSortedVenues(availableVenues.sort(sortAlphabetically));
     }
-  }, [data]);
+  }, [data, initialVenueQuotaId]);
 
   if (error) return <Alert errorMsg="Error cargando sedes disponibles" />;
   if (isLoading)
