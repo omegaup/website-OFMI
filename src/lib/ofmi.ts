@@ -191,6 +191,7 @@ export async function findParticipation(
         schoolGrade: contestantParticipation.schoolGrade,
         schoolCountry: contestantParticipation.School.country,
         schoolState: contestantParticipation.School.state,
+        venueQuotaId: contestantParticipation.venueQuotaId ?? undefined,
       }) ||
     (role === "VOLUNTEER" &&
       volunteerParticipation && {

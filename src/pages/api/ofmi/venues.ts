@@ -48,7 +48,6 @@ export default async function handle(
     const venueQuotasRaw = await prisma.venueQuota.findMany({
       where: {
         ofmiId: ofmi.id,
-        occupied: { lt: prisma.venueQuota.fields.capacity },
       },
       include: { venue: true },
     });

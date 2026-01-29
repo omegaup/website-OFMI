@@ -64,7 +64,29 @@ describe("VenueSelection Component", () => {
     expect(screen.getByText("Sede de Participación")).toBeDefined();
 
     const select = screen.getByLabelText(
-      "Sede Disponible",
+      "Sedes Disponibles",
+    ) as HTMLSelectElement;
+    const options = Array.from(select.options);
+
+    expect(options).toHaveLength(3);
+
+    expect(options[1].text).toContain("CDMX - Sede Sur");
+    expect(options[2].text).toContain("Nuevo León - Sede Norte");
+  });
+
+  it("renders venues sorted alphabetically in updateContactData", () => {
+    (useSWR as Mock).mockReturnValue({
+      data: { venues: mockVenues },
+      error: undefined,
+      isLoading: false,
+    });
+
+    render(<VenueSelection ofmiEdition={1} subtitle="Sede Seleccionada" />);
+
+    expect(screen.getByText("Sede Seleccionada")).toBeDefined();
+
+    const select = screen.getByLabelText(
+      "Sedes Disponibles",
     ) as HTMLSelectElement;
     const options = Array.from(select.options);
 
@@ -83,7 +105,7 @@ describe("VenueSelection Component", () => {
 
     render(<VenueSelection ofmiEdition={1} />);
 
-    const select = screen.getByLabelText("Sede Disponible");
+    const select = screen.getByLabelText("Sedes Disponibles");
 
     fireEvent.change(select, { target: { value: "vq2" } });
 
@@ -101,7 +123,7 @@ describe("VenueSelection Component", () => {
     });
 
     render(<VenueSelection ofmiEdition={1} />);
-    const select = screen.getByLabelText("Sede Disponible");
+    const select = screen.getByLabelText("Sedes Disponibles");
 
     fireEvent.change(select, { target: { value: "vq1" } });
 
