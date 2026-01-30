@@ -1,0 +1,36 @@
+import { BadRequestError } from "@/types/errors";
+import { Value } from "@sinclair/typebox/value";
+import { parseValueError } from "@/lib/typebox";
+import { NextApiRequest, NextApiResponse } from "next";
+import { CreateVenueQuotaInputSchema } from "../../../types/venue.schema";
+import { CreateVenueQuotaOutput } from "@/types/venue.schema";
+
+async function addVenueQuotaHandler(
+  req: NextApiRequest,
+  res: NextApiResponse<CreateVenueQuotaOutput | BadRequestError>,
+): Promise<void> {
+  const { body } = req;
+  if (!Value.Check(CreateVenueQuotaInputSchema, body)) {
+    const firstError = Value.Errors(CreateVenueQuotaInputSchema, body).First();
+    return res.status(400).json({
+      message: `${firstError ? parseValueError(firstError) : "Invalid request body."}`,
+    });
+  }
+
+  console.log("Add venue quota");
+
+  return res.status(201).json({
+    success: true,
+  });
+}
+
+export default async function handle(
+  req: NextApiRequest,
+  res: NextApiResponse<CreateVenueQuotaOutput | BadRequestError>,
+): Promise<void> {
+  if (req.method === "POST") {
+    await addVenueQuotaHandler(req, res);
+  } else {
+    return res.status(405).json({ message: "Method Not allowed" });
+  }
+}

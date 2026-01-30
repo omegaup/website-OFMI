@@ -1,3 +1,4 @@
+import { MEX, stateNames } from "@/lib/address";
 import { Static, Type } from "@sinclair/typebox";
 
 export const VenueSchema = Type.Object({
@@ -9,6 +10,9 @@ export const VenueSchema = Type.Object({
 });
 
 export type Venue = Static<typeof VenueSchema>;
+
+export const AvailableVenuesSchema = Type.Array(VenueSchema);
+export type AvailableVenues = Static<typeof AvailableVenuesSchema>;
 
 export const VenueQuotaSchema = Type.Object({
   id: Type.String(),
@@ -31,8 +35,35 @@ export type CreateVenueInput = Static<typeof CreateVenueInputSchema>;
 
 export const CreateVenueQuotaInputSchema = Type.Object({
   venueId: Type.String(),
-  ofmiEdition: Type.Integer(),
+  ofmiId: Type.String(),
   capacity: Type.Integer({ minimum: 1 }),
 });
 
 export type CreateVenueQuotaInput = Static<typeof CreateVenueQuotaInputSchema>;
+
+export const CreateVenueQuotaOutputSchema = Type.Object({
+  success: Type.Boolean(),
+});
+
+export type CreateVenueQuotaOutput = Static<
+  typeof CreateVenueQuotaOutputSchema
+>;
+
+export type AddVenuesResponse = Static<typeof AddVenuesResponseSchema>;
+export const AddVenuesResponseSchema = Type.Object({
+  success: Type.Boolean(),
+});
+
+export type AddVenuesRequest = Static<typeof AddVenuesRequestSchema>;
+export const AddVenuesRequestSchema = Type.Array(
+  Type.Object({
+    name: Type.String(),
+    state: Type.Union(stateNames(MEX).map((s) => Type.Literal(s))),
+    address: Type.String(),
+    googleMapsUrl: Type.Union([Type.String(), Type.Null()]),
+  }),
+  {
+    description:
+      "Registra datos de las sedes. TSV con encabezados: name   state   dirección   mapsUrl",
+  },
+);
