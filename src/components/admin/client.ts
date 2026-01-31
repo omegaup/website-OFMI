@@ -17,6 +17,15 @@ export const APIS: {
       },
     ),
   ],
+  "/api/admin/exportVenueInfo": [
+    "GET",
+    Type.Object(
+      {},
+      {
+        description: "Exporta a google sheets la información de las sedes",
+      },
+    ),
+  ],
   "/api/admin/findOrCreateDriveFolderForParticipant": [
     "POST",
     FindOrCreateDriveFolderForParticipantRequestSchema,

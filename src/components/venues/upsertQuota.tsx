@@ -9,7 +9,7 @@ import { Button } from "../button";
 import { sendCreateUpdateVenueQuota } from "./client";
 import { Alert } from "../alert";
 
-export function AddVenueQuota({
+export function UpsertQuota({
   availableVenues,
   ofmiId,
 }: {
@@ -52,10 +52,11 @@ export function AddVenueQuota({
 
     setLoading(true);
     const response = await sendCreateUpdateVenueQuota(req);
+
     if (!response.success) {
       setError(response.error);
     } else {
-      setResponse("Se agrego la capacidad de la sede correctamente");
+      setResponse(response.success.message);
     }
     setLoading(false);
   }
@@ -63,7 +64,7 @@ export function AddVenueQuota({
   return (
     <div className="mx-auto max-w-3xl px-2 pt-4">
       <div>
-        <SectionTitle title="Agregar sedes" />
+        <SectionTitle title="Agregar cuota para sede" />
         <form
           className="space-y-6"
           action="#"
@@ -100,6 +101,8 @@ export function AddVenueQuota({
             </Button>
           </div>
         </form>
+
+        <br />
         {error != null && <Alert errorMsg={error.message} />}
         {response && (
           <div>

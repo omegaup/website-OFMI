@@ -23,7 +23,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
   return {
     props: {
       availableVenues: venues && JSON.stringify(venues),
-      ofmiId: ofmi && JSON.stringify(ofmi.id),
+      ofmiId: ofmi.id,
     },
   };
 };

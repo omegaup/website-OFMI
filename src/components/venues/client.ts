@@ -15,7 +15,7 @@ export async function sendCreateUpdateVenueQuota(
       success: CreateVenueQuotaOutput;
     }
 > {
-  const response = await fetch("/api/venues/addVenueQuota", {
+  const response = await fetch("/api/venues/upsertVenueQuota", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -29,7 +29,7 @@ export async function sendCreateUpdateVenueQuota(
       error: new Error("Internal server error"),
     };
   }
-  if (response.status !== 201) {
+  if (response.status !== 201 && response.status !== 200) {
     const data: BadRequestError = await response.json();
 
     return {

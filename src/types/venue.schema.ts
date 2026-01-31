@@ -24,29 +24,26 @@ export const VenueQuotaSchema = Type.Object({
 });
 export type VenueQuota = Static<typeof VenueQuotaSchema>;
 
-export const CreateVenueInputSchema = Type.Object({
-  name: Type.String({ minLength: 1 }),
-  address: Type.String({ minLength: 1 }),
-  state: Type.String({ minLength: 2 }), // "CDMX", "JAL", etc.
-  googleMapsUrl: Type.Optional(Type.String()),
-});
+export const VenueQuotasSchema = Type.Array(VenueQuotaSchema);
+export type VenueQuotas = Static<typeof VenueQuotasSchema>;
 
-export type CreateVenueInput = Static<typeof CreateVenueInputSchema>;
-
-export const CreateVenueQuotaInputSchema = Type.Object({
+export const CreateVenueQuotaRequestSchema = Type.Object({
   venueId: Type.String(),
   ofmiId: Type.String(),
   capacity: Type.Integer({ minimum: 1 }),
 });
 
-export type CreateVenueQuotaInput = Static<typeof CreateVenueQuotaInputSchema>;
+export type CreateVenueQuotaInput = Static<
+  typeof CreateVenueQuotaRequestSchema
+>;
 
-export const CreateVenueQuotaOutputSchema = Type.Object({
+export const CreateVenueQuotaResponseSchema = Type.Object({
   success: Type.Boolean(),
+  message: Type.String(),
 });
 
 export type CreateVenueQuotaOutput = Static<
-  typeof CreateVenueQuotaOutputSchema
+  typeof CreateVenueQuotaResponseSchema
 >;
 
 export type AddVenuesResponse = Static<typeof AddVenuesResponseSchema>;

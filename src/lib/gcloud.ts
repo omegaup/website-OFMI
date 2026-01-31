@@ -7,6 +7,9 @@ import { PronounName } from "@/types/pronouns";
 import { jsonToCsv } from "@/utils";
 import config from "@/config/default";
 import { TTLCache } from "./cache";
+import { findAllParticipantsInVenue, findAllVenueQuotas } from "./venue";
+import { UserWithVenueQuota } from "@/types/user.schema";
+import { Venue, VenueQuotas } from "@/types/venue.schema";
 
 export const FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
 const SPREADSHEETS_MIME_TYPE = "application/vnd.google-apps.spreadsheet";
@@ -362,6 +365,114 @@ export async function exportParticipants({
               columnIndex: 0,
             },
             data: createData(ParticipationRole.VOLUNTEER),
+            delimiter: ",",
+          },
+        },
+      ],
+    },
+  });
+
+  return spreadsheetId;
+}
+
+export async function exportVenueInfo({
+  userAuthId,
+  ofmi,
+  spreadsheetName,
+}: {
+  userAuthId: string;
+  ofmi: Ofmi;
+  spreadsheetName: string;
+}): Promise<string> {
+  const auth = await getGoogleAuth(userAuthId);
+  const service = new google.drive_v3.Drive({
+    auth,
+  });
+
+  const spreadsheetId = await getOrCreateFile({
+    filepath: spreadsheetName,
+    service,
+    mimeType: SPREADSHEETS_MIME_TYPE,
+    parentFolderId: config.GDRIVE_OFMI_ROOT_FOLDER,
+  });
+
+  const sheets = new google.sheets_v4.Sheets({ auth });
+
+  const sheetNames = ["SedesParticipantes", "SedesCupos"];
+  const sheetIds = await getOrCreateSheets({
+    names: sheetNames,
+    spreadsheetId,
+    service: sheets,
+  });
+
+  const venueParticipants = sheetIds.at(0);
+  const venueQuotas = sheetIds.at(1);
+  if (venueParticipants === undefined || venueQuotas === undefined) {
+    throw Error("Bug: Sheet id do not coincide");
+  }
+
+  const activeVenueQuotas: VenueQuotas = await findAllVenueQuotas(ofmi.id);
+  const mapVenueQuotasToVenue = new Map(
+    (await activeVenueQuotas).map((vq) => [vq.id, vq.venue]),
+  );
+  const participantsRegistered: UserWithVenueQuota[] =
+    await findAllParticipantsInVenue(
+      (await activeVenueQuotas).map((vq) => vq.id),
+    );
+
+  const createParticipantRegistrationData = (
+    participantsRegistered: UserWithVenueQuota[],
+    mapVenueQuotasToVenue: Map<string, Venue>,
+  ): string => {
+    const json = participantsRegistered.map((pr) => {
+      return {
+        "Nombre completo": `${pr.firstName.trim()} ${pr.lastName.trim()}`,
+        Sede: `${pr.venueQuotaId ? mapVenueQuotasToVenue.get(pr.venueQuotaId)?.name : ""}`,
+      };
+    });
+    return jsonToCsv(json);
+  };
+
+  const createVenueData = (activeVenueQuotas: VenueQuotas): string => {
+    const json = activeVenueQuotas.map((vq) => {
+      return {
+        Sede: `${vq.venue.name}`,
+        Cupo: `${vq.capacity}`,
+        Registrados: `${vq.occupied}`,
+      };
+    });
+    return jsonToCsv(json);
+  };
+
+  // Paste data
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId,
+    requestBody: {
+      requests: [
+        // Update Participants sheet
+        {
+          pasteData: {
+            coordinate: {
+              sheetId: venueParticipants,
+              rowIndex: 0,
+              columnIndex: 0,
+            },
+            data: createParticipantRegistrationData(
+              participantsRegistered,
+              mapVenueQuotasToVenue,
+            ),
+            delimiter: ",",
+          },
+        },
+        // Update Venue Information sheet
+        {
+          pasteData: {
+            coordinate: {
+              sheetId: venueQuotas,
+              rowIndex: 0,
+              columnIndex: 0,
+            },
+            data: createVenueData(activeVenueQuotas),
             delimiter: ",",
           },
         },

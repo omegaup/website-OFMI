@@ -1,3 +1,4 @@
+import { prisma } from "@/lib/prisma";
 import { BadRequestError } from "@/types/errors";
 import { Value } from "@sinclair/typebox/value";
 import { parseValueError } from "@/lib/typebox";
@@ -19,9 +20,17 @@ async function addVenuesHandler(
     });
   }
 
-  return res.status(200).json({
-    success: true,
-  });
+  const venues = Object.values(body);
+  try {
+    await prisma.venue.createMany({
+      data: venues,
+    });
+
+    return res.status(201).json({ success: true });
+  } catch (e) {
+    console.log("Error mientras se insertaban sedes", e);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 }
 
 export default async function handle(

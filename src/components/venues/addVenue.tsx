@@ -16,12 +16,15 @@ export function AddVenues(): JSX.Element {
       setResponse("No seleccionaste ningún archivo.");
       return;
     }
+    console.log("hay archivo");
 
     if (!tsvFile.name.endsWith(".tsv")) {
       setResponse("Sube un archivo tsv");
+      console.log("no hay csv");
       return;
     }
 
+    console.log("si hay tsv");
     // Tenemos tsv
     const reader = new FileReader();
     reader.onload = async (f): Promise<void> => {
@@ -34,34 +37,57 @@ export function AddVenues(): JSX.Element {
 
       if (typeof text === "string") {
         const venues: AddVenuesRequest = [];
-        text.split("\n").forEach((row) => {
-          if (!row.toLowerCase().includes("name")) {
-            const values = row.split("\t");
-            console.log("values", values);
-            if (values.length >= 3) {
-              venues.push({
-                name: values[0],
-                state: values[1],
-                address: values[2],
-                googleMapsUrl: values[3],
-              });
+        const rows = text.split("\n");
+        rows.splice(0, 1);
+        console.log("Initial rows", rows);
+        rows.forEach((row) => {
+          console.log("row", row);
+          const values = row.split("\t");
+          console.log("values", values);
+          if (values.length >= 3) {
+            for (let i = 0; i < values.length - 1; i++) {
+              if (values[i].length == 0) {
+                setResponse(
+                  `Campo ${i + 1} debe tener al menos un caracter de texto.`,
+                );
+                return;
+              } else if (
+                values[i].length >= 2 &&
+                values[i][0] == '"' &&
+                values[i][values[i].length - 1] == '"'
+              ) {
+                console.log(`Slicing row ${row} and i ${i}`);
+                values[i] = values[i].substring(1, values[i].length - 1);
+                console.log("final value", values[i]);
+              }
             }
+
+            console.log("Adding venue", values);
+            venues.push({
+              name: values[0],
+              state: values[1],
+              address: values[2],
+              googleMapsUrl: values.length >= 4 ? values[3] : null,
+            });
           }
         });
 
         if (venues.length > 0) {
-          let res: Response | null = null;
+          console.log("Sending venues", venues);
+          let response: Response | null = null;
 
-          res = await fetch("/api/venues/addVenues", {
+          response = await fetch("/api/venues/addVenues", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify(venues),
           });
-          const json = await res.json();
+          await response.json();
           setLoading(false);
-          setResponse(JSON.stringify(json, null, 2));
+          if (response.status === 201) {
+            window.location.reload();
+          }
         } else {
           setLoading(false);
           setResponse("El archivo no contenia ninguna venue");
@@ -89,7 +115,9 @@ export function AddVenues(): JSX.Element {
         >
           <div>
             <div className="flex items-center justify-between">
-              Subir tsv con datos de sedes headers: [name, state, address, url]
+              Subir tsv con datos de sedes headers: [nombre, estado, dirección,
+              googleMapsUrl]. La página se recargara para mostrar la nueva sede
+              abajo.
             </div>
           </div>
           <div>
