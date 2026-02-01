@@ -65,3 +65,11 @@ export const UpdateContactDataRequestSchema = Type.Object({
 export interface UpdateContactDataResponse {
   user: User;
 }
+
+export const UserWithVenueQuotaSchema = Type.Object({
+  firstName: Type.String(),
+  lastName: Type.String(),
+  venueQuotaId: Type.Optional(Type.String()),
+});
+
+export type UserWithVenueQuota = Static<typeof UserWithVenueQuotaSchema>;

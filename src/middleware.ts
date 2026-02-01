@@ -87,6 +87,14 @@ export const middleware: CustomMiddleware = async (
     return asAdmin(request);
   }
 
+  if (request.nextUrl.pathname.startsWith("/venues")) {
+    return asAdminOrImpersonatingOfmiUser(request);
+  }
+
+  if (request.nextUrl.pathname.startsWith("/venues")) {
+    return asAdmin(request);
+  }
+
   // Pages that requires just to be login
   if (withAuthPaths.some((path) => request.nextUrl.pathname.startsWith(path))) {
     return withAuth(request);

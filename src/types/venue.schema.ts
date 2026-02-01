@@ -1,3 +1,4 @@
+import { MEX, stateNames } from "@/lib/address";
 import { Static, Type } from "@sinclair/typebox";
 
 export const VenueSchema = Type.Object({
@@ -10,6 +11,9 @@ export const VenueSchema = Type.Object({
 
 export type Venue = Static<typeof VenueSchema>;
 
+export const AvailableVenuesSchema = Type.Array(VenueSchema);
+export type AvailableVenues = Static<typeof AvailableVenuesSchema>;
+
 export const VenueQuotaSchema = Type.Object({
   id: Type.String(),
   venueId: Type.String(),
@@ -20,19 +24,43 @@ export const VenueQuotaSchema = Type.Object({
 });
 export type VenueQuota = Static<typeof VenueQuotaSchema>;
 
-export const CreateVenueInputSchema = Type.Object({
-  name: Type.String({ minLength: 1 }),
-  address: Type.String({ minLength: 1 }),
-  state: Type.String({ minLength: 2 }), // "CDMX", "JAL", etc.
-  googleMapsUrl: Type.Optional(Type.String()),
-});
+export const VenueQuotasSchema = Type.Array(VenueQuotaSchema);
+export type VenueQuotas = Static<typeof VenueQuotasSchema>;
 
-export type CreateVenueInput = Static<typeof CreateVenueInputSchema>;
-
-export const CreateVenueQuotaInputSchema = Type.Object({
+export const CreateVenueQuotaRequestSchema = Type.Object({
   venueId: Type.String(),
-  ofmiEdition: Type.Integer(),
+  ofmiId: Type.String(),
   capacity: Type.Integer({ minimum: 1 }),
 });
 
-export type CreateVenueQuotaInput = Static<typeof CreateVenueQuotaInputSchema>;
+export type CreateVenueQuotaInput = Static<
+  typeof CreateVenueQuotaRequestSchema
+>;
+
+export const CreateVenueQuotaResponseSchema = Type.Object({
+  success: Type.Boolean(),
+  message: Type.String(),
+});
+
+export type CreateVenueQuotaOutput = Static<
+  typeof CreateVenueQuotaResponseSchema
+>;
+
+export type AddVenuesResponse = Static<typeof AddVenuesResponseSchema>;
+export const AddVenuesResponseSchema = Type.Object({
+  success: Type.Boolean(),
+});
+
+export type AddVenuesRequest = Static<typeof AddVenuesRequestSchema>;
+export const AddVenuesRequestSchema = Type.Array(
+  Type.Object({
+    name: Type.String(),
+    state: Type.Union(stateNames(MEX).map((s) => Type.Literal(s))),
+    address: Type.String(),
+    googleMapsUrl: Type.Union([Type.String(), Type.Null()]),
+  }),
+  {
+    description:
+      "Registra datos de las sedes. TSV con encabezados: name   state   dirección   mapsUrl",
+  },
+);

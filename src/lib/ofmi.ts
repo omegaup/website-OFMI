@@ -29,6 +29,13 @@ export function registrationSpreadsheetsPath(ofmiEdition: number): string {
   );
 }
 
+export function venueSpreadsheetsPath(ofmiEdition: number): string {
+  return path.join(
+    friendlyOfmiName(ofmiEdition),
+    `Datos de sedes para ${friendlyOfmiName(ofmiEdition)}`,
+  );
+}
+
 export async function findMostRecentOfmi(): Promise<Ofmi> {
   // Check if the cache has the result
   const ttlCache = caches["findMostRecentOfmi"];
