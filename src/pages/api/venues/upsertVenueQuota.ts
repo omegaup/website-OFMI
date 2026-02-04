@@ -35,14 +35,21 @@ async function addVenueQuotaHandler(
           "El nuevo cupo no puede ser menor que la cantidad de participantes registrad@s.",
       });
     } else {
-      await prisma.venueQuota.update({
-        where: {
-          id: existingQuota.id,
-        },
-        data: {
-          capacity: body.capacity,
-        },
-      });
+      try {
+        await prisma.venueQuota.update({
+          where: {
+            id: existingQuota.id,
+          },
+          data: {
+            capacity: body.capacity,
+          },
+        });
+      } catch (error) {
+        console.log("Error while updating venue quota", error);
+        return res
+          .status(500)
+          .json({ message: "Error interno al actualizar cupo de la sede." });
+      }
       return res.status(200).json({
         success: true,
         message: `Se actualizo el cupo a ${body.capacity} para la sede correctamente`,
@@ -50,13 +57,19 @@ async function addVenueQuotaHandler(
     }
   }
 
-  console.log("body", body);
   // No VenueQuota for given ofmi
-  await prisma.venueQuota.create({
-    data: {
-      ...body,
-    },
-  });
+  try {
+    await prisma.venueQuota.create({
+      data: {
+        ...body,
+      },
+    });
+  } catch (error) {
+    console.log("Error while creating venue quota", error);
+    return res
+      .status(500)
+      .json({ message: "Error interno al crear cupo de la sede." });
+  }
 
   return res.status(201).json({
     success: true,

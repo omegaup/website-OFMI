@@ -16,19 +16,15 @@ export function AddVenues(): JSX.Element {
       setResponse("No seleccionaste ningún archivo.");
       return;
     }
-    console.log("hay archivo");
 
     if (!tsvFile.name.endsWith(".tsv")) {
       setResponse("Sube un archivo tsv");
-      console.log("no hay csv");
       return;
     }
 
-    console.log("si hay tsv");
     // Tenemos tsv
     const reader = new FileReader();
     reader.onload = async (f): Promise<void> => {
-      console.log("on load");
       const text = f.target?.result;
       if (!text) {
         setResponse("tsv sin contenido");
@@ -38,12 +34,10 @@ export function AddVenues(): JSX.Element {
       if (typeof text === "string") {
         const venues: AddVenuesRequest = [];
         const rows = text.split("\n");
+        // Remove headers
         rows.splice(0, 1);
-        console.log("Initial rows", rows);
         rows.forEach((row) => {
-          console.log("row", row);
           const values = row.split("\t");
-          console.log("values", values);
           if (values.length >= 3) {
             for (let i = 0; i < values.length - 1; i++) {
               if (values[i].length == 0) {
@@ -56,13 +50,10 @@ export function AddVenues(): JSX.Element {
                 values[i][0] == '"' &&
                 values[i][values[i].length - 1] == '"'
               ) {
-                console.log(`Slicing row ${row} and i ${i}`);
                 values[i] = values[i].substring(1, values[i].length - 1);
-                console.log("final value", values[i]);
               }
             }
 
-            console.log("Adding venue", values);
             venues.push({
               name: values[0],
               state: values[1],
@@ -73,7 +64,6 @@ export function AddVenues(): JSX.Element {
         });
 
         if (venues.length > 0) {
-          console.log("Sending venues", venues);
           let response: Response | null = null;
 
           response = await fetch("/api/venues/addVenues", {
@@ -99,7 +89,6 @@ export function AddVenues(): JSX.Element {
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>): void => {
     if (e.target.files) {
-      console.log("got file");
       setTSVFile(e.target.files[0]);
     }
   };
