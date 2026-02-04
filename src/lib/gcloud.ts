@@ -7,7 +7,7 @@ import { PronounName } from "@/types/pronouns";
 import { jsonToCsv } from "@/utils";
 import config from "@/config/default";
 import { TTLCache } from "./cache";
-import { findAllParticipantsInVenue, findAllVenueQuotas } from "./venue";
+import { findAllParticipantsInVenues, findAllVenueQuotas } from "./venue";
 import { UserWithVenueQuota } from "@/types/user.schema";
 import { Venue, VenueQuotas } from "@/types/venue.schema";
 
@@ -416,7 +416,7 @@ export async function exportVenueInfo({
     (await activeVenueQuotas).map((vq) => [vq.id, vq.venue]),
   );
   const participantsRegistered: UserWithVenueQuota[] =
-    await findAllParticipantsInVenue(
+    await findAllParticipantsInVenues(
       (await activeVenueQuotas).map((vq) => vq.id),
     );
 

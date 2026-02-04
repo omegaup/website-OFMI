@@ -21,7 +21,7 @@ export async function findAllVenueQuotas(ofmiId: string): Promise<VenueQuotas> {
   });
 }
 
-export async function findAllParticipantsInVenue(
+export async function findAllParticipantsInVenues(
   venueQuotaIds: string[],
 ): Promise<UserWithVenueQuota[]> {
   return await prisma.user.findMany({

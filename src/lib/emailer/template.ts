@@ -82,7 +82,8 @@ mentora o mentor. Puedes ver los días y horarios disponibles en el siguiente li
                 <p><strong>Office hours semanales (opcional)</strong></p>
                 <p>A partir de febrero tendremos sesiones abiertas para resolver dudas generales una vez a la
 semana. No necesitas reservar, solo conectarte.
-👉 El link, día de la semana y hora será mandado por correo en las siguientes semanas</p>
+👉 Lunes a las 7PM hora centro del país en el siguiente link
+ <a href="https://meet.google.com/khj-zbjf-ezp">Google meet link</a></p>
             </li>
             <li>
                 <p><strong>Días OFMI (fechas por confirmar) ✨</strong></p>
