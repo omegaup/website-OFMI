@@ -10,6 +10,7 @@ import { usePathname } from "next/navigation";
 const navigation = {
   Convocatoria: "/convocatoria",
   //   "Convocatoria sedes": "/sedes",
+  "Sedes 5ta OFMI": "/sedes-5ta-ofmi",
   Registro: "/registro",
   Reglamento: "/reglamento",
   "Código de conducta": "/conducta",
