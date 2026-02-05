@@ -74,7 +74,13 @@ const asAdminOrImpersonatingOfmiUser: CustomMiddleware = (request) => {
 export const middleware: CustomMiddleware = async (
   request,
 ): Promise<NextMiddlewareResult> => {
-  if (disabledPaths.some((path) => request.nextUrl.pathname.startsWith(path))) {
+  if (
+    disabledPaths.some(
+      (path) =>
+        request.nextUrl.pathname === path ||
+        request.nextUrl.pathname.startsWith(path + "/"),
+    )
+  ) {
     return NextResponse.error();
   }
 
@@ -87,12 +93,11 @@ export const middleware: CustomMiddleware = async (
     return asAdmin(request);
   }
 
-  if (request.nextUrl.pathname.startsWith("/venues")) {
+  if (
+    request.nextUrl.pathname === "/venues" ||
+    request.nextUrl.pathname.startsWith("/venues/")
+  ) {
     return asAdminOrImpersonatingOfmiUser(request);
-  }
-
-  if (request.nextUrl.pathname.startsWith("/venues")) {
-    return asAdmin(request);
   }
 
   // Pages that requires just to be login
