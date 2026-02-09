@@ -427,6 +427,7 @@ export async function exportVenueInfo({
     const json = participantsRegistered.map((pr) => {
       return {
         "Nombre completo": `${pr.firstName.trim()} ${pr.lastName.trim()}`,
+        Email: `${pr.email}`,
         Sede: `${pr.venueQuotaId ? mapVenueQuotasToVenue.get(pr.venueQuotaId)?.name : ""}`,
       };
     });

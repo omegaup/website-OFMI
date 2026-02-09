@@ -28,6 +28,11 @@ export async function findAllParticipantsInVenueQuotas(
     select: {
       firstName: true,
       lastName: true,
+      UserAuth: {
+        select: {
+          email: true,
+        },
+      },
       Participation: {
         select: {
           ContestantParticipation: {
@@ -58,6 +63,7 @@ export async function findAllParticipantsInVenueQuotas(
     return {
       firstName: p.firstName,
       lastName: p.lastName,
+      email: p.UserAuth.email,
       venueQuotaId: vqId ? vqId : "",
     };
   });

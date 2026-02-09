@@ -230,10 +230,13 @@ describe("venue lib", () => {
     ]);
 
     const listOfVqId = [vq1id, vq2id];
+    const listOfEmails = [dummyEmail1, dummyEmail2];
 
     expect(participantsInVenue).not.toBeNull();
     expect(participantsInVenue?.length).toBe(2);
     expect(listOfVqId).toContain(participantsInVenue[0].venueQuotaId);
     expect(listOfVqId).toContain(participantsInVenue[1].venueQuotaId);
+    expect(listOfEmails).toContain(participantsInVenue[0].email);
+    expect(listOfEmails).toContain(participantsInVenue[1].email);
   });
 });
