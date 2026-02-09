@@ -21,10 +21,10 @@ export async function findAllVenueQuotas(ofmiId: string): Promise<VenueQuotas> {
   });
 }
 
-export async function findAllParticipantsInVenues(
+export async function findAllParticipantsInVenueQuotas(
   venueQuotaIds: string[],
 ): Promise<UserWithVenueQuota[]> {
-  return await prisma.user.findMany({
+  const result = await prisma.user.findMany({
     select: {
       firstName: true,
       lastName: true,
@@ -47,5 +47,18 @@ export async function findAllParticipantsInVenues(
         },
       },
     },
+  });
+
+  return result.map((p) => {
+    const cp =
+      p.Participation.length > 0
+        ? p.Participation[0].ContestantParticipation
+        : null;
+    const vqId = cp ? cp.venueQuotaId : null;
+    return {
+      firstName: p.firstName,
+      lastName: p.lastName,
+      venueQuotaId: vqId ? vqId : "",
+    };
   });
 }
