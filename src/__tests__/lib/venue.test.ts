@@ -2,7 +2,10 @@ import { describe, beforeAll, afterAll, it, expect } from "vitest";
 import { prisma } from "@/lib/prisma";
 import { ParticipationRole, ShirtSize } from "@prisma/client";
 import { hashPassword } from "@/lib/hashPassword";
-import { findAllParticipantsInVenues, findAllVenueQuotas } from "@/lib/venue";
+import {
+  findAllParticipantsInVenueQuotas,
+  findAllVenueQuotas,
+} from "@/lib/venue";
 
 const testOfmiEdition = 1000;
 const dummyEmail1 = "upsertParticipation1@test.com";
@@ -215,18 +218,25 @@ afterAll(async () => {
 describe("venue lib", () => {
   it("findAllVenueQuotas ", async () => {
     const allVenues = await findAllVenueQuotas(ofmiId);
-    console.log("allVenues", allVenues);
+
     expect(allVenues).not.toBeNull();
     expect(allVenues?.length).toBe(2);
   });
 
-  it("findAllParticipantsInVenue", async () => {
-    const participantsInVenue = await findAllParticipantsInVenues([
+  it("findAllParticipantsInVenueQuotas ", async () => {
+    const participantsInVenue = await findAllParticipantsInVenueQuotas([
       vq1id,
       vq2id,
     ]);
-    console.log("participantsInVenue", participantsInVenue);
+
+    const listOfVqId = [vq1id, vq2id];
+    const listOfEmails = [dummyEmail1, dummyEmail2];
+
     expect(participantsInVenue).not.toBeNull();
     expect(participantsInVenue?.length).toBe(2);
+    expect(listOfVqId).toContain(participantsInVenue[0].venueQuotaId);
+    expect(listOfVqId).toContain(participantsInVenue[1].venueQuotaId);
+    expect(listOfEmails).toContain(participantsInVenue[0].email);
+    expect(listOfEmails).toContain(participantsInVenue[1].email);
   });
 });

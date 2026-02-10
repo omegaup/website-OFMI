@@ -7,7 +7,7 @@ import { PronounName } from "@/types/pronouns";
 import { jsonToCsv } from "@/utils";
 import config from "@/config/default";
 import { TTLCache } from "./cache";
-import { findAllParticipantsInVenues, findAllVenueQuotas } from "./venue";
+import { findAllParticipantsInVenueQuotas, findAllVenueQuotas } from "./venue";
 import { UserWithVenueQuota } from "@/types/user.schema";
 import { Venue, VenueQuotas } from "@/types/venue.schema";
 
@@ -416,7 +416,7 @@ export async function exportVenueInfo({
     (await activeVenueQuotas).map((vq) => [vq.id, vq.venue]),
   );
   const participantsRegistered: UserWithVenueQuota[] =
-    await findAllParticipantsInVenues(
+    await findAllParticipantsInVenueQuotas(
       (await activeVenueQuotas).map((vq) => vq.id),
     );
 
@@ -427,6 +427,7 @@ export async function exportVenueInfo({
     const json = participantsRegistered.map((pr) => {
       return {
         "Nombre completo": `${pr.firstName.trim()} ${pr.lastName.trim()}`,
+        Email: `${pr.email}`,
         Sede: `${pr.venueQuotaId ? mapVenueQuotasToVenue.get(pr.venueQuotaId)?.name : ""}`,
       };
     });
