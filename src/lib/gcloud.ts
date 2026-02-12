@@ -33,6 +33,22 @@ export async function getGoogleAuth(
   });
 }
 
+export async function trashResource({
+  id,
+  service,
+}: {
+  id: string;
+  service: google.drive_v3.Drive;
+}): Promise<void> {
+  await service.files.update({
+    fileId: id,
+    requestBody: {
+      trashed: true,
+    },
+    supportsAllDrives: true,
+  });
+}
+
 // Returns the id of the resource
 async function findOrCreateResource({
   mimeType,
@@ -91,7 +107,7 @@ async function findOrCreateResource({
   return id;
 }
 
-async function getOrCreateFolder({
+export async function getOrCreateFolder({
   dir,
   service,
   parentFolderId,
@@ -199,6 +215,39 @@ async function getOrCreateSheets({
   });
 }
 
+export async function listResourceChildren({
+  folderId,
+  mimeType,
+  mimeTypeOp = "=",
+  service,
+}: {
+  folderId: string;
+  mimeType: string;
+  mimeTypeOp?: string;
+  service: google.drive_v3.Drive;
+}): Promise<google.drive_v3.Schema$File[]> {
+  const { data } = await service.files.list({
+    q: `trashed=false and '${folderId}' in parents and mimeType ${mimeTypeOp} '${mimeType}'`,
+    includeItemsFromAllDrives: true,
+    supportsAllDrives: true,
+  });
+  return data.files || [];
+}
+
+export async function listFolderChildren({
+  folderId,
+  service,
+}: {
+  folderId: string;
+  service: google.drive_v3.Drive;
+}): Promise<google.drive_v3.Schema$File[]> {
+  return await listResourceChildren({
+    folderId,
+    mimeType: FOLDER_MIME_TYPE,
+    service,
+  });
+}
+
 // Returns the URL of the Drive Folder
 export async function getOrCreateDriveFolder({
   userAuthId,
@@ -219,32 +268,6 @@ export async function getOrCreateDriveFolder({
     parentFolderId: rootFolderId,
   });
   return `https://drive.google.com/drive/folders/${id}`;
-}
-
-async function listFolderChildren({
-  userAuthId,
-  dir,
-  rootFolderId,
-}: {
-  userAuthId: string;
-  dir: string;
-  rootFolderId: string;
-}): Promise<google.drive_v3.Schema$File[]> {
-  const auth = await getGoogleAuth(userAuthId);
-  const service = new google.drive_v3.Drive({
-    auth,
-  });
-  const id = await getOrCreateFolder({
-    dir,
-    service,
-    parentFolderId: rootFolderId,
-  });
-  const { data } = await service.files.list({
-    q: `trashed=false and '${id}' in parents and mimeType = '${FOLDER_MIME_TYPE}'`,
-    includeItemsFromAllDrives: true,
-    supportsAllDrives: true,
-  });
-  return data.files || [];
 }
 
 export async function exportParticipants({
@@ -287,10 +310,15 @@ export async function exportParticipants({
 
   // Retrieve data
   const participants = await findParticipants(ofmi);
-  const driveFolders = await listFolderChildren({
+  const participantsFolderId = await getOrCreateFolder({
     dir: path.join(friendlyOfmiName(ofmi.edition), "Assets", "Participants"),
-    userAuthId,
-    rootFolderId: config.GDRIVE_OFMI_ROOT_FOLDER,
+    service,
+    parentFolderId: config.GDRIVE_OFMI_ROOT_FOLDER,
+  });
+
+  const driveFolders = await listFolderChildren({
+    folderId: participantsFolderId,
+    service,
   });
 
   const createData = (role: ParticipationRole): string => {
