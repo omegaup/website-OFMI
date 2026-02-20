@@ -41,6 +41,8 @@ const mockVenues = [
 ];
 
 describe("VenueSelection Component", () => {
+  const mockSetSelectedVenueId = vi.fn();
+
   it("renders loading state", () => {
     (useSWR as Mock).mockReturnValue({
       data: undefined,
@@ -48,7 +50,13 @@ describe("VenueSelection Component", () => {
       isLoading: true,
     });
 
-    render(<VenueSelection ofmiEdition={1} />);
+    render(
+      <VenueSelection
+        ofmiEdition={1}
+        selectedVenueId=""
+        setSelectedVenueId={mockSetSelectedVenueId}
+      />,
+    );
     expect(screen.getByText(/Cargando sedes/i)).toBeDefined();
   });
 
@@ -59,13 +67,17 @@ describe("VenueSelection Component", () => {
       isLoading: false,
     });
 
-    render(<VenueSelection ofmiEdition={1} />);
+    render(
+      <VenueSelection
+        ofmiEdition={1}
+        selectedVenueId=""
+        setSelectedVenueId={mockSetSelectedVenueId}
+      />,
+    );
 
     expect(screen.getByText("Sede de Participación")).toBeDefined();
 
-    const select = screen.getByLabelText(
-      "Sedes Disponibles",
-    ) as HTMLSelectElement;
+    const select = screen.getByLabelText("Sedes Disponibles") as HTMLSelectElement;
     const options = Array.from(select.options);
 
     expect(options).toHaveLength(3);
@@ -81,13 +93,18 @@ describe("VenueSelection Component", () => {
       isLoading: false,
     });
 
-    render(<VenueSelection ofmiEdition={1} subtitle="Sede Seleccionada" />);
+    render(
+      <VenueSelection
+        ofmiEdition={1}
+        subtitle="Sede Seleccionada"
+        selectedVenueId=""
+        setSelectedVenueId={mockSetSelectedVenueId}
+      />,
+    );
 
     expect(screen.getByText("Sede Seleccionada")).toBeDefined();
 
-    const select = screen.getByLabelText(
-      "Sedes Disponibles",
-    ) as HTMLSelectElement;
+    const select = screen.getByLabelText("Sede Seleccionada") as HTMLSelectElement;
     const options = Array.from(select.options);
 
     expect(options).toHaveLength(3);
@@ -96,22 +113,46 @@ describe("VenueSelection Component", () => {
     expect(options[2].text).toContain("Nuevo León - Sede Norte");
   });
 
-  it("shows venue details when selected", () => {
+  it("calls setSelectedVenueId when a venue is selected", () => {
     (useSWR as Mock).mockReturnValue({
       data: { venues: mockVenues },
       error: undefined,
       isLoading: false,
     });
 
-    render(<VenueSelection ofmiEdition={1} />);
+    render(
+      <VenueSelection
+        ofmiEdition={1}
+        selectedVenueId=""
+        setSelectedVenueId={mockSetSelectedVenueId}
+      />,
+    );
 
     const select = screen.getByLabelText("Sedes Disponibles");
 
     fireEvent.change(select, { target: { value: "vq2" } });
 
+    expect(mockSetSelectedVenueId).toHaveBeenCalledWith("vq2");
+  });
+
+  it("shows venue details when selectedVenueId matches a venue", () => {
+    (useSWR as Mock).mockReturnValue({
+      data: { venues: mockVenues },
+      error: undefined,
+      isLoading: false,
+    });
+
+    // Simulamos que el ID ya está seleccionado (estado controlado por el padre)
+    render(
+      <VenueSelection
+        ofmiEdition={1}
+        selectedVenueId="vq2"
+        setSelectedVenueId={mockSetSelectedVenueId}
+      />,
+    );
+
     expect(screen.getByText("Detalles de la Sede")).toBeDefined();
     expect(screen.getByText(/Calle Sur 2/)).toBeDefined();
-
     expect(screen.queryByText("Ver en Google Maps")).toBeNull();
   });
 
@@ -122,10 +163,13 @@ describe("VenueSelection Component", () => {
       isLoading: false,
     });
 
-    render(<VenueSelection ofmiEdition={1} />);
-    const select = screen.getByLabelText("Sedes Disponibles");
-
-    fireEvent.change(select, { target: { value: "vq1" } });
+    render(
+      <VenueSelection
+        ofmiEdition={1}
+        selectedVenueId="vq1"
+        setSelectedVenueId={mockSetSelectedVenueId}
+      />,
+    );
 
     expect(screen.getByText("Ver en Google Maps")).toBeDefined();
   });
