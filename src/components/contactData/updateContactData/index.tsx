@@ -3,7 +3,7 @@ import { Alert, SuccessAlert } from "@/components/alert";
 import { UserMailingAddress } from "../mailingAddress";
 import { ContactData } from "../personalDetails";
 import { fieldIds } from "../constants";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PronounsOfString } from "@/types/pronouns";
 import { ShirtStyleOfString } from "@/types/shirt";
 import { ShirtSize } from "@prisma/client";
@@ -29,6 +29,12 @@ export default function UpdateContactData({
   const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState(false);
   const [successfulUpdate, setSuccessfulUpdate] = useState(false);
+  const [selectedVenueId, setSelectedVenueId] = useState<string>("");
+
+  useEffect(() => {
+    setSelectedVenueId(venueId ?? "");
+  }, [venueId]);
+
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>,
   ): Promise<void> {
@@ -96,7 +102,7 @@ export default function UpdateContactData({
           phone: data.get(fieldIds.mailingPhone)?.toString() ?? "",
         },
       },
-      venueQuotaId: data.get(fieldIds.venueSelection)?.toString(),
+      venueQuotaId: selectedVenueId,
     };
 
     setLoading(true);
@@ -134,7 +140,8 @@ export default function UpdateContactData({
         <UserMailingAddress user={user} />
         <VenueSelection
           ofmiEdition={ofmiEdition}
-          initialVenueQuotaId={venueId}
+          selectedVenueId={selectedVenueId}
+          setSelectedVenueId={setSelectedVenueId}
           subtitle="Sede Seleccionada"
         />
 
@@ -143,7 +150,7 @@ export default function UpdateContactData({
           <Button
             type="submit"
             className="min-w-full md:w-64 md:min-w-0"
-            disabled={loading}
+            disabled={loading || selectedVenueId === ""}
           >
             {"Guardar cambios"}
           </Button>

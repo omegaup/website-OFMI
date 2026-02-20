@@ -10,7 +10,7 @@ import {
   UserParticipation,
 } from "@/types/participation.schema";
 import { fieldIds } from "../constants";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PronounsOfString } from "@/types/pronouns";
 import { ShirtStyleOfString } from "@/types/shirt";
 import { ParticipationRole, SchoolStage, ShirtSize } from "@prisma/client";
@@ -36,6 +36,15 @@ export default function Registro({
   const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState(false);
   const [successfulUpsert, setSuccessfulUpsert] = useState(false);
+  const [selectedVenue, setSelectedVenue] = useState<string>("");
+
+  useEffect(() => {
+    const initialVenue =
+      participation?.userParticipation.role === "CONTESTANT"
+        ? (participation.userParticipation.venueQuotaId ?? "")
+        : "";
+    setSelectedVenue(initialVenue);
+  }, [participation]);
 
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>,
@@ -88,7 +97,7 @@ export default function Registro({
             schoolGrade: Number(data.get(fieldIds.schoolGrade)?.toString()),
             schoolCountry: data.get(fieldIds.schoolCountry)?.toString() ?? "",
             schoolState: data.get(fieldIds.schoolState)?.toString() ?? "",
-            venueQuotaId: data.get(fieldIds.venueSelection)?.toString(),
+            venueQuotaId: selectedVenue ?? "",
           };
         }
         case "VOLUNTEER": {
@@ -196,6 +205,8 @@ export default function Registro({
     );
   }
 
+  const isVenueMissing = role === "CONTESTANT" && selectedVenue === "";
+
   return (
     <div className="mx-auto max-w-3xl px-2 pt-4">
       <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
@@ -214,7 +225,7 @@ export default function Registro({
           <Alert
             errorTitle="¡PELIGRO!"
             errorMsg={`Ya tenemos un registro tuyo como
-              ${ParticipationRoleName(participation.userParticipation.role)}. 
+              ${ParticipationRoleName(participation.userParticipation.role)}.
               Este es el registro para ${ParticipationRoleName(role)}`}
           />
         )}
@@ -241,12 +252,9 @@ export default function Registro({
               }
             />
             <VenueSelection
+              setSelectedVenueId={setSelectedVenue}
+              selectedVenueId={selectedVenue}
               ofmiEdition={ofmiEdition}
-              initialVenueQuotaId={
-                participation?.userParticipation.role === "CONTESTANT"
-                  ? participation.userParticipation.venueQuotaId
-                  : undefined
-              }
             />
           </>
         )}
@@ -261,7 +269,7 @@ export default function Registro({
           <Button
             type="submit"
             className="min-w-full md:w-64 md:min-w-0"
-            disabled={loading}
+            disabled={loading || isVenueMissing}
           >
             {participation !== null ? "Guardar cambios" : "Enviar"}
           </Button>
