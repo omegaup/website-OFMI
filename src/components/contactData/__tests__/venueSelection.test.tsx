@@ -77,7 +77,9 @@ describe("VenueSelection Component", () => {
 
     expect(screen.getByText("Sede de Participación")).toBeDefined();
 
-    const select = screen.getByLabelText("Sedes Disponibles") as HTMLSelectElement;
+    const select = screen.getByLabelText(
+      "Sedes Disponibles",
+    ) as HTMLSelectElement;
     const options = Array.from(select.options);
 
     expect(options).toHaveLength(3);
@@ -104,7 +106,9 @@ describe("VenueSelection Component", () => {
 
     expect(screen.getByText("Sede Seleccionada")).toBeDefined();
 
-    const select = screen.getByLabelText("Sede Seleccionada") as HTMLSelectElement;
+    const select = screen.getByLabelText(
+      "Sede Seleccionada",
+    ) as HTMLSelectElement;
     const options = Array.from(select.options);
 
     expect(options).toHaveLength(3);

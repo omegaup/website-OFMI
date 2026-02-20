@@ -53,7 +53,6 @@ export function VenueSelection({
 
   const [sortedVenues, setSortedVenues] = useState<VenueQuota[]>([]);
 
-
   useEffect((): void => {
     if (data?.venues) {
       const availableVenues = data.venues.filter((venue) => {
