@@ -39,11 +39,12 @@ export default function Registro({
   const [selectedVenue, setSelectedVenue] = useState<string>("");
 
   useEffect(() => {
-    setSelectedVenue("");
-    if (participation?.userParticipation.role === "CONTESTANT") {
-      setSelectedVenue(participation.userParticipation.venueQuotaId ?? "");
-    }
-  }, []);
+    const initialVenue =
+      participation?.userParticipation.role === "CONTESTANT"
+        ? (participation.userParticipation.venueQuotaId ?? "")
+        : "";
+    setSelectedVenue(initialVenue);
+  }, [participation]);
 
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>,
@@ -204,6 +205,8 @@ export default function Registro({
     );
   }
 
+  const isVenueMissing = role === "CONTESTANT" && selectedVenue === "";
+
   return (
     <div className="mx-auto max-w-3xl px-2 pt-4">
       <h2 className="text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
@@ -266,7 +269,7 @@ export default function Registro({
           <Button
             type="submit"
             className="min-w-full md:w-64 md:min-w-0"
-            disabled={loading || selectedVenue === ""}
+            disabled={loading || isVenueMissing}
           >
             {participation !== null ? "Guardar cambios" : "Enviar"}
           </Button>
