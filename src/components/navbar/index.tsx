@@ -12,6 +12,7 @@ const navigation = {
   //   "Convocatoria sedes": "/sedes",
   "Sedes 5ta OFMI": "/sedes-5ta-ofmi",
   Registro: "/registro",
+  "División de competencia": "/division-competencia",
   Reglamento: "/reglamento",
   "Código de conducta": "/conducta",
   Material: "/material",
