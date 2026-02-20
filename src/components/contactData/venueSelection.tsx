@@ -28,8 +28,9 @@ const EmptyVenues: React.FC = () => {
 
 interface VenueSelectionProps {
   ofmiEdition: number;
-  initialVenueQuotaId?: string | null;
   subtitle?: string;
+  selectedVenueId: string;
+  setSelectedVenueId: (venueId: string) => void;
 }
 
 function sortAlphabetically(a: VenueQuota, b: VenueQuota): number {
@@ -41,8 +42,9 @@ function sortAlphabetically(a: VenueQuota, b: VenueQuota): number {
 
 export function VenueSelection({
   ofmiEdition,
-  initialVenueQuotaId,
+  selectedVenueId,
   subtitle = "Sedes Disponibles",
+  setSelectedVenueId,
 }: VenueSelectionProps): JSX.Element {
   const { data, error, isLoading } = useSWR<{ venues: VenueQuota[] }>(
     `/api/ofmi/venues?ofmiEdition=${ofmiEdition}`,
@@ -50,27 +52,18 @@ export function VenueSelection({
   );
 
   const [sortedVenues, setSortedVenues] = useState<VenueQuota[]>([]);
-  const [selectedVenueId, setSelectedVenueId] = useState<string>(
-    initialVenueQuotaId || "",
-  );
 
-  useEffect((): void => {
-    if (initialVenueQuotaId) {
-      setSelectedVenueId(initialVenueQuotaId);
-    }
-  }, [initialVenueQuotaId]);
 
   useEffect((): void => {
     if (data?.venues) {
       const availableVenues = data.venues.filter((venue) => {
-        if (initialVenueQuotaId && venue.id === initialVenueQuotaId)
-          return true;
+        if (selectedVenueId && venue.id === selectedVenueId) return true;
         if (venue.capacity > venue.occupied) return true;
         return false;
       });
       setSortedVenues(availableVenues.sort(sortAlphabetically));
     }
-  }, [data, initialVenueQuotaId]);
+  }, [data, selectedVenueId]);
 
   if (error) return <Alert errorMsg="Error cargando sedes disponibles" />;
   if (isLoading)
@@ -97,9 +90,9 @@ export function VenueSelection({
             <select
               id="venue-select"
               value={selectedVenueId}
-              onChange={(e: ChangeEvent<HTMLSelectElement>): void =>
-                setSelectedVenueId(e.target.value)
-              }
+              onChange={(e: ChangeEvent<HTMLSelectElement>): void => {
+                setSelectedVenueId(e.target.value);
+              }}
               className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset
    focus:ring-blue-600 sm:max-w-md sm:text-sm sm:leading-6"
             >
