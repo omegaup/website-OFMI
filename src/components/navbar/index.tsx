@@ -81,7 +81,7 @@ export const Navbar = (): JSX.Element => {
                 </div>
               </div>
 
-              <div className="flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+              <div className="flex items-center">
                 {session.status === "authenticated" ? (
                   <ProfileDropdown />
                 ) : session.status === "unauthenticated" ? (
