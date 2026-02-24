@@ -1,6 +1,7 @@
 import { Disclosure } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import Image from "next/image";
+import Link from "next/link";
 import { ProfileDropdown } from "./Profile";
 import { Unauthenticated } from "./Unauthenticated";
 import { classNames } from "./styles";
@@ -9,7 +10,6 @@ import { usePathname } from "next/navigation";
 
 const navigation = {
   Convocatoria: "/convocatoria",
-  //   "Convocatoria sedes": "/sedes",
   "Sedes 5ta OFMI": "/sedes-5ta-ofmi",
   Registro: "/registro",
   "División de competencia": "/division-competencia",
@@ -18,18 +18,17 @@ const navigation = {
   Material: "/material",
   FAQ: "/faq",
   Donaciones: "/dona",
-  //Resultados: "/resultados",
 };
+
+const navEntries = Object.entries(navigation);
+const mainNav = navEntries.slice(0, 4);
+const extraNav = navEntries.slice(4);
 
 export type NavigationItem = keyof typeof navigation;
 
 export const Navbar = (): JSX.Element => {
   const session = useSession();
   const pathname = usePathname();
-
-  const navEntries = Object.entries(navigation);
-  const mainNav = navEntries.slice(0, 4);
-  const extraNav = navEntries.slice(4);
 
   return (
     <Disclosure as="nav" className="bg-stone-300">
@@ -38,7 +37,6 @@ export const Navbar = (): JSX.Element => {
           <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
             <div className="flex h-16 items-center justify-between">
               <div className="flex items-center space-x-2 lg:space-x-4">
-                {/* Mobile menu button */}
                 <Disclosure.Button className="relative inline-flex items-center justify-center rounded-md p-2 text-gray-600 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
                   <span className="sr-only">Open main menu</span>
                   {open ? (
@@ -48,9 +46,8 @@ export const Navbar = (): JSX.Element => {
                   )}
                 </Disclosure.Button>
 
-                {/* Logo */}
                 <div className="flex flex-shrink-0 items-center">
-                  <a key="index-icon" href="/">
+                  <Link href="/">
                     <Image
                       className="h-8 w-auto"
                       src="/lightLogo.svg"
@@ -58,14 +55,14 @@ export const Navbar = (): JSX.Element => {
                       height={32}
                       width={32}
                     />
-                  </a>
+                  </Link>
                 </div>
               </div>
 
               <div className="hidden flex-1 lg:block lg:px-8">
                 <div className="flex items-center justify-around space-x-2">
                   {mainNav.map(([name, href]) => (
-                    <a
+                    <Link
                       key={name}
                       href={href}
                       className={classNames(
@@ -77,7 +74,7 @@ export const Navbar = (): JSX.Element => {
                       aria-current={href === pathname ? "page" : undefined}
                     >
                       {name}
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </div>
@@ -100,7 +97,7 @@ export const Navbar = (): JSX.Element => {
                 {mainNav.map(([name, href]) => (
                   <Disclosure.Button
                     key={name}
-                    as="a"
+                    as={Link}
                     href={href}
                     className={classNames(
                       href === pathname
@@ -118,7 +115,7 @@ export const Navbar = (): JSX.Element => {
               {extraNav.map(([name, href]) => (
                 <Disclosure.Button
                   key={name}
-                  as="a"
+                  as={Link}
                   href={href}
                   className={classNames(
                     href === pathname
