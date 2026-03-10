@@ -5,22 +5,21 @@ import { hashPassword } from "@/lib/hashPassword";
 import {
   findAllParticipantsInVenueQuotas,
   findAllVenueQuotas,
+  findParticipantsWithoutVenue,
 } from "@/lib/venue";
 
 const testOfmiEdition = 1000;
 const dummyEmail1 = "upsertParticipation1@test.com";
 const dummyEmail2 = "upsertParticipation2@test.com";
+const dummyEmail3 = "upsertParticipation3@test.com";
 let ofmiId: string;
-let venueId1: string;
-let venueId2: string;
-let cpId1: string;
-let cpId2: string;
-let userId1: string;
-let userId2: string;
-let authUserId1: string;
-let authUserId2: string;
-let participationId1: string;
-let participationId2: string;
+let venueId1: string, venueId2: string;
+let cpId1: string, cpId2: string, cpId3: string;
+let userId1: string, userId2: string, userId3: string;
+let authUserId1: string, authUserId2: string, authUserId3: string;
+let participationId1: string,
+  participationId2: string,
+  participationId3: string;
 let vq1id: string;
 let vq2id: string;
 let schoolId: string;
@@ -52,7 +51,7 @@ beforeAll(async () => {
   };
 
   const validUserInput1 = {
-    firstName: "Juan Carlos 1",
+    firstName: "Juan 1",
     lastName: "Sigler Priego",
     preferredName: "Juanito",
     birthDate: new Date("2006-11-24").toISOString(),
@@ -62,7 +61,18 @@ beforeAll(async () => {
     shirtStyle: "STRAIGHT",
   };
   const validUserInput2 = {
-    firstName: "Juan Carlos 2",
+    firstName: "Juan 2",
+    lastName: "Sigler Priego",
+    preferredName: "Juanito",
+    birthDate: new Date("2006-11-24").toISOString(),
+    pronouns: "HE",
+    governmentId: "HEGG061124MVZRRL02",
+    shirtSize: ShirtSize.M,
+    shirtStyle: "STRAIGHT",
+  };
+
+  const validUserInput3 = {
+    firstName: "Juan 3",
     lastName: "Sigler Priego",
     preferredName: "Juanito",
     birthDate: new Date("2006-11-24").toISOString(),
@@ -87,6 +97,13 @@ beforeAll(async () => {
     create: { email: dummyEmail2, password: hashPassword("pass") },
   });
   authUserId2 = authUser2.id;
+
+  const authUser3 = await prisma.userAuth.upsert({
+    where: { email: dummyEmail3 },
+    update: {},
+    create: { email: dummyEmail3, password: hashPassword("pass") },
+  });
+  authUserId3 = authUser3.id;
 
   const user1 = await prisma.user.upsert({
     where: { userAuthId: authUser1.id },
@@ -113,6 +130,19 @@ beforeAll(async () => {
     },
   });
   userId2 = user2.id;
+
+  const user3 = await prisma.user.upsert({
+    where: { userAuthId: authUser3.id },
+    update: {
+      ...validUserInput3,
+    },
+    create: {
+      ...validUserInput3,
+      UserAuth: { connect: { id: authUser3.id } },
+      MailingAddress: { create: { ...mailingAddressDB } },
+    },
+  });
+  userId3 = user3.id;
 
   const venue1 = await prisma.venue.create({
     data: { name: "V1", address: "A1", state: "S1" },
@@ -175,6 +205,15 @@ beforeAll(async () => {
   });
   cpId2 = cp2.id;
 
+  const cp3 = await prisma.contestantParticipation.create({
+    data: {
+      schoolId: school.id,
+      schoolGrade: 1,
+      disqualified: false,
+    },
+  });
+  cpId3 = cp3.id;
+
   const p1 = await prisma.participation.create({
     data: {
       userId: user1.id,
@@ -194,19 +233,33 @@ beforeAll(async () => {
     },
   });
   participationId2 = p2.id;
+
+  const p3 = await prisma.participation.create({
+    data: {
+      userId: user3.id,
+      ofmiId: ofmi.id,
+      role: ParticipationRole.CONTESTANT,
+      contestantParticipationId: cp3.id,
+    },
+  });
+  participationId3 = p3.id;
 });
 
 afterAll(async () => {
   await prisma.participation.deleteMany({
-    where: { id: { in: [participationId1, participationId2] } },
+    where: {
+      id: { in: [participationId1, participationId2, participationId3] },
+    },
   });
   await prisma.contestantParticipation.deleteMany({
-    where: { id: { in: [cpId1, cpId2] } },
+    where: { id: { in: [cpId1, cpId2, cpId3] } },
   });
 
-  await prisma.user.deleteMany({ where: { id: { in: [userId1, userId2] } } });
+  await prisma.user.deleteMany({
+    where: { id: { in: [userId1, userId2, userId3] } },
+  });
   await prisma.userAuth.deleteMany({
-    where: { id: { in: [authUserId1, authUserId2] } },
+    where: { id: { in: [authUserId1, authUserId2, authUserId3] } },
   });
   await prisma.school.delete({ where: { id: schoolId } });
   await prisma.venueQuota.deleteMany({ where: { ofmiId } });
@@ -238,5 +291,13 @@ describe("venue lib", () => {
     expect(listOfVqId).toContain(participantsInVenue[1].venueQuotaId);
     expect(listOfEmails).toContain(participantsInVenue[0].email);
     expect(listOfEmails).toContain(participantsInVenue[1].email);
+  });
+
+  it("findParticipantsWithoutVenue ", async () => {
+    const participants = await findParticipantsWithoutVenue(ofmiId);
+
+    expect(participants).not.toBeNull();
+    expect(participants?.length).toBe(1);
+    expect(participants[0].firstName).toBe("Juan 3");
   });
 });
