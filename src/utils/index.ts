@@ -30,7 +30,14 @@ export function jsonToCsv(items: Array<Record<string, string>>): string {
     header
       .map((key) => {
         const value = obj[key] || "";
-        return `"${value.replace(/"/g, '""')}"`;
+        if (
+          value.includes(",") ||
+          value.includes('"') ||
+          value.includes("\n")
+        ) {
+          return `"${value.replace(/"/g, '""')}"`;
+        }
+        return value;
       })
       .join(","),
   );

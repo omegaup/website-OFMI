@@ -7,8 +7,12 @@ import { PronounName } from "@/types/pronouns";
 import { jsonToCsv } from "@/utils";
 import config from "@/config/default";
 import { TTLCache } from "./cache";
-import { findAllParticipantsInVenueQuotas, findAllVenueQuotas } from "./venue";
-import { UserWithVenueQuota } from "@/types/user.schema";
+import {
+  findAllParticipantsInVenueQuotas,
+  findAllVenueQuotas,
+  findParticipantsWithoutVenue,
+} from "./venue";
+import { UserWithoutVenueQuota, UserWithVenueQuota } from "@/types/user.schema";
 import { Venue, VenueQuotas } from "@/types/venue.schema";
 
 export const FOLDER_MIME_TYPE = "application/vnd.google-apps.folder";
@@ -398,7 +402,7 @@ export async function exportVenueInfo({
 
   const sheets = new google.sheets_v4.Sheets({ auth });
 
-  const sheetNames = ["SedesParticipantes", "SedesCupos"];
+  const sheetNames = ["SedesParticipantes", "Sin sede", "SedesCupos"];
   const sheetIds = await getOrCreateSheets({
     names: sheetNames,
     spreadsheetId,
@@ -406,7 +410,8 @@ export async function exportVenueInfo({
   });
 
   const venueParticipants = sheetIds.at(0);
-  const venueQuotas = sheetIds.at(1);
+  const withoutVenue = sheetIds.at(1);
+  const venueQuotas = sheetIds.at(2);
   if (venueParticipants === undefined || venueQuotas === undefined) {
     throw Error("Bug: Sheet id do not coincide");
   }
@@ -415,10 +420,12 @@ export async function exportVenueInfo({
   const mapVenueQuotasToVenue = new Map(
     (await activeVenueQuotas).map((vq) => [vq.id, vq.venue]),
   );
-  const participantsRegistered: UserWithVenueQuota[] =
+  const participantsWithVenue: UserWithVenueQuota[] =
     await findAllParticipantsInVenueQuotas(
       (await activeVenueQuotas).map((vq) => vq.id),
     );
+  const participantsWithoutVenue: UserWithoutVenueQuota[] =
+    await findParticipantsWithoutVenue(ofmi.id);
 
   const createParticipantRegistrationData = (
     participantsRegistered: UserWithVenueQuota[],
@@ -429,6 +436,18 @@ export async function exportVenueInfo({
         "Nombre completo": `${pr.firstName.trim()} ${pr.lastName.trim()}`,
         Email: `${pr.email}`,
         Sede: `${pr.venueQuotaId ? mapVenueQuotasToVenue.get(pr.venueQuotaId)?.name : ""}`,
+      };
+    });
+    return jsonToCsv(json);
+  };
+
+  const createParticipantsWithoutVenueData = (
+    participantsWithoutVenue: UserWithoutVenueQuota[],
+  ): string => {
+    const json = participantsWithVenue.map((pr) => {
+      return {
+        "Nombre completo": `${pr.firstName.trim()} ${pr.lastName.trim()}`,
+        Email: `${pr.email}`,
       };
     });
     return jsonToCsv(json);
@@ -459,9 +478,21 @@ export async function exportVenueInfo({
               columnIndex: 0,
             },
             data: createParticipantRegistrationData(
-              participantsRegistered,
+              participantsWithVenue,
               mapVenueQuotasToVenue,
             ),
+            delimiter: ",",
+          },
+        },
+        //Update ParticipantsWithoutVenue
+        {
+          pasteData: {
+            coordinate: {
+              sheetId: withoutVenue,
+              rowIndex: 0,
+              columnIndex: 0,
+            },
+            data: createParticipantsWithoutVenueData(participantsWithoutVenue),
             delimiter: ",",
           },
         },

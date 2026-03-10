@@ -70,7 +70,14 @@ export const UserWithVenueQuotaSchema = Type.Object({
   firstName: Type.String(),
   lastName: Type.String(),
   email: Type.String(),
-  venueQuotaId: Type.Optional(Type.String()),
+  venueQuotaId: Type.String(),
+});
+
+export const UserWithoutVenueQuotaSchema = Type.Object({
+  firstName: Type.String(),
+  lastName: Type.String(),
+  email: Type.String(),
 });
 
 export type UserWithVenueQuota = Static<typeof UserWithVenueQuotaSchema>;
+export type UserWithoutVenueQuota = Static<typeof UserWithoutVenueQuotaSchema>;

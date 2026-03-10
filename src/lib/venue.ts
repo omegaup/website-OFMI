@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { UserWithVenueQuota } from "@/types/user.schema";
+import { UserWithVenueQuota, UserWithoutVenueQuota } from "@/types/user.schema";
 import { AvailableVenues, VenueQuotas } from "@/types/venue.schema";
 
 export async function findAllVenues(): Promise<AvailableVenues | null> {
@@ -18,6 +18,44 @@ export async function findAllVenueQuotas(ofmiId: string): Promise<VenueQuotas> {
   return await prisma.venueQuota.findMany({
     where: { ofmiId: ofmiId },
     include: { venue: true },
+  });
+}
+
+export async function findParticipantsWithoutVenue(
+  ofmiId: string,
+): Promise<UserWithoutVenueQuota[]> {
+  const result = await prisma.user.findMany({
+    select: {
+      firstName: true,
+      lastName: true,
+      UserAuth: {
+        select: {
+          email: true,
+        },
+      },
+    },
+    where: {
+      Participation: {
+        some: { ofmiId: ofmiId },
+      },
+      AND: {
+        Participation: {
+          some: {
+            ContestantParticipation: {
+              is: { venueQuotaId: null },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return result.map((p) => {
+    return {
+      firstName: p.firstName,
+      lastName: p.lastName,
+      email: p.UserAuth.email,
+    };
   });
 }
 
