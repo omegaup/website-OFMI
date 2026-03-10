@@ -442,12 +442,12 @@ export async function exportVenueInfo({
   };
 
   const createParticipantsWithoutVenueData = (
-    participantsWithoutVenue: UserWithoutVenueQuota[],
+    participants: UserWithoutVenueQuota[],
   ): string => {
-    const json = participantsWithVenue.map((pr) => {
+    const json = participants.map((p) => {
       return {
-        "Nombre completo": `${pr.firstName.trim()} ${pr.lastName.trim()}`,
-        Email: `${pr.email}`,
+        "Nombre completo": `${p.firstName.trim()} ${p.lastName.trim()}`,
+        Email: `${p.email}`,
       };
     });
     return jsonToCsv(json);
