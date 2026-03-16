@@ -20,6 +20,7 @@ export const newUserEmailTemplate = (
       <p>Si tienes alguna duda por favor envía un correo a
       <a href="mailto:ofmi@omegaup.com">ofmi@omegaup.com</a></p>
       <br />
+		-- vim.g.sonokai_transparent_background = "2"
       <p>Equipo organizador de la OFMI</p>
     `,
   };
@@ -86,9 +87,23 @@ semana. No necesitas reservar, solo conectarte.
  <a href="https://meet.google.com/khj-zbjf-ezp">Google meet link</a></p>
             </li>
             <li>
-                <p><strong>Días OFMI (fechas por confirmar) ✨</strong></p>
+                <p><strong>Días OFMI ✨</strong></p>
                 <p>Tendremos algunos días especiales para conocernos mejor, generar comunidad, hacer
-actividades juntas y llevarnos algunas sorpresas. Pronto compartiremos más información.</p>
+actividades juntas y llevarnos algunas sorpresas. Para poder obtener mención honorífica en la OFMI, es necesario asistir al menos a uno de los Días OFMI.</p>
+                <p>Las fechas confirmadas son:</p>
+                <ul>
+                    <li>
+                      <p>Domingo 15 de marzo 12 PM (hora centro)</p>
+                      <a href="https://meet.google.com/ido-yswx-xgn" target="_blank">👉 https://meet.google.com/ido-yswx-xgn</a>
+                    </li>
+                    <li>
+                      <p>Domingo 12 de abril 12 PM (hora centro)</p>
+                      <a href="https://meet.google.com/iyq-zbfs-jzk" target="_blank">👉 https://meet.google.com/iyq-zbfs-jzk</a>
+                    </li>
+                    <li>
+                      <p>En mayo tendremos una tercera sesión (fecha por confirmar)</p>
+                    </li>
+                </ul>
             </li>
         </ul>
         ${
@@ -122,7 +137,7 @@ actividades juntas y llevarnos algunas sorpresas. Pronto compartiremos más info
             Finalmente, <strong>te recordamos que desde el 2 de febrero de 2026 podrás elegir la sede donde
             presentarás el examen</strong>, una vez que las sedes oficiales sean publicadas.
             Si tienes cualquier duda, puedes escribirnos con toda confianza a ofmi@omegaup.com.
-            ¡Gracias por ser parte de esta edición y nos vemos pronto! 💜 
+            ¡Gracias por ser parte de esta edición y nos vemos pronto! 💜
         </p>
         <p>Con cariño,<p>
         <p>Equipo organizador de la OFMI</p>
