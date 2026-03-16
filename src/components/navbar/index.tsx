@@ -18,6 +18,7 @@ const navigation = {
   Material: "/material",
   FAQ: "/faq",
   Donaciones: "/dona",
+  "Únete al equipo": "/unete",
 };
 
 const navEntries = Object.entries(navigation);
