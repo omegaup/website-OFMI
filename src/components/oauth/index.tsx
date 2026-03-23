@@ -8,20 +8,28 @@ function Provider({
   name,
   connected,
   redirect_to,
+  disabled = false,
+  disabledMessage,
 }: {
   userAuthId: string;
   name: OauthProvider;
   connected: boolean;
   redirect_to: string;
+  disabled?: boolean;
+  disabledMessage?: string;
 }): JSX.Element {
   const [isConnected, setConnected] = useState(connected);
   const [isLoading, setIsLoading] = useState(false);
   return (
-    <div className="mb-4 grid md:grid-cols-2 md:gap-6">
-      {name}
+    <div className="mb-4 grid md:grid-cols-2 md:gap-6 items-center">
+      <div>
+        <p className="font-bold">{name}</p>
+        {disabled && disabledMessage && <p className="text-sm text-gray-500">{disabledMessage}</p>}
+      </div>
       {isConnected ? (
         <Button
-          disabled={isLoading}
+          isLoading={isLoading}
+          disabled={isLoading || disabled}
           onClick={async (ev) => {
             ev.preventDefault();
             setIsLoading(true);
@@ -48,8 +56,8 @@ function Provider({
           Disconnect
         </Button>
       ) : (
-        <Button>
-          <a href={redirect_to}>Connect</a>
+        <Button disabled={disabled}>
+          <a href={disabled ? '#' : redirect_to}>Connect</a>
         </Button>
       )}
     </div>
@@ -62,11 +70,13 @@ export default function Oauth({
   connectedProviders,
   calendlyRedirectTo,
   gCloudRedirectTo,
+  mentorshipEnabled,
 }: {
   userAuthId: string;
   connectedProviders: Array<OauthProvider>;
   calendlyRedirectTo: string;
   gCloudRedirectTo: string;
+  mentorshipEnabled: boolean;
 }): JSX.Element {
   const isProviderConnected = (provider: OauthProvider): boolean =>
     connectedProviders.find((v) => v === provider) !== undefined;
@@ -77,6 +87,8 @@ export default function Oauth({
         name="CALENDLY"
         connected={isProviderConnected("CALENDLY")}
         redirect_to={calendlyRedirectTo}
+        disabled={!mentorshipEnabled}
+        disabledMessage="Contacta a los organizadores para habilitar la opción de mentorías"
       />
       <Provider
         userAuthId={userAuthId}
