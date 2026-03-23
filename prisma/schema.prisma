@@ -178,6 +178,7 @@ model VolunteerParticipation {
   trainerOptIn            Boolean
   problemSetterOptIn      Boolean
   mentorOptIn             Boolean
+  mentorshipEnabled       Boolean       @default(false)
   Participation           Participation[]
   Mentorias               Mentoria[]
   createdAt               DateTime        @default(now())
