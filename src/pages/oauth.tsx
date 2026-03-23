@@ -1,4 +1,4 @@
-import type {
+import {
   GetServerSideProps,
   InferGetServerSidePropsType,
 } from "next/types";
@@ -6,12 +6,15 @@ import { Calendly, GCloud, findConnectedProviders } from "@/lib/oauth";
 import Oauth from "@/components/oauth";
 import { OauthProvider } from "@prisma/client";
 import { X_USER_AUTH_ID_HEADER } from "@/lib/auth";
+import { findMostRecentOfmi } from "@/lib/ofmi";
+import { prisma } from "@/lib/prisma";
 
 export default function OauthPage({
   userAuthId,
   connectedProviders,
   calendlyRedirectTo,
   gCloudRedirectTo,
+  mentorshipEnabled,
 }: InferGetServerSidePropsType<typeof getServerSideProps>): JSX.Element {
   return (
     <Oauth
@@ -19,6 +22,7 @@ export default function OauthPage({
       connectedProviders={connectedProviders}
       calendlyRedirectTo={calendlyRedirectTo}
       gCloudRedirectTo={gCloudRedirectTo}
+      mentorshipEnabled={mentorshipEnabled}
     />
   );
 }
@@ -28,6 +32,7 @@ export const getServerSideProps: GetServerSideProps<{
   connectedProviders: Array<OauthProvider>;
   calendlyRedirectTo: string;
   gCloudRedirectTo: string;
+  mentorshipEnabled: boolean;
 }> = async ({ req }) => {
   const userAuthId = req.headers[X_USER_AUTH_ID_HEADER];
   if (!userAuthId || typeof userAuthId !== "string") {
@@ -39,6 +44,20 @@ export const getServerSideProps: GetServerSideProps<{
     };
   }
 
+  const ofmi = await findMostRecentOfmi();
+  const participation = await prisma.participation.findFirst({
+    where: {
+      ofmiId: ofmi.id,
+      user: { userAuthId },
+      role: 'VOLUNTEER'
+    },
+    include: {
+      VolunteerParticipation: true
+    }
+  });
+
+  const mentorshipEnabled = participation?.VolunteerParticipation?.mentorshipEnabled ?? false;
+
   const connectedProviders = await findConnectedProviders(userAuthId);
 
   return {
@@ -47,6 +66,7 @@ export const getServerSideProps: GetServerSideProps<{
       connectedProviders,
       calendlyRedirectTo: Calendly.REDIRECT_TO,
       gCloudRedirectTo: GCloud.REDIRECT_TO,
+      mentorshipEnabled,
     },
   };
 };
