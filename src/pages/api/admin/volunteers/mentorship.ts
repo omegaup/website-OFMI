@@ -10,10 +10,24 @@ const MentorshipStatus = Type.Object({
   mentorshipEnabled: Type.Boolean(),
 });
 
-const UpdateMentorshipStatusRequest = Type.Array(MentorshipStatus);
-type UpdateMentorshipStatusRequest = Static<typeof UpdateMentorshipStatusRequest>;
+const UpdateMentorshipStatusRequest = Type.Object({
+  updates: Type.Array(MentorshipStatus),
+});
+type UpdateMentorshipStatusRequest = Static<
+  typeof UpdateMentorshipStatusRequest
+>;
 
-const getMentorshipList = async (res: NextApiResponse) => {
+export type MentorResponse = {
+  volunteerParticipationId: string;
+  mentorshipEnabled: boolean;
+  firstName: string;
+  lastName: string;
+  email?: string;
+};
+
+const getMentorshipList = async (
+  res: NextApiResponse<MentorResponse[] | BadRequestError>,
+): Promise<void> => {
   const volunteers = await prisma.volunteerParticipation.findMany({
     where: {
       mentorOptIn: true,
@@ -22,13 +36,13 @@ const getMentorshipList = async (res: NextApiResponse) => {
       id: true,
       mentorshipEnabled: true,
       Participation: {
-        where: { role: 'VOLUNTEER' },
+        where: { role: "VOLUNTEER" },
         select: {
           user: {
             select: {
               firstName: true,
               lastName: true,
-              UserAuth: { // The relation field on User model
+              UserAuth: {
                 select: {
                   email: true,
                 },
@@ -40,8 +54,8 @@ const getMentorshipList = async (res: NextApiResponse) => {
     },
   });
 
-  const response = volunteers
-    .filter(v => v.Participation && v.Participation.length > 0)
+  const response: MentorResponse[] = volunteers
+    .filter((v) => v.Participation && v.Participation.length > 0)
     .map((v) => ({
       volunteerParticipationId: v.id,
       mentorshipEnabled: v.mentorshipEnabled,
@@ -50,20 +64,31 @@ const getMentorshipList = async (res: NextApiResponse) => {
       email: v.Participation[0].user.UserAuth?.email,
     }));
 
-  return res.status(200).json(response);
+  res.status(200).json(response);
 };
 
 const updateMentorshipStatus = async (
   req: NextApiRequest,
-  res: NextApiResponse,
-) => {
-  if (!Value.Check(UpdateMentorshipStatusRequest, req.body)) {
-    const error = parseValueError(
-      Value.Errors(UpdateMentorshipStatusRequest, req.body),
-    );
-    return res.status(400).json({ message: "Bad Request", error });
+  res: NextApiResponse<BadRequestError>,
+): Promise<void> => {
+  if (!req.body || typeof req.body !== "object") {
+    res.status(400).json({ message: "Bad Request: Body must be an object" });
+    return;
   }
-  const updates = req.body as UpdateMentorshipStatusRequest;
+
+  if (!Value.Check(UpdateMentorshipStatusRequest, req.body)) {
+    try {
+      const error = parseValueError(
+        Value.Errors(UpdateMentorshipStatusRequest, req.body).First()!,
+      );
+      res.status(400).json({ message: `Bad Request: ${error}` });
+      return;
+    } catch (e) {
+      res.status(400).json({ message: "Bad Request: Invalid data format" });
+      return;
+    }
+  }
+  const { updates } = req.body as UpdateMentorshipStatusRequest;
 
   await prisma.$transaction(
     updates.map((update) =>
@@ -77,23 +102,29 @@ const updateMentorshipStatus = async (
       }),
     ),
   );
-  return res.status(200).json({ message: "Updates successful" });
+  res.status(200).json({ message: "Updates successful" });
 };
 
 export default async function handle(
   req: NextApiRequest,
-  res: NextApiResponse<any | BadRequestError>,
+  res: NextApiResponse<MentorResponse[] | BadRequestError>,
 ): Promise<void> {
   try {
     if (req.method === "GET") {
-      return await getMentorshipList(res);
+      await getMentorshipList(res);
+      return;
     }
     if (req.method === "POST") {
-      return await updateMentorshipStatus(req, res);
+      await updateMentorshipStatus(req, res);
+      return;
     }
-    return res.status(405).json({ message: "Method Not Allowed" });
+    res.status(405).json({ message: "Method Not Allowed" });
   } catch (error) {
     console.error("Error in /api/admin/volunteers/mentorship:", error);
-    return res.status(500).json({ message: "Internal Server Error", error: (error as Error).message });
+    res.status(500).json({
+      message: `Internal Server Error: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    });
   }
 }

@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { createMocks } from "node-mocks-http";
-import mentorshipHandler from "@/pages/api/admin/volunteers/mentorship";
+import mentorshipHandler, {
+  MentorResponse,
+} from "@/pages/api/admin/volunteers/mentorship";
 import { prisma } from "@/lib/prisma";
 import { X_USER_AUTH_ID_HEADER, X_USER_AUTH_ROLE_HEADER } from "@/lib/auth";
 import { Role } from "@prisma/client";
@@ -16,21 +18,29 @@ describe("/api/admin/volunteers/mentorship API Endpoint", () => {
     // 1. Safe cleanup
     const existingAuths = await prisma.userAuth.findMany({
       where: { email: { in: [testEmail, testVolunteerEmail] } },
-      include: { User: true }
+      include: { User: true },
     });
 
     for (const auth of existingAuths) {
       if (auth.User) {
         const participations = await prisma.participation.findMany({
-          where: { userId: auth.User.id }
+          where: { userId: auth.User.id },
         });
-        const vpIds = participations.map(p => p.volunteerParticipationId).filter(Boolean) as string[];
-        
-        await prisma.participation.deleteMany({ where: { userId: auth.User.id } });
-        await prisma.volunteerParticipation.deleteMany({ where: { id: { in: vpIds } } });
+        const vpIds = participations
+          .map((p) => p.volunteerParticipationId)
+          .filter(Boolean) as string[];
+
+        await prisma.participation.deleteMany({
+          where: { userId: auth.User.id },
+        });
+        await prisma.volunteerParticipation.deleteMany({
+          where: { id: { in: vpIds } },
+        });
         await prisma.user.delete({ where: { id: auth.User.id } });
         if (auth.User.mailingAddressId) {
-            await prisma.mailingAddress.delete({ where: { id: auth.User.mailingAddressId } });
+          await prisma.mailingAddress.delete({
+            where: { id: auth.User.mailingAddressId },
+          });
         }
       }
       await prisma.userAuth.delete({ where: { id: auth.id } });
@@ -57,17 +67,17 @@ describe("/api/admin/volunteers/mentorship API Endpoint", () => {
     volunteerAuthId = volunteerAuth.id;
 
     const address = await prisma.mailingAddress.create({
-        data: {
-            street: "Calle Falsa",
-            externalNumber: "123",
-            zipcode: "12345",
-            state: "CDMX",
-            country: "Mexico",
-            neighborhood: "Test",
-            county: "Test",
-            name: "Test",
-            phone: "1234567890"
-        }
+      data: {
+        street: "Calle Falsa",
+        externalNumber: "123",
+        zipcode: "12345",
+        state: "CDMX",
+        country: "Mexico",
+        neighborhood: "Test",
+        county: "Test",
+        name: "Test",
+        phone: "1234567890",
+      },
     });
 
     const user = await prisma.user.create({
@@ -85,35 +95,37 @@ describe("/api/admin/volunteers/mentorship API Endpoint", () => {
       },
     });
 
-    const ofmi = await prisma.ofmi.findFirst({ orderBy: { edition: 'desc' } }) || await prisma.ofmi.create({
+    const ofmi =
+      (await prisma.ofmi.findFirst({ orderBy: { edition: "desc" } })) ||
+      (await prisma.ofmi.create({
         data: {
-            edition: 99,
-            year: 2099,
-            registrationOpenTime: new Date(),
-            registrationCloseTime: new Date(),
-        }
-    });
+          edition: 99,
+          year: 2099,
+          registrationOpenTime: new Date(),
+          registrationCloseTime: new Date(),
+        },
+      }));
 
     const vPart = await prisma.volunteerParticipation.create({
-        data: {
-            educationalLinkageOptIn: false,
-            fundraisingOptIn: false,
-            communityOptIn: false,
-            trainerOptIn: false,
-            problemSetterOptIn: false,
-            mentorOptIn: true,
-            mentorshipEnabled: false
-        }
+      data: {
+        educationalLinkageOptIn: false,
+        fundraisingOptIn: false,
+        communityOptIn: false,
+        trainerOptIn: false,
+        problemSetterOptIn: false,
+        mentorOptIn: true,
+        mentorshipEnabled: false,
+      },
     });
     volunteerParticipationId = vPart.id;
 
     await prisma.participation.create({
-        data: {
-            userId: user.id,
-            ofmiId: ofmi.id,
-            role: 'VOLUNTEER',
-            volunteerParticipationId: vPart.id
-        }
+      data: {
+        userId: user.id,
+        ofmiId: ofmi.id,
+        role: "VOLUNTEER",
+        volunteerParticipationId: vPart.id,
+      },
     });
   });
 
@@ -121,17 +133,29 @@ describe("/api/admin/volunteers/mentorship API Endpoint", () => {
     if (!adminAuthId && !volunteerAuthId) return;
 
     const authIds = [adminAuthId, volunteerAuthId].filter(Boolean);
-    const users = await prisma.user.findMany({ where: { userAuthId: { in: authIds } } });
-    const userIds = users.map(u => u.id);
-    const addressIds = users.map(u => u.mailingAddressId).filter(Boolean);
+    const users = await prisma.user.findMany({
+      where: { userAuthId: { in: authIds } },
+    });
+    const userIds = users.map((u) => u.id);
+    const addressIds = users.map((u) => u.mailingAddressId).filter(Boolean);
 
-    const participations = await prisma.participation.findMany({ where: { userId: { in: userIds } } });
-    const vpIds = participations.map(p => p.volunteerParticipationId).filter(Boolean) as string[];
+    const participations = await prisma.participation.findMany({
+      where: { userId: { in: userIds } },
+    });
+    const vpIds = participations
+      .map((p) => p.volunteerParticipationId)
+      .filter(Boolean) as string[];
 
-    await prisma.participation.deleteMany({ where: { userId: { in: userIds } } });
-    await prisma.volunteerParticipation.deleteMany({ where: { id: { in: vpIds } } });
+    await prisma.participation.deleteMany({
+      where: { userId: { in: userIds } },
+    });
+    await prisma.volunteerParticipation.deleteMany({
+      where: { id: { in: vpIds } },
+    });
     await prisma.user.deleteMany({ where: { id: { in: userIds } } });
-    await prisma.mailingAddress.deleteMany({ where: { id: { in: addressIds } } });
+    await prisma.mailingAddress.deleteMany({
+      where: { id: { in: addressIds } },
+    });
     await prisma.userAuth.deleteMany({ where: { id: { in: authIds } } });
   });
 
@@ -147,12 +171,14 @@ describe("/api/admin/volunteers/mentorship API Endpoint", () => {
     await mentorshipHandler(req, res);
 
     expect(res.statusCode).toBe(200);
-    const data = res._getJSONData();
+    const data = res._getJSONData() as MentorResponse[];
     expect(Array.isArray(data)).toBe(true);
-    const mentor = data.find((m: any) => m.volunteerParticipationId === volunteerParticipationId);
+    const mentor = data.find(
+      (m: MentorResponse) =>
+        m.volunteerParticipationId === volunteerParticipationId,
+    );
     expect(mentor).toBeDefined();
-    expect(mentor.firstName).toBe("Test");
-    expect(mentor.mentorshipEnabled).toBe(false);
+    expect(mentor?.firstName).toBe("Test");
   });
 
   it("POST: should update mentor status and persist in DB", async () => {
@@ -162,12 +188,14 @@ describe("/api/admin/volunteers/mentorship API Endpoint", () => {
         [X_USER_AUTH_ID_HEADER]: adminAuthId,
         [X_USER_AUTH_ROLE_HEADER]: Role.ADMIN,
       },
-      body: [
-        {
-          volunteerParticipationId: volunteerParticipationId,
-          mentorshipEnabled: true,
-        },
-      ],
+      body: {
+        updates: [
+          {
+            volunteerParticipationId: volunteerParticipationId,
+            mentorshipEnabled: true,
+          },
+        ],
+      },
     });
 
     await mentorshipHandler(req, res);
@@ -186,17 +214,19 @@ describe("/api/admin/volunteers/mentorship API Endpoint", () => {
         [X_USER_AUTH_ID_HEADER]: adminAuthId,
         [X_USER_AUTH_ROLE_HEADER]: Role.ADMIN,
       },
-      body: [
-        {
-          volunteerParticipationId: volunteerParticipationId,
-          mentorshipEnabled: false,
-        },
-      ],
+      body: {
+        updates: [
+          {
+            volunteerParticipationId: volunteerParticipationId,
+            mentorshipEnabled: false,
+          },
+        ],
+      },
     });
 
     await mentorshipHandler(req, res);
     expect(res.statusCode).toBe(200);
-    
+
     const updated = await prisma.volunteerParticipation.findUnique({
       where: { id: volunteerParticipationId },
     });

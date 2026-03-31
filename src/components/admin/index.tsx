@@ -13,11 +13,13 @@ type Volunteer = {
   email: string;
 };
 
-function MentorshipsAdmin() {
+function MentorshipsAdmin(): JSX.Element {
   const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [initialStates, setInitialStates] = useState<Map<string, boolean>>(new Map());
+  const [initialStates, setInitialStates] = useState<Map<string, boolean>>(
+    new Map(),
+  );
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -25,20 +27,32 @@ function MentorshipsAdmin() {
     fetch("/api/admin/volunteers/mentorship")
       .then((res) => {
         if (!res.ok) {
-          return res.json().then(err => Promise.reject(err));
+          return res.json().then((err) => Promise.reject(err));
         }
         return res.json();
       })
       .then((data) => {
         if (!Array.isArray(data)) {
-            throw new Error("La respuesta de la API no tiene el formato esperado.");
+          throw new Error(
+            "La respuesta de la API no tiene el formato esperado.",
+          );
         }
         setVolunteers(data);
-        setInitialStates(new Map(data.map((v: Volunteer) => [v.volunteerParticipationId, v.mentorshipEnabled])));
+        setInitialStates(
+          new Map(
+            data.map((v: Volunteer) => [
+              v.volunteerParticipationId,
+              v.mentorshipEnabled,
+            ]),
+          ),
+        );
         setError(null);
       })
       .catch((err) => {
-        setError(err.message || "Ocurrió un error al cargar los datos de los voluntarios.");
+        setError(
+          err.message ||
+            "Ocurrió un error al cargar los datos de los voluntarios.",
+        );
         console.error(err);
       })
       .finally(() => {
@@ -46,36 +60,47 @@ function MentorshipsAdmin() {
       });
   }, []);
 
-  const handleCheckboxChange = (id: string, checked: boolean) => {
+  const handleCheckboxChange = (id: string, checked: boolean): void => {
     setVolunteers((prev) =>
       prev.map((v) =>
-        v.volunteerParticipationId === id ? { ...v, mentorshipEnabled: checked } : v
-      )
+        v.volunteerParticipationId === id
+          ? { ...v, mentorshipEnabled: checked }
+          : v,
+      ),
     );
   };
-  
-  const getChangedVolunteers = () => {
-    return volunteers.filter(v => v.mentorshipEnabled !== initialStates.get(v.volunteerParticipationId))
-    .map(v => ({
-      volunteerParticipationId: v.volunteerParticipationId,
-      mentorshipEnabled: v.mentorshipEnabled
-    }));
-  }
 
-  const handleSaveChanges = async () => {
+  const getChangedVolunteers = (): Array<{
+    volunteerParticipationId: string;
+    mentorshipEnabled: boolean;
+  }> => {
+    return volunteers
+      .filter(
+        (v) =>
+          v.mentorshipEnabled !== initialStates.get(v.volunteerParticipationId),
+      )
+      .map((v) => ({
+        volunteerParticipationId: v.volunteerParticipationId,
+        mentorshipEnabled: v.mentorshipEnabled,
+      }));
+  };
+
+  const handleSaveChanges = async (): Promise<void> => {
     setSaving(true);
     const changedVolunteers = getChangedVolunteers();
-    
+
     if (changedVolunteers.length > 0) {
       await fetch("/api/admin/volunteers/mentorship", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(changedVolunteers),
+        body: JSON.stringify({ updates: changedVolunteers }),
       });
     }
-    
+
     setSaving(false);
-    const newInitialStates = new Map(volunteers.map(v => [v.volunteerParticipationId, v.mentorshipEnabled]));
+    const newInitialStates = new Map(
+      volunteers.map((v) => [v.volunteerParticipationId, v.mentorshipEnabled]),
+    );
     setInitialStates(newInitialStates);
   };
 
@@ -84,58 +109,64 @@ function MentorshipsAdmin() {
   }
 
   if (error) {
-    return <p className="text-red-500 p-4 bg-red-100 border border-red-400 rounded">Error: {error}</p>;
+    return (
+      <p className="rounded border border-red-400 bg-red-100 p-4 text-red-500">
+        Error: {error}
+      </p>
+    );
   }
 
   const changedCount = getChangedVolunteers().length;
 
   return (
     <div className="pt-4">
-      <h2 className="text-xl font-bold mb-4">Control de Mentorías</h2>
+      <h2 className="mb-4 text-xl font-bold">Control de Mentorías</h2>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white">
           <thead>
             <tr>
-              <th className="py-2 px-4 border-b">Habilitado</th>
-              <th className="py-2 px-4 border-b">Nombre</th>
-              <th className="py-2 px-4 border-b">Email</th>
+              <th className="border-b px-4 py-2">Habilitado</th>
+              <th className="border-b px-4 py-2">Nombre</th>
+              <th className="border-b px-4 py-2">Email</th>
             </tr>
           </thead>
           <tbody>
             {volunteers.map((v) => (
               <tr key={v.volunteerParticipationId}>
-                <td className="py-2 px-4 border-b text-center">
+                <td className="border-b px-4 py-2 text-center">
                   <input
                     type="checkbox"
                     checked={v.mentorshipEnabled}
-                    onChange={(e) => handleCheckboxChange(v.volunteerParticipationId, e.target.checked)}
+                    onChange={(e) =>
+                      handleCheckboxChange(
+                        v.volunteerParticipationId,
+                        e.target.checked,
+                      )
+                    }
                     className="h-5 w-5"
                   />
                 </td>
-                <td className="py-2 px-4 border-b">{`${v.firstName} ${v.lastName}`}</td>
-                <td className="py-2 px-4 border-b">{v.email}</td>
+                <td className="border-b px-4 py-2">{`${v.firstName} ${v.lastName}`}</td>
+                <td className="border-b px-4 py-2">{v.email}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
       <div className="mt-4 flex items-center">
-         <Button
+        <Button
           onClick={handleSaveChanges}
           disabled={saving || changedCount === 0}
-          isLoading={saving}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
         >
-          {saving ? 'Guardando...' : `Guardar Cambios (${changedCount})`}
+          {saving ? "Guardando..." : `Guardar Cambios (${changedCount})`}
         </Button>
       </div>
     </div>
   );
 }
 
-
 function APIForm({ endpoint }: { endpoint: string }): JSX.Element {
-  // ... existing APIForm component code ...
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<string | null>(null);
   const [method, requestSchema] = APIS[endpoint];
@@ -211,9 +242,9 @@ export default function Admin(): JSX.Element {
             onClick={() => setActiveTab(Tab.Mentorships)}
             className={`${
               activeTab === Tab.Mentorships
-                ? 'border-indigo-500 text-indigo-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                ? "border-indigo-500 text-indigo-600"
+                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+            } whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium`}
           >
             {Tab.Mentorships}
           </button>
@@ -221,9 +252,9 @@ export default function Admin(): JSX.Element {
             onClick={() => setActiveTab(Tab.Generic)}
             className={`${
               activeTab === Tab.Generic
-                ? 'border-indigo-500 text-indigo-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-            } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+                ? "border-indigo-500 text-indigo-600"
+                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+            } whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium`}
           >
             {Tab.Generic}
           </button>
@@ -231,7 +262,7 @@ export default function Admin(): JSX.Element {
       </div>
 
       {activeTab === Tab.Mentorships && <MentorshipsAdmin />}
-      
+
       {activeTab === Tab.Generic && (
         <div className="pt-4">
           <label

@@ -1,7 +1,4 @@
-import {
-  GetServerSideProps,
-  InferGetServerSidePropsType,
-} from "next/types";
+import { GetServerSideProps, InferGetServerSidePropsType } from "next/types";
 import { Calendly, GCloud, findConnectedProviders } from "@/lib/oauth";
 import Oauth from "@/components/oauth";
 import { OauthProvider } from "@prisma/client";
@@ -49,14 +46,15 @@ export const getServerSideProps: GetServerSideProps<{
     where: {
       ofmiId: ofmi.id,
       user: { userAuthId },
-      role: 'VOLUNTEER'
+      role: "VOLUNTEER",
     },
     include: {
-      VolunteerParticipation: true
-    }
+      VolunteerParticipation: true,
+    },
   });
 
-  const mentorshipEnabled = participation?.VolunteerParticipation?.mentorshipEnabled ?? false;
+  const mentorshipEnabled =
+    participation?.VolunteerParticipation?.mentorshipEnabled ?? false;
 
   const connectedProviders = await findConnectedProviders(userAuthId);
 

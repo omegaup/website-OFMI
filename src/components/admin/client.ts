@@ -31,24 +31,17 @@ export const APIS: {
     FindOrCreateDriveFolderForParticipantRequestSchema,
   ],
   "/api/admin/volunteers/mentorship": [
-    "GET",
-    Type.Object(
-      {},
-      {
-        description: "Obtiene el estado de mentorías de todos los voluntarios",
-      },
-    ),
-  ],
-  "/api/admin/volunteers/mentorship": [
     "POST",
-    Type.Array(
-      Type.Object({
-        volunteerParticipationId: Type.String(),
-        mentorshipEnabled: Type.Boolean(),
-      }),
+    Type.Object(
       {
-        description: "Actualiza el estado de mentorías de los voluntarios",
+        updates: Type.Array(
+          Type.Object({
+            volunteerParticipationId: Type.String(),
+            mentorshipEnabled: Type.Boolean(),
+          }),
+        ),
       },
+      { description: "Actualiza el estado de mentorías de los voluntarios" },
     ),
   ],
 };

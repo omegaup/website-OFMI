@@ -21,14 +21,15 @@ function Provider({
   const [isConnected, setConnected] = useState(connected);
   const [isLoading, setIsLoading] = useState(false);
   return (
-    <div className="mb-4 grid md:grid-cols-2 md:gap-6 items-center">
+    <div className="mb-4 grid items-center md:grid-cols-2 md:gap-6">
       <div>
         <p className="font-bold">{name}</p>
-        {disabled && disabledMessage && <p className="text-sm text-gray-500">{disabledMessage}</p>}
+        {disabled && disabledMessage && (
+          <p className="text-sm text-gray-500">{disabledMessage}</p>
+        )}
       </div>
       {isConnected ? (
         <Button
-          isLoading={isLoading}
           disabled={isLoading || disabled}
           onClick={async (ev) => {
             ev.preventDefault();
@@ -57,7 +58,7 @@ function Provider({
         </Button>
       ) : (
         <Button disabled={disabled}>
-          <a href={disabled ? '#' : redirect_to}>Connect</a>
+          <a href={disabled ? "#" : redirect_to}>Connect</a>
         </Button>
       )}
     </div>
