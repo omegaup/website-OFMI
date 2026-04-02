@@ -418,6 +418,7 @@ export async function exportVenueInfo({
   const participantsRegistered: UserWithVenueQuota[] =
     await findAllParticipantsInVenueQuotas(
       (await activeVenueQuotas).map((vq) => vq.id),
+      ofmi.id,
     );
 
   const createParticipantRegistrationData = (
