@@ -81,8 +81,7 @@ function MentorshipsAdmin(): JSX.Element {
     return volunteers
       .filter(
         (v) =>
-          v.mentorshipEnabled !==
-          initialStates.get(v.volunteerParticipationId),
+          v.mentorshipEnabled !== initialStates.get(v.volunteerParticipationId),
       )
       .map((v) => ({
         volunteerParticipationId: v.volunteerParticipationId,
@@ -136,7 +135,7 @@ function MentorshipsAdmin(): JSX.Element {
 
   return (
     <div className="pt-4">
-      <h2 className="text-xl font-bold mb-4">Control de Mentorías</h2>
+      <h2 className="mb-4 text-xl font-bold">Control de Mentorías</h2>
       {error && (
         <p className="mb-4 rounded border border-red-400 bg-red-100 p-4 text-red-500">
           Error: {error}
@@ -146,15 +145,15 @@ function MentorshipsAdmin(): JSX.Element {
         <table className="min-w-full bg-white">
           <thead>
             <tr>
-              <th className="border-b py-2 px-4">Habilitado</th>
-              <th className="border-b py-2 px-4">Nombre</th>
-              <th className="border-b py-2 px-4">Email</th>
+              <th className="border-b px-4 py-2">Habilitado</th>
+              <th className="border-b px-4 py-2">Nombre</th>
+              <th className="border-b px-4 py-2">Email</th>
             </tr>
           </thead>
           <tbody>
             {volunteers.map((v) => (
               <tr key={v.volunteerParticipationId}>
-                <td className="border-b py-2 px-4 text-center">
+                <td className="border-b px-4 py-2 text-center">
                   <input
                     type="checkbox"
                     checked={v.mentorshipEnabled}
@@ -167,8 +166,8 @@ function MentorshipsAdmin(): JSX.Element {
                     className="h-5 w-5"
                   />
                 </td>
-                <td className="border-b py-2 px-4">{`${v.firstName} ${v.lastName}`}</td>
-                <td className="border-b py-2 px-4">{v.email}</td>
+                <td className="border-b px-4 py-2">{`${v.firstName} ${v.lastName}`}</td>
+                <td className="border-b px-4 py-2">{v.email}</td>
               </tr>
             ))}
           </tbody>
@@ -178,7 +177,7 @@ function MentorshipsAdmin(): JSX.Element {
         <Button
           onClick={handleSaveChanges}
           disabled={saving || changedCount === 0}
-          className="rounded bg-blue-500 py-2 px-4 font-bold text-white hover:bg-blue-700"
+          className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
         >
           {saving ? "Guardando..." : `Guardar Cambios (${changedCount})`}
         </Button>
@@ -265,7 +264,7 @@ export default function Admin(): JSX.Element {
               activeTab === Tab.Mentorships
                 ? "border-indigo-500 text-indigo-600"
                 : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-            } whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium`}
+            } whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium`}
           >
             {Tab.Mentorships}
           </button>
@@ -275,7 +274,7 @@ export default function Admin(): JSX.Element {
               activeTab === Tab.Generic
                 ? "border-indigo-500 text-indigo-600"
                 : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-            } whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium`}
+            } whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium`}
           >
             {Tab.Generic}
           </button>
