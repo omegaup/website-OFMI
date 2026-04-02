@@ -4,6 +4,7 @@ import { Static, Type } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
 import { parseValueError } from "@/lib/typebox";
 import { NextApiRequest, NextApiResponse } from "next";
+import { findMostRecentOfmi } from "@/lib/ofmi";
 
 const MentorshipStatus = Type.Object({
   volunteerParticipationId: Type.String(),
@@ -28,25 +29,30 @@ export type MentorResponse = {
 const getMentorshipList = async (
   res: NextApiResponse<MentorResponse[] | BadRequestError>,
 ): Promise<void> => {
-  const volunteers = await prisma.volunteerParticipation.findMany({
+  const ofmi = await findMostRecentOfmi();
+
+  const participations = await prisma.participation.findMany({
     where: {
-      mentorOptIn: true,
+      ofmiId: ofmi.id,
+      role: "VOLUNTEER",
+      VolunteerParticipation: {
+        mentorOptIn: true,
+      },
     },
     select: {
-      id: true,
-      mentorshipEnabled: true,
-      Participation: {
-        where: { role: "VOLUNTEER" },
+      VolunteerParticipation: {
         select: {
-          user: {
+          id: true,
+          mentorshipEnabled: true,
+        },
+      },
+      user: {
+        select: {
+          firstName: true,
+          lastName: true,
+          UserAuth: {
             select: {
-              firstName: true,
-              lastName: true,
-              UserAuth: {
-                select: {
-                  email: true,
-                },
-              },
+              email: true,
             },
           },
         },
@@ -54,15 +60,13 @@ const getMentorshipList = async (
     },
   });
 
-  const response: MentorResponse[] = volunteers
-    .filter((v) => v.Participation && v.Participation.length > 0)
-    .map((v) => ({
-      volunteerParticipationId: v.id,
-      mentorshipEnabled: v.mentorshipEnabled,
-      firstName: v.Participation[0].user.firstName,
-      lastName: v.Participation[0].user.lastName,
-      email: v.Participation[0].user.UserAuth?.email,
-    }));
+  const response: MentorResponse[] = participations.map((p) => ({
+    volunteerParticipationId: p.VolunteerParticipation!.id,
+    mentorshipEnabled: p.VolunteerParticipation!.mentorshipEnabled,
+    firstName: p.user.firstName,
+    lastName: p.user.lastName,
+    email: p.user.UserAuth?.email,
+  }));
 
   res.status(200).json(response);
 };
