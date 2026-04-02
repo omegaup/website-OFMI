@@ -23,6 +23,7 @@ export async function findAllVenueQuotas(ofmiId: string): Promise<VenueQuotas> {
 
 export async function findAllParticipantsInVenueQuotas(
   venueQuotaIds: string[],
+  ofmiId: string,
 ): Promise<UserWithVenueQuota[]> {
   const result = await prisma.user.findMany({
     select: {
@@ -35,6 +36,7 @@ export async function findAllParticipantsInVenueQuotas(
       },
       Participation: {
         select: {
+          ofmiId: true,
           ContestantParticipation: {
             select: {
               venueQuotaId: true,
@@ -55,10 +57,13 @@ export async function findAllParticipantsInVenueQuotas(
   });
 
   return result.map((p) => {
-    const cp =
-      p.Participation.length > 0
-        ? p.Participation[0].ContestantParticipation
-        : null;
+    let cp = null;
+
+    if (p.Participation.length > 0) {
+      const pt = p.Participation.find((pt) => pt.ofmiId == ofmiId);
+      cp = pt ? pt.ContestantParticipation : null;
+    }
+
     const vqId = cp ? cp.venueQuotaId : null;
     return {
       firstName: p.firstName,

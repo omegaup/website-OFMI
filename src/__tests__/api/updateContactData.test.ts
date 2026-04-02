@@ -48,27 +48,6 @@ const validUserInput = {
 };
 
 beforeAll(async () => {
-  const existingAuth = await prisma.userAuth.findUnique({
-    where: { email: dummyEmail },
-  });
-  if (existingAuth) {
-    await prisma.contestantParticipation.deleteMany({
-      where: {
-        Participation: { every: { user: { userAuthId: existingAuth.id } } },
-      },
-    });
-    await prisma.participation.deleteMany({
-      where: { user: { userAuthId: existingAuth.id } },
-    });
-    await prisma.user.deleteMany({ where: { userAuthId: existingAuth.id } });
-    await prisma.userAuth.delete({ where: { id: existingAuth.id } });
-  }
-
-  await prisma.venueQuota.deleteMany({
-    where: { ofmi: { edition: testOfmiEdition } },
-  });
-  await prisma.ofmi.deleteMany({ where: { edition: testOfmiEdition } });
-
   const authUser = await prisma.userAuth.upsert({
     where: { email: dummyEmail },
     update: {},
@@ -164,17 +143,31 @@ afterAll(async () => {
     include: { User: true },
   });
   if (authUser?.User) {
+    await prisma.contestantParticipation.deleteMany({
+      where: {
+        Participation: { every: { user: { userAuthId: authUser.id } } },
+      },
+    });
+
     await prisma.participation.deleteMany({
       where: { userId: authUser.User.id, ofmi: { edition: testOfmiEdition } },
     });
+
+    await prisma.user.deleteMany({
+      where: { id: authUser.User.id },
+    });
+
+    await prisma.userAuth.deleteMany({
+      where: { id: authUser.id },
+    });
+
+    await prisma.mailingAddress.deleteMany({
+      where: { id: authUser.User.mailingAddressId },
+    });
   }
 
-  await prisma.contestantParticipation.deleteMany({
-    where: { venueQuotaId: { in: [sourceVenueQuotaId, destVenueQuotaId] } },
-  });
-
   await prisma.venueQuota.deleteMany({
-    where: { id: { in: [sourceVenueQuotaId, destVenueQuotaId] } },
+    where: { ofmi: { edition: testOfmiEdition } },
   });
 
   await prisma.venue.deleteMany({

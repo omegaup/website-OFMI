@@ -224,10 +224,10 @@ describe("venue lib", () => {
   });
 
   it("findAllParticipantsInVenueQuotas ", async () => {
-    const participantsInVenue = await findAllParticipantsInVenueQuotas([
-      vq1id,
-      vq2id,
-    ]);
+    const participantsInVenue = await findAllParticipantsInVenueQuotas(
+      [vq1id, vq2id],
+      ofmiId,
+    );
 
     const listOfVqId = [vq1id, vq2id];
     const listOfEmails = [dummyEmail1, dummyEmail2];
