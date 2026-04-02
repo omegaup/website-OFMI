@@ -6,6 +6,7 @@ import mentorshipHandler, {
 import { prisma } from "@/lib/prisma";
 import { X_USER_AUTH_ID_HEADER, X_USER_AUTH_ROLE_HEADER } from "@/lib/auth";
 import { Role } from "@prisma/client";
+import { findMostRecentOfmi } from "@/lib/ofmi";
 
 describe("/api/admin/volunteers/mentorship API Endpoint", () => {
   const testEmail = "admin_mentorship_test@test.com";
@@ -46,7 +47,22 @@ describe("/api/admin/volunteers/mentorship API Endpoint", () => {
       await prisma.userAuth.delete({ where: { id: auth.id } });
     }
 
-    // 2. Create Admin
+    // 2. Sync with current OFMI
+    let ofmi;
+    try {
+      ofmi = await findMostRecentOfmi();
+    } catch (e) {
+      ofmi = await prisma.ofmi.create({
+        data: {
+          edition: 99,
+          year: 2099,
+          registrationOpenTime: new Date(),
+          registrationCloseTime: new Date(),
+        },
+      });
+    }
+
+    // 3. Create Admin
     const adminAuth = await prisma.userAuth.create({
       data: {
         email: testEmail,
@@ -56,7 +72,7 @@ describe("/api/admin/volunteers/mentorship API Endpoint", () => {
     });
     adminAuthId = adminAuth.id;
 
-    // 3. Create Volunteer
+    // 4. Create Volunteer
     const volunteerAuth = await prisma.userAuth.create({
       data: {
         email: testVolunteerEmail,
@@ -94,17 +110,6 @@ describe("/api/admin/volunteers/mentorship API Endpoint", () => {
         mailingAddressId: address.id,
       },
     });
-
-    const ofmi =
-      (await prisma.ofmi.findFirst({ orderBy: { edition: "desc" } })) ||
-      (await prisma.ofmi.create({
-        data: {
-          edition: 99,
-          year: 2099,
-          registrationOpenTime: new Date(),
-          registrationCloseTime: new Date(),
-        },
-      }));
 
     const vPart = await prisma.volunteerParticipation.create({
       data: {
