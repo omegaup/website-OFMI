@@ -113,10 +113,6 @@ export default function Registro({
             problemSetterOptIn:
               data.get(fieldIds.problemSetterOptIn)?.toString() === "on",
             mentorOptIn: data.get(fieldIds.mentorOptIn)?.toString() === "on",
-            mentorshipEnabled:
-              participation?.userParticipation.role === "VOLUNTEER"
-                ? participation.userParticipation.mentorshipEnabled
-                : false,
           };
         }
         default: {
