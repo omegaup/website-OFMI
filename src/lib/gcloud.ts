@@ -307,6 +307,7 @@ export async function exportParticipants({
         let data: Record<string, string> = {
           "Nombre completo": `${participation.user.firstName.trim()} ${participation.user.lastName.trim()}`,
           Email: participation.user.email.trim(),
+          Teléfono: participation.user.mailingAddress.phone,
           Pronombre: PronounName(participation.user.pronouns),
           "Fecha de nacimiento": `=DATEVALUE(MID("${participation.user.birthDate}",1,10))+TIMEVALUE(MID("${participation.user.birthDate}",12,8))`,
           "Google Drive Folder": `https://drive.google.com/drive/folders/${
@@ -319,6 +320,7 @@ export async function exportParticipants({
           data = {
             ...data,
             "Fecha de registro": `=DATEVALUE(MID("${participation.registeredAt}",1,10))+TIMEVALUE(MID("${participation.registeredAt}",12,8))`,
+            "Año de escuela": `${userParticipation.schoolGrade}`,
             Estado: userParticipation.schoolState,
             Escuela: userParticipation.schoolName.trim(),
           };

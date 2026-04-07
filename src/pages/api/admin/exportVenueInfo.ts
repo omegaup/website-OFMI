@@ -11,12 +11,6 @@ type ExportVenueInfoResponse = {
   spreadsheetUrl: string;
 };
 
-type ExportParticipantsResponse = {
-  success: true;
-  spreadsheetId: string;
-  spreadsheetUrl: string;
-};
-
 async function getRequestUserId(req: NextApiRequest): Promise<string | null> {
   const authIdHeader = req.headers[X_USER_AUTH_ID_HEADER];
   if (typeof authIdHeader === "string") {
@@ -57,7 +51,7 @@ async function exportVenueInfoHandler(
 
 export default async function handle(
   req: NextApiRequest,
-  res: NextApiResponse<ExportParticipantsResponse | BadRequestError>,
+  res: NextApiResponse<ExportVenueInfoResponse | BadRequestError>,
 ): Promise<void> {
   if (req.method === "GET") {
     // register to OFMI
