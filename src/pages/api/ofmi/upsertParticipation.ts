@@ -254,6 +254,8 @@ async function upsertParticipationHandler(
             trainerOptIn: volunteerParticipationInput.trainerOptIn,
             problemSetterOptIn: volunteerParticipationInput.problemSetterOptIn,
             mentorOptIn: volunteerParticipationInput.mentorOptIn,
+            // mentorshipEnabled is explicitly omitted here to prevent user updates.
+            // Database default (false) will apply on first creation.
           }
         : undefined;
 
