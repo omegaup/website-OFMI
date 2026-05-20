@@ -314,6 +314,8 @@ export async function exportParticipants({
             driveFolders.find((file) => file.name === participation.user.email)
               ?.id || ""
           }`,
+          "Tamaño playera": participation.user.shirtSize,
+          Estilo: participation.user.shirtStyle,
         };
         const { userParticipation } = participation;
         if (userParticipation.role === "CONTESTANT") {
