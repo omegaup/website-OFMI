@@ -43,7 +43,7 @@ export async function getAllAvailabilities({
     where: {
       ofmi: { edition: ofmiEdition },
       role: "VOLUNTEER",
-      VolunteerParticipation: { mentorOptIn: true },
+      VolunteerParticipation: { mentorOptIn: true, mentorshipEnabled: true },
       user: { UserAuth: { UserOauth: { some: { provider: "CALENDLY" } } } },
     },
     include: {

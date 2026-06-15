@@ -1,8 +1,190 @@
-import { useState } from "react";
-import { APIS } from "./client";
+import { useEffect, useState } from "react";
 import Form from "@rjsf/core";
 import validator from "@rjsf/validator-ajv8";
 import { RJSFSchema } from "@rjsf/utils";
+import { APIS } from "./client";
+import { Button } from "../button";
+
+type Volunteer = {
+  volunteerParticipationId: string;
+  mentorshipEnabled: boolean;
+  firstName: string;
+  lastName: string;
+  email: string;
+};
+
+function MentorshipsAdmin(): JSX.Element {
+  const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [initialStates, setInitialStates] = useState<Map<string, boolean>>(
+    new Map(),
+  );
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchVolunteers = (): void => {
+    setLoading(true);
+    fetch("/api/admin/volunteers/mentorship")
+      .then((res) => {
+        if (!res.ok) {
+          return res.json().then((err) => Promise.reject(err));
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (!Array.isArray(data)) {
+          throw new Error(
+            "La respuesta de la API no tiene el formato esperado.",
+          );
+        }
+        setVolunteers(data);
+        setInitialStates(
+          new Map(
+            data.map((v: Volunteer) => [
+              v.volunteerParticipationId,
+              v.mentorshipEnabled,
+            ]),
+          ),
+        );
+        setError(null);
+      })
+      .catch((err) => {
+        setError(
+          err.message ||
+            "Ocurrió un error al cargar los datos de los voluntarios.",
+        );
+        console.error(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    fetchVolunteers();
+  }, []);
+
+  const handleCheckboxChange = (id: string, checked: boolean): void => {
+    setVolunteers((prev) =>
+      prev.map((v) =>
+        v.volunteerParticipationId === id
+          ? { ...v, mentorshipEnabled: checked }
+          : v,
+      ),
+    );
+  };
+
+  const getChangedVolunteers = (): Array<{
+    volunteerParticipationId: string;
+    mentorshipEnabled: boolean;
+  }> => {
+    return volunteers
+      .filter(
+        (v) =>
+          v.mentorshipEnabled !== initialStates.get(v.volunteerParticipationId),
+      )
+      .map((v) => ({
+        volunteerParticipationId: v.volunteerParticipationId,
+        mentorshipEnabled: v.mentorshipEnabled,
+      }));
+  };
+
+  const handleSaveChanges = async (): Promise<void> => {
+    setSaving(true);
+    const changedVolunteers = getChangedVolunteers();
+
+    if (changedVolunteers.length > 0) {
+      try {
+        const res = await fetch("/api/admin/volunteers/mentorship", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ updates: changedVolunteers }),
+        });
+
+        if (!res.ok) {
+          throw new Error("No se pudieron guardar los cambios en el servidor.");
+        }
+
+        // Éxito: Actualizamos estados iniciales localmente
+        const newInitialStates = new Map(
+          volunteers.map((v) => [
+            v.volunteerParticipationId,
+            v.mentorshipEnabled,
+          ]),
+        );
+        setInitialStates(newInitialStates);
+        setError(null);
+      } catch (err) {
+        // Error: Re-cargamos todo para sincronizar con la DB real
+        setError(
+          "Error al guardar: " +
+            (err instanceof Error ? err.message : String(err)),
+        );
+        fetchVolunteers();
+      }
+    }
+
+    setSaving(false);
+  };
+
+  if (loading && volunteers.length === 0) {
+    return <p>Cargando voluntarios...</p>;
+  }
+
+  const changedCount = getChangedVolunteers().length;
+
+  return (
+    <div className="pt-4">
+      <h2 className="mb-4 text-xl font-bold">Control de Mentorías</h2>
+      {error && (
+        <p className="mb-4 rounded border border-red-400 bg-red-100 p-4 text-red-500">
+          Error: {error}
+        </p>
+      )}
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white">
+          <thead>
+            <tr>
+              <th className="border-b px-4 py-2">Habilitado</th>
+              <th className="border-b px-4 py-2">Nombre</th>
+              <th className="border-b px-4 py-2">Email</th>
+            </tr>
+          </thead>
+          <tbody>
+            {volunteers.map((v) => (
+              <tr key={v.volunteerParticipationId}>
+                <td className="border-b px-4 py-2 text-center">
+                  <input
+                    type="checkbox"
+                    checked={v.mentorshipEnabled}
+                    onChange={(e) =>
+                      handleCheckboxChange(
+                        v.volunteerParticipationId,
+                        e.target.checked,
+                      )
+                    }
+                    className="h-5 w-5"
+                  />
+                </td>
+                <td className="border-b px-4 py-2">{`${v.firstName} ${v.lastName}`}</td>
+                <td className="border-b px-4 py-2">{v.email}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="mt-4 flex items-center">
+        <Button
+          onClick={handleSaveChanges}
+          disabled={saving || changedCount === 0}
+          className="rounded bg-blue-500 px-4 py-2 font-bold text-white hover:bg-blue-700"
+        >
+          {saving ? "Guardando..." : `Guardar Cambios (${changedCount})`}
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 function APIForm({ endpoint }: { endpoint: string }): JSX.Element {
   const [loading, setLoading] = useState(false);
@@ -63,41 +245,75 @@ function APIForm({ endpoint }: { endpoint: string }): JSX.Element {
   );
 }
 
+enum Tab {
+  Mentorships = "Mentorías",
+  Generic = "API Genérica",
+}
+
 export default function Admin(): JSX.Element {
   const [endpoint, setEndpoint] = useState<string>();
+  const [activeTab, setActiveTab] = useState<Tab>(Tab.Mentorships);
 
   return (
-    <div className="mx-auto max-w-3xl px-2 pt-4">
-      <div>
-        <label
-          htmlFor="endpoint"
-          className="block font-medium leading-6 text-gray-900"
-        >
-          API endpoint
-        </label>
-        <select
-          id="endpoint"
-          className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:leading-6"
-          value={endpoint}
-          onChange={(ev) => {
-            ev.preventDefault();
-            setEndpoint(
-              ev.currentTarget.value in APIS
-                ? ev.currentTarget.value
-                : undefined,
-            );
-          }}
-        >
-          <option value={""}></option>
-          {Object.keys(APIS).map((name) => (
-            <option value={name} key={name}>
-              {name}
-            </option>
-          ))}
-        </select>
+    <div className="mx-auto max-w-4xl px-2 pt-4">
+      <div className="border-b border-gray-200">
+        <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+          <button
+            onClick={() => setActiveTab(Tab.Mentorships)}
+            className={`${
+              activeTab === Tab.Mentorships
+                ? "border-indigo-500 text-indigo-600"
+                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+            } whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium`}
+          >
+            {Tab.Mentorships}
+          </button>
+          <button
+            onClick={() => setActiveTab(Tab.Generic)}
+            className={`${
+              activeTab === Tab.Generic
+                ? "border-indigo-500 text-indigo-600"
+                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+            } whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium`}
+          >
+            {Tab.Generic}
+          </button>
+        </nav>
       </div>
 
-      {endpoint && <APIForm endpoint={endpoint}></APIForm>}
+      {activeTab === Tab.Mentorships && <MentorshipsAdmin />}
+
+      {activeTab === Tab.Generic && (
+        <div className="pt-4">
+          <label
+            htmlFor="endpoint"
+            className="block font-medium leading-6 text-gray-900"
+          >
+            API endpoint
+          </label>
+          <select
+            id="endpoint"
+            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:leading-6"
+            value={endpoint}
+            onChange={(ev) => {
+              ev.preventDefault();
+              setEndpoint(
+                ev.currentTarget.value in APIS
+                  ? ev.currentTarget.value
+                  : undefined,
+              );
+            }}
+          >
+            <option value={""}></option>
+            {Object.keys(APIS).map((name) => (
+              <option value={name} key={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+          {endpoint && <APIForm endpoint={endpoint}></APIForm>}
+        </div>
+      )}
     </div>
   );
 }

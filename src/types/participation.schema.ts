@@ -53,6 +53,7 @@ const VolunteerParticipationInputSchema = Type.Object({
   trainerOptIn: Type.Boolean(),
   problemSetterOptIn: Type.Boolean(),
   mentorOptIn: Type.Boolean(),
+  mentorshipEnabled: Type.Optional(Type.Boolean()),
 });
 
 export type UserParticipation = Static<typeof UserParticipationSchema>;

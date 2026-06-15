@@ -30,4 +30,18 @@ export const APIS: {
     "POST",
     FindOrCreateDriveFolderForParticipantRequestSchema,
   ],
+  "/api/admin/volunteers/mentorship": [
+    "POST",
+    Type.Object(
+      {
+        updates: Type.Array(
+          Type.Object({
+            volunteerParticipationId: Type.String(),
+            mentorshipEnabled: Type.Boolean(),
+          }),
+        ),
+      },
+      { description: "Actualiza el estado de mentorías de los voluntarios" },
+    ),
+  ],
 };
