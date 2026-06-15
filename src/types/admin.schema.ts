@@ -36,19 +36,25 @@ export type DeleteContestantParticipationRequest = Static<
 >;
 export const DeleteContestantParticipationRequestSchema = Type.Object(
   {
-    email: Type.String(),
+    emails: Type.Array(Type.String(), { minItems: 1 }),
     ofmiEdition: Type.Optional(Type.Integer({ minimum: 1 })),
   },
   {
     description:
-      "Marca un participante concursante como eliminado y libera su sede",
+      "Marca participantes concursantes como eliminados y libera sus sedes",
   },
 );
+
+const DeleteContestantParticipationResultSchema = Type.Object({
+  email: Type.String(),
+  success: Type.Boolean(),
+  deletedAt: Type.Optional(Type.String()),
+  error: Type.Optional(Type.String()),
+});
 
 export type DeleteContestantParticipationResponse = Static<
   typeof DeleteContestantParticipationResponseSchema
 >;
 export const DeleteContestantParticipationResponseSchema = Type.Object({
-  success: Type.Boolean(),
-  deletedAt: Type.String(),
+  results: Type.Array(DeleteContestantParticipationResultSchema),
 });

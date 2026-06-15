@@ -192,7 +192,7 @@ describe("/api/admin/deleteContestantParticipation endpoint", () => {
     const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
       method: "POST",
       body: {
-        email: dummyEmail,
+        emails: [dummyEmail],
       },
     });
 
@@ -200,8 +200,9 @@ describe("/api/admin/deleteContestantParticipation endpoint", () => {
 
     expect(res._getStatusCode()).toBe(200);
     const json = res._getJSONData();
-    expect(json.success).toBe(true);
-    expect(typeof json.deletedAt).toBe("string");
+    expect(json.results).toHaveLength(1);
+    expect(json.results[0].success).toBe(true);
+    expect(typeof json.results[0].deletedAt).toBe("string");
 
     const updatedCp = await prisma.contestantParticipation.findUnique({
       where: { id: contestantParticipationId },

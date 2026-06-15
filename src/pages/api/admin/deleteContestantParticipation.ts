@@ -22,23 +22,27 @@ async function deleteContestantParticipationHandler(
     });
   }
 
-  const { email, ofmiEdition } = body;
+  const { emails, ofmiEdition } = body;
   const selectedOfmiEdition =
     typeof ofmiEdition === "number" ? ofmiEdition : undefined;
 
-  try {
-    const deletedAt = await deleteContestantParticipation({
-      email,
-      ofmiEdition: selectedOfmiEdition,
-    });
+  const results = await Promise.all(
+    emails.map(async (email) => {
+      try {
+        const deletedAt = await deleteContestantParticipation({
+          email,
+          ofmiEdition: selectedOfmiEdition,
+        });
+        return { email, success: true, deletedAt: deletedAt.toISOString() };
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        return { email, success: false, error: errorMessage };
+      }
+    }),
+  );
 
-    return res
-      .status(200)
-      .json({ success: true, deletedAt: deletedAt.toISOString() });
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    return res.status(400).json({ message: errorMessage });
-  }
+  return res.status(200).json({ results });
 }
 
 export default async function handle(

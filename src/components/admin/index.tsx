@@ -189,27 +189,32 @@ function MentorshipsAdmin(): JSX.Element {
 function APIForm({ endpoint }: { endpoint: string }): JSX.Element {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState<string | null>(null);
-  const [method, requestSchema] = APIS[endpoint];
+  const config = APIS[endpoint];
 
   return (
     <div>
       <Form
-        schema={requestSchema as RJSFSchema}
+        schema={config.schema as RJSFSchema}
+        uiSchema={config.uiSchema}
         validator={validator}
         disabled={loading}
         onSubmit={async (data, ev) => {
           ev.preventDefault();
           setLoading(true);
           setResponse(null);
-          const formData = data.formData;
+          let formData = data.formData;
           if (!formData) {
             return;
           }
 
+          if (config.transformFormData) {
+            formData = config.transformFormData(formData);
+          }
+
           let res: Response | null = null;
-          if (method === "POST") {
+          if (config.method === "POST") {
             res = await fetch(endpoint, {
-              method,
+              method: config.method,
               headers: {
                 "Content-Type": "application/json",
               },
@@ -218,7 +223,7 @@ function APIForm({ endpoint }: { endpoint: string }): JSX.Element {
           } else {
             const query = new URLSearchParams(formData);
             res = await fetch(`${endpoint}?${query.toString()}`, {
-              method,
+              method: config.method,
             });
           }
           setLoading(false);
