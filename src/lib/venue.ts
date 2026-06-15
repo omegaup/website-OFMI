@@ -33,17 +33,21 @@ export async function findParticipantsWithoutVenue(
           email: true,
         },
       },
+      Participation: {
+        where: { ofmiId },
+        select: {
+          ContestantParticipation: {
+            select: { deletedAt: true },
+          },
+        },
+      },
     },
     where: {
       Participation: {
-        some: { ofmiId: ofmiId },
-      },
-      AND: {
-        Participation: {
-          some: {
-            ContestantParticipation: {
-              is: { venueQuotaId: null, deletedAt: null },
-            },
+        some: {
+          ofmiId,
+          ContestantParticipation: {
+            is: { venueQuotaId: null },
           },
         },
       },
@@ -51,10 +55,12 @@ export async function findParticipantsWithoutVenue(
   });
 
   return result.map((p) => {
+    const cp = p.Participation[0]?.ContestantParticipation;
     return {
       firstName: p.firstName,
       lastName: p.lastName,
       email: p.UserAuth.email,
+      deletedAt: cp?.deletedAt?.toISOString() ?? null,
     };
   });
 }

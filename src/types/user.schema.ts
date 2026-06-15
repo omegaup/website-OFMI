@@ -77,6 +77,7 @@ export const UserWithoutVenueQuotaSchema = Type.Object({
   firstName: Type.String(),
   lastName: Type.String(),
   email: Type.String(),
+  deletedAt: Type.Union([Type.String(), Type.Null()]),
 });
 
 export type UserWithVenueQuota = Static<typeof UserWithVenueQuotaSchema>;

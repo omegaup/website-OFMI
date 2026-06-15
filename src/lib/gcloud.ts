@@ -454,6 +454,7 @@ export async function exportVenueInfo({
       return {
         "Nombre completo": `${p.firstName.trim()} ${p.lastName.trim()}`,
         Email: `${p.email}`,
+        deletedAt: p.deletedAt ?? "",
       };
     });
     return jsonToCsv(json);
