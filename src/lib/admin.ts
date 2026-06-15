@@ -53,7 +53,9 @@ export async function deleteContestantParticipation({
   });
 
   if (!participation || !participation.ContestantParticipation) {
-    throw new Error("No se encontró la participación de concurso para el correo proporcionado.");
+    throw new Error(
+      "No se encontró la participación de concurso para el correo proporcionado.",
+    );
   }
 
   const contestantParticipation = participation.ContestantParticipation;

@@ -2,7 +2,6 @@ import { prisma } from "@/lib/prisma";
 import {
   ParticipationOutput,
   ParticipationRequestInput,
-  ParticipationRequestInputSchema,
   ParticipationOutputSchema,
   UserParticipation,
 } from "@/types/participation.schema";
@@ -148,8 +147,7 @@ export async function findParticipants(
         },
       },
       registeredAt: participation.createdAt.toISOString(),
-      deletedAt:
-        contestantParticipation?.deletedAt?.toISOString() ?? null,
+      deletedAt: contestantParticipation?.deletedAt?.toISOString() ?? null,
       userParticipation: userParticipation as UserParticipation,
     };
 
