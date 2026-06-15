@@ -1,11 +1,12 @@
 import {
+  DeleteContestantParticipationRequestSchema,
   FindOrCreateDriveFolderForParticipantRequestSchema,
   SendEmailRequestSchema,
 } from "@/types/admin.schema";
-import { TObject, Type } from "@sinclair/typebox";
+import { TSchema, Type } from "@sinclair/typebox";
 
 export const APIS: {
-  [key: string]: ["GET" | "POST", TObject];
+  [key: string]: ["GET" | "POST", TSchema];
 } = {
   "/api/admin/sendEmail": ["POST", SendEmailRequestSchema],
   "/api/admin/exportParticipants": [
@@ -25,6 +26,19 @@ export const APIS: {
         description: "Exporta a google sheets la información de las sedes",
       },
     ),
+  ],
+  "/api/admin/deleteContestantParticipation": [
+    "POST",
+    Type.Intersect([
+      DeleteContestantParticipationRequestSchema,
+      Type.Object(
+        {},
+        {
+          description:
+            "Marca un participante concursante como eliminado y libera su sede. Si no se especifica la edición de la OFMI, se usará la participación de concurso más reciente.",
+        },
+      ),
+    ]),
   ],
   "/api/admin/findOrCreateDriveFolderForParticipant": [
     "POST",

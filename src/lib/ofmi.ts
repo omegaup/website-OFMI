@@ -14,6 +14,10 @@ import { Value } from "@sinclair/typebox/value";
 import { TTLCache } from "./cache";
 import path from "path";
 
+type ParticipationWithDeletedAt = ParticipationRequestInput & {
+  deletedAt: string | null;
+};
+
 const caches = {
   findMostRecentOfmi: new TTLCache<Ofmi>(),
 };
@@ -74,7 +78,7 @@ export async function findContestantParticipation(
 
 export async function findParticipants(
   ofmi: Ofmi,
-): Promise<Array<ParticipationRequestInput>> {
+): Promise<Array<ParticipationWithDeletedAt>> {
   const participants = await prisma.participation.findMany({
     where: { ofmiId: ofmi.id },
     include: {
@@ -126,7 +130,7 @@ export async function findParticipants(
       return null;
     }
 
-    const payload: ParticipationRequestInput = {
+    const payload: ParticipationWithDeletedAt = {
       ofmiEdition: ofmi.edition,
       user: {
         ...user,
@@ -144,10 +148,12 @@ export async function findParticipants(
         },
       },
       registeredAt: participation.createdAt.toISOString(),
+      deletedAt:
+        contestantParticipation?.deletedAt?.toISOString() ?? null,
       userParticipation: userParticipation as UserParticipation,
     };
 
-    return Value.Cast(ParticipationRequestInputSchema, payload);
+    return payload;
   });
 
   return filterNull(res);

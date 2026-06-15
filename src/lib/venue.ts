@@ -42,7 +42,7 @@ export async function findParticipantsWithoutVenue(
         Participation: {
           some: {
             ContestantParticipation: {
-              is: { venueQuotaId: null },
+              is: { venueQuotaId: null, deletedAt: null },
             },
           },
         },
@@ -87,7 +87,7 @@ export async function findAllParticipantsInVenueQuotas(
       Participation: {
         some: {
           ContestantParticipation: {
-            is: { venueQuotaId: { in: venueQuotaIds } },
+            is: { venueQuotaId: { in: venueQuotaIds }, deletedAt: null },
           },
         },
       },

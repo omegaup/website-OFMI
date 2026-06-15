@@ -316,6 +316,7 @@ export async function exportParticipants({
           }`,
           "Tamaño playera": participation.user.shirtSize,
           Estilo: participation.user.shirtStyle,
+          deletedAt: participation.deletedAt ?? "",
         };
         const { userParticipation } = participation;
         if (userParticipation.role === "CONTESTANT") {
