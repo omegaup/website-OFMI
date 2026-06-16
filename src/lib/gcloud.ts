@@ -316,6 +316,7 @@ export async function exportParticipants({
           }`,
           "Tamaño playera": participation.user.shirtSize,
           Estilo: participation.user.shirtStyle,
+          deletedAt: participation.deletedAt ?? "",
         };
         const { userParticipation } = participation;
         if (userParticipation.role === "CONTESTANT") {
@@ -453,6 +454,7 @@ export async function exportVenueInfo({
       return {
         "Nombre completo": `${p.firstName.trim()} ${p.lastName.trim()}`,
         Email: `${p.email}`,
+        deletedAt: p.deletedAt ?? "",
       };
     });
     return jsonToCsv(json);

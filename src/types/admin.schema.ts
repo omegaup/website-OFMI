@@ -30,3 +30,31 @@ export const FindOrCreateDriveFolderForParticipantRequestSchema = Type.Object({
   email: Type.String(),
   ofmiEdition: Type.Integer(),
 });
+
+export type DeleteContestantParticipationRequest = Static<
+  typeof DeleteContestantParticipationRequestSchema
+>;
+export const DeleteContestantParticipationRequestSchema = Type.Object(
+  {
+    emails: Type.Array(Type.String(), { minItems: 1 }),
+    ofmiEdition: Type.Optional(Type.Integer({ minimum: 1 })),
+  },
+  {
+    description:
+      "Marca participantes concursantes como eliminados y libera sus sedes",
+  },
+);
+
+const DeleteContestantParticipationResultSchema = Type.Object({
+  email: Type.String(),
+  success: Type.Boolean(),
+  deletedAt: Type.Optional(Type.String()),
+  error: Type.Optional(Type.String()),
+});
+
+export type DeleteContestantParticipationResponse = Static<
+  typeof DeleteContestantParticipationResponseSchema
+>;
+export const DeleteContestantParticipationResponseSchema = Type.Object({
+  results: Type.Array(DeleteContestantParticipationResultSchema),
+});

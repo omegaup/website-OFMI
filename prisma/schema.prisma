@@ -168,6 +168,7 @@ model ContestantParticipation {
   venueQuota     VenueQuota?     @relation(fields: [venueQuotaId], references: [id])
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
+  deletedAt      DateTime?
 }
 
 model VolunteerParticipation {

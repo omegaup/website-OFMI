@@ -299,5 +299,55 @@ describe("venue lib", () => {
     expect(participants).not.toBeNull();
     expect(participants?.length).toBe(1);
     expect(participants[0].firstName).toBe("Juan 3");
+    expect(participants[0].deletedAt).toBeNull();
+  });
+
+  it("findParticipantsWithoutVenue includes deleted participants with deletedAt", async () => {
+    // Soft-delete cp1: clear venue and set deletedAt
+    await prisma.contestantParticipation.update({
+      where: { id: cpId1 },
+      data: { venueQuotaId: null, deletedAt: new Date() },
+    });
+
+    const participants = await findParticipantsWithoutVenue(ofmiId);
+
+    expect(participants.length).toBe(2);
+
+    const active = participants.find((p) => p.email === dummyEmail3);
+    const deleted = participants.find((p) => p.email === dummyEmail1);
+
+    expect(active).toBeDefined();
+    expect(active?.deletedAt).toBeNull();
+
+    expect(deleted).toBeDefined();
+    expect(deleted?.deletedAt).not.toBeNull();
+
+    // Restore for other tests
+    await prisma.contestantParticipation.update({
+      where: { id: cpId1 },
+      data: { venueQuotaId: vq1id, deletedAt: null },
+    });
+  });
+
+  it("findAllParticipantsInVenueQuotas excludes deleted participants", async () => {
+    // Soft-delete cp2 but keep venue assigned
+    await prisma.contestantParticipation.update({
+      where: { id: cpId2 },
+      data: { deletedAt: new Date() },
+    });
+
+    const participantsInVenue = await findAllParticipantsInVenueQuotas(
+      [vq1id, vq2id],
+      ofmiId,
+    );
+
+    expect(participantsInVenue.length).toBe(1);
+    expect(participantsInVenue[0].email).toBe(dummyEmail1);
+
+    // Restore
+    await prisma.contestantParticipation.update({
+      where: { id: cpId2 },
+      data: { deletedAt: null },
+    });
   });
 });
