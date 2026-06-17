@@ -1,49 +1,36 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { createMocks } from "node-mocks-http";
 import venuesHandler from "@/pages/api/ofmi/venues";
-import { prisma } from "@/lib/prisma";
 import { VenueQuota } from "@/types/venue.schema";
+import {
+  TestCleanup,
+  createOfmi,
+  createVenue,
+  createVenueQuota,
+} from "../factories";
 
 describe("/api/ofmi/venues API Endpoint", () => {
-  const testOfmiEdition = 1;
-  let ofmiId: string;
+  const cleanup = new TestCleanup();
+  let testOfmiEdition: number;
   let venueId: string;
 
   beforeAll(async () => {
-    const ofmi = await prisma.ofmi.upsert({
-      where: { edition: testOfmiEdition },
-      update: {},
-      create: {
-        edition: testOfmiEdition,
-        year: 2027,
-        registrationOpenTime: new Date(),
-        registrationCloseTime: new Date(),
-      },
-    });
-    ofmiId = ofmi.id;
+    const ofmi = await createOfmi(cleanup, { edition: 77701 });
+    testOfmiEdition = ofmi.edition;
 
-    const venue = await prisma.venue.create({
-      data: {
-        name: "Sede de Prueba Unit Test",
-        address: "Calle Falsa 123",
-        state: "CDMX",
-      },
+    const venue = await createVenue(cleanup, {
+      name: "Sede de Prueba Unit Test",
     });
     venueId = venue.id;
 
-    await prisma.venueQuota.create({
-      data: {
-        venueId: venue.id,
-        ofmiId: ofmi.id,
-        capacity: 10,
-      },
+    await createVenueQuota(cleanup, {
+      venueId: venue.id,
+      ofmiId: ofmi.id,
+      capacity: 10,
     });
   });
 
-  afterAll(async () => {
-    await prisma.venueQuota.deleteMany({ where: { ofmiId } });
-    await prisma.venue.delete({ where: { id: venueId } });
-  });
+  afterAll(() => cleanup.run());
 
   it("should return venues for specific edition", async () => {
     const { req, res } = createMocks({
@@ -56,7 +43,6 @@ describe("/api/ofmi/venues API Endpoint", () => {
     expect(res.statusCode).toBe(200);
     const data = res._getJSONData();
 
-    // Find our specific test venue
     const foundVenue = data.venues.find(
       (v: VenueQuota) => v.venueId === venueId,
     );

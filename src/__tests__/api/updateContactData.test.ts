@@ -1,204 +1,85 @@
 import { beforeAll, afterAll, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/prisma";
-import { hashPassword } from "@/lib/hashPassword";
-import {
-  createMocks,
-  createRequest,
-  createResponse,
-  RequestMethod,
-} from "node-mocks-http";
-import { NextApiRequest, NextApiResponse } from "next";
-import { ParticipationRole, ShirtSize } from "@prisma/client";
+import { ShirtSize } from "@prisma/client";
 import { ShirtStyles } from "@/types/shirt";
 import updateContactDataHandler from "@/pages/api/user/updateContactData";
-type ApiRequest = NextApiRequest & ReturnType<typeof createRequest>;
-type APiResponse = NextApiResponse & ReturnType<typeof createResponse>;
+import {
+  TestCleanup,
+  createOfmi,
+  createUserAuth,
+  createUser,
+  createSchool,
+  createVenue,
+  createVenueQuota,
+  createContestantParticipation,
+  createParticipation,
+  mockRequestResponse,
+  DEFAULTS,
+} from "../factories";
 
+const cleanup = new TestCleanup();
 const dummyEmail = "upsertUser@test.com";
+const testOfmiEdition = 77700;
 
-// Setup vars
 let sourceVenueQuotaId: string;
 let destVenueQuotaId: string;
-let sourceVenueId: string;
-let destVenueId: string;
-const testOfmiEdition = 100;
-
-const mailingAddressDB = {
-  street: "Calle",
-  externalNumber: "#8Bis",
-  zipcode: "01234",
-  country: "MEX",
-  state: "Aguascalientes",
-  references: "Por ahí",
-  phone: "5511223344",
-  county: "Aguascalientes",
-  neighborhood: "Aguascalientes",
-  name: "Yosshua V",
-};
-
-const validUserInput = {
-  firstName: "Yosshua",
-  lastName: "Villasana",
-  preferredName: "Yosshua",
-  birthDate: new Date("2006-11-24").toISOString(),
-  pronouns: "HE",
-  governmentId: "HEGG061124MVZRRL02",
-  shirtSize: ShirtSize.M,
-  shirtStyle: ShirtStyles[0],
-};
 
 beforeAll(async () => {
-  const authUser = await prisma.userAuth.upsert({
-    where: { email: dummyEmail },
-    update: {},
-    create: { email: dummyEmail, password: hashPassword("pass") },
+  const userAuth = await createUserAuth(cleanup, { email: dummyEmail });
+  const user = await createUser(cleanup, {
+    userAuthId: userAuth.id,
+    overrides: { firstName: "Yosshua", lastName: "Villasana" },
   });
 
-  const user = await prisma.user.upsert({
-    where: { userAuthId: authUser?.id },
-    update: {},
-    create: {
-      ...validUserInput,
-      UserAuth: {
-        connect: {
-          id: authUser?.id,
-        },
-      },
-      MailingAddress: {
-        create: { ...mailingAddressDB },
-      },
-    },
+  const ofmi = await createOfmi(cleanup, { edition: testOfmiEdition });
+
+  const venue1 = await createVenue(cleanup, {
+    name: "V1",
+    address: "A1",
+    state: "S1",
+  });
+  const venue2 = await createVenue(cleanup, {
+    name: "V2",
+    address: "A2",
+    state: "S2",
   });
 
-  const ofmi = await prisma.ofmi.upsert({
-    where: { edition: testOfmiEdition },
-    update: {},
-    create: {
-      edition: testOfmiEdition,
-      year: 2030,
-      registrationOpenTime: new Date(),
-      registrationCloseTime: new Date(),
-    },
+  const q1 = await createVenueQuota(cleanup, {
+    venueId: venue1.id,
+    ofmiId: ofmi.id,
+    capacity: 10,
+    occupied: 5,
   });
-
-  const venue1 = await prisma.venue.create({
-    data: { name: "V1", address: "A1", state: "S1" },
+  const q2 = await createVenueQuota(cleanup, {
+    venueId: venue2.id,
+    ofmiId: ofmi.id,
+    capacity: 10,
+    occupied: 0,
   });
-  sourceVenueId = venue1.id;
-
-  const venue2 = await prisma.venue.create({
-    data: { name: "V2", address: "A2", state: "S2" },
-  });
-  destVenueId = venue2.id;
-
-  const q1 = await prisma.venueQuota.create({
-    data: { venueId: venue1.id, ofmiId: ofmi.id, capacity: 10, occupied: 5 },
-  });
-  const q2 = await prisma.venueQuota.create({
-    data: { venueId: venue2.id, ofmiId: ofmi.id, capacity: 10, occupied: 0 },
-  });
-
   sourceVenueQuotaId = q1.id;
   destVenueQuotaId = q2.id;
 
-  const school = await prisma.school.upsert({
-    where: {
-      name_stage_state_country: {
-        name: "S",
-        stage: "HIGH",
-        state: "S",
-        country: "C",
-      },
-    },
-    update: {},
-    create: { name: "S", stage: "HIGH", state: "S", country: "C" },
+  const school = await createSchool(cleanup, {
+    name: "S",
+    state: "S",
+    country: "C",
   });
 
-  const cp = await prisma.contestantParticipation.create({
-    data: {
-      schoolId: school.id,
-      schoolGrade: 1,
-      disqualified: false,
-      venueQuotaId: sourceVenueQuotaId,
-    },
+  const cp = await createContestantParticipation(cleanup, {
+    schoolId: school.id,
+    venueQuotaId: sourceVenueQuotaId,
   });
 
-  await prisma.participation.deleteMany({
-    where: { userId: user.id, ofmiId: ofmi.id },
-  });
-
-  await prisma.participation.create({
-    data: {
-      userId: user.id,
-      ofmiId: ofmi.id,
-      role: ParticipationRole.CONTESTANT,
-      contestantParticipationId: cp.id,
-    },
+  await createParticipation(cleanup, {
+    userId: user.id,
+    ofmiId: ofmi.id,
+    contestantParticipationId: cp.id,
   });
 });
 
-afterAll(async () => {
-  const authUser = await prisma.userAuth.findUnique({
-    where: { email: dummyEmail },
-    include: { User: true },
-  });
-  if (authUser?.User) {
-    await prisma.contestantParticipation.deleteMany({
-      where: {
-        Participation: { every: { user: { userAuthId: authUser.id } } },
-      },
-    });
-
-    await prisma.participation.deleteMany({
-      where: { userId: authUser.User.id, ofmi: { edition: testOfmiEdition } },
-    });
-
-    await prisma.user.deleteMany({
-      where: { id: authUser.User.id },
-    });
-
-    await prisma.userAuth.deleteMany({
-      where: { id: authUser.id },
-    });
-
-    await prisma.mailingAddress.deleteMany({
-      where: { id: authUser.User.mailingAddressId },
-    });
-  }
-
-  await prisma.venueQuota.deleteMany({
-    where: { ofmi: { edition: testOfmiEdition } },
-  });
-
-  await prisma.venue.deleteMany({
-    where: { id: { in: [sourceVenueId, destVenueId] } },
-  });
-
-  await prisma.ofmi.delete({ where: { edition: testOfmiEdition } });
-});
+afterAll(() => cleanup.run());
 
 describe("/api/user/updateContactData API Endpoint", () => {
-  function mockRequestResponse({
-    method = "POST",
-    body,
-  }: {
-    method?: RequestMethod;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    body: any;
-  }): {
-    req: ApiRequest;
-    res: APiResponse;
-  } {
-    const { req, res } = createMocks<ApiRequest, APiResponse>({
-      method,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: body,
-    });
-    return { req, res };
-  }
-
   const updatedFields = {
     firstName: "Yosshua E",
     lastName: "C Villasana",
@@ -223,34 +104,26 @@ describe("/api/user/updateContactData API Endpoint", () => {
   };
 
   it("should return a successful response", async () => {
-    const validRequest = {
-      user: {
-        email: dummyEmail,
-        ...updatedFields,
+    const { req, res } = mockRequestResponse({
+      body: {
+        user: { email: dummyEmail, ...updatedFields },
       },
-    };
-
-    const { req, res } = mockRequestResponse({ body: validRequest });
+    });
     await updateContactDataHandler(req, res);
 
     expect(res.statusCode).toBe(201);
     expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
 
-    // Check update in DB
     const userAuth = await prisma.userAuth.findUniqueOrThrow({
       where: { email: dummyEmail },
     });
     const updatedUser = await prisma.user.findUniqueOrThrow({
-      where: {
-        userAuthId: userAuth.id,
-      },
+      where: { userAuthId: userAuth.id },
     });
     expect(updatedUser.firstName).toBe(updatedFields.firstName);
     expect(updatedUser.lastName).toBe(updatedFields.lastName);
     expect(updatedUser.preferredName).toBe(updatedFields.preferredName);
-    expect(updatedUser.birthDate.toISOString()).toBe(
-      updatedFields.birthDate.toString(),
-    );
+    expect(updatedUser.birthDate.toISOString()).toBe(updatedFields.birthDate);
     expect(updatedUser.pronouns).toBe(updatedFields.pronouns);
     expect(updatedUser.governmentId).toBe(updatedFields.governmentId);
     expect(updatedUser.shirtSize).toBe(updatedFields.shirtSize);
@@ -258,15 +131,12 @@ describe("/api/user/updateContactData API Endpoint", () => {
   });
 
   it("should update venue selection and adjust quotas", async () => {
-    const validRequest = {
-      user: {
-        email: dummyEmail,
-        ...updatedFields,
+    const { req, res } = mockRequestResponse({
+      body: {
+        user: { email: dummyEmail, ...updatedFields },
+        venueQuotaId: destVenueQuotaId,
       },
-      venueQuotaId: destVenueQuotaId,
-    };
-
-    const { req, res } = mockRequestResponse({ body: validRequest });
+    });
     await updateContactDataHandler(req, res);
 
     expect(res.statusCode).toBe(201);
@@ -276,7 +146,7 @@ describe("/api/user/updateContactData API Endpoint", () => {
       include: { User: true },
     });
     const participation = await prisma.participation.findFirstOrThrow({
-      where: { userId: userAuth.User!.id, ofmi: { edition: 100 } },
+      where: { userId: userAuth.User!.id, ofmi: { edition: testOfmiEdition } },
       include: { ContestantParticipation: true },
     });
     expect(participation.ContestantParticipation?.venueQuotaId).toBe(
@@ -295,18 +165,18 @@ describe("/api/user/updateContactData API Endpoint", () => {
   });
 
   it("should fail due to invalid address", async () => {
-    const validRequest = {
-      user: {
-        email: dummyEmail,
-        ...updatedFields,
-        mailingAddress: {
-          ...mailingAddressDB,
-          municipality: "Invalid county",
+    const { req, res } = mockRequestResponse({
+      body: {
+        user: {
+          email: dummyEmail,
+          ...updatedFields,
+          mailingAddress: {
+            ...DEFAULTS.mailingAddress,
+            municipality: "Invalid county",
+          },
         },
       },
-    };
-
-    const { req, res } = mockRequestResponse({ body: validRequest });
+    });
     await updateContactDataHandler(req, res);
 
     expect(res.statusCode).toBe(400);
@@ -317,18 +187,18 @@ describe("/api/user/updateContactData API Endpoint", () => {
   });
 
   it("should fail due to non existent user", async () => {
-    const validRequest = {
-      user: {
-        email: "fakemail@gmail.com",
-        ...updatedFields,
-        mailingAddress: {
-          ...mailingAddressDB,
-          municipality: "Invalid county",
+    const { req, res } = mockRequestResponse({
+      body: {
+        user: {
+          email: "fakemail@gmail.com",
+          ...updatedFields,
+          mailingAddress: {
+            ...DEFAULTS.mailingAddress,
+            municipality: "Invalid county",
+          },
         },
       },
-    };
-
-    const { req, res } = mockRequestResponse({ body: validRequest });
+    });
     await updateContactDataHandler(req, res);
 
     expect(res.statusCode).toBe(400);
