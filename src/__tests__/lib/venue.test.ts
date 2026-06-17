@@ -1,273 +1,120 @@
 import { describe, beforeAll, afterAll, it, expect } from "vitest";
 import { prisma } from "@/lib/prisma";
-import { ParticipationRole, ShirtSize } from "@prisma/client";
-import { hashPassword } from "@/lib/hashPassword";
 import {
   findAllParticipantsInVenueQuotas,
   findAllVenueQuotas,
   findParticipantsWithoutVenue,
 } from "@/lib/venue";
+import {
+  TestCleanup,
+  createOfmi,
+  createUserAuth,
+  createUser,
+  createSchool,
+  createVenue,
+  createVenueQuota,
+  createContestantParticipation,
+  createParticipation,
+} from "../factories";
 
-const testOfmiEdition = 1000;
-const dummyEmail1 = "upsertParticipation1@test.com";
-const dummyEmail2 = "upsertParticipation2@test.com";
-const dummyEmail3 = "upsertParticipation3@test.com";
+const cleanup = new TestCleanup();
+const dummyEmail1 = "venueLib1@test.com";
+const dummyEmail2 = "venueLib2@test.com";
+const dummyEmail3 = "venueLib3@test.com";
+
 let ofmiId: string;
-let venueId1: string, venueId2: string;
-let cpId1: string, cpId2: string, cpId3: string;
-let userId1: string, userId2: string, userId3: string;
-let authUserId1: string, authUserId2: string, authUserId3: string;
-let participationId1: string,
-  participationId2: string,
-  participationId3: string;
 let vq1id: string;
 let vq2id: string;
-let schoolId: string;
+let cpId1: string;
+let cpId2: string;
 
 beforeAll(async () => {
-  const ofmi = await prisma.ofmi.upsert({
-    where: { edition: testOfmiEdition },
-    update: {},
-    create: {
-      edition: testOfmiEdition,
-      year: 2027,
-      registrationOpenTime: new Date(),
-      registrationCloseTime: new Date(),
-    },
-  });
+  const ofmi = await createOfmi(cleanup, { edition: 1000 });
   ofmiId = ofmi.id;
 
-  const mailingAddressDB = {
-    street: "Calle",
-    externalNumber: "#8Bis",
-    zipcode: "01234",
-    country: "MEX",
-    state: "Aguascalientes",
-    references: "Por ahí",
-    phone: "5511223344",
-    county: "Aguascalientes",
-    neighborhood: "Aguascalientes",
-    name: "Yosshua V",
-  };
-
-  const validUserInput1 = {
-    firstName: "Juan 1",
-    lastName: "Sigler Priego",
-    preferredName: "Juanito",
-    birthDate: new Date("2006-11-24").toISOString(),
-    pronouns: "HE",
-    governmentId: "HEGG061124MVZRRL02",
-    shirtSize: ShirtSize.M,
-    shirtStyle: "STRAIGHT",
-  };
-  const validUserInput2 = {
-    firstName: "Juan 2",
-    lastName: "Sigler Priego",
-    preferredName: "Juanito",
-    birthDate: new Date("2006-11-24").toISOString(),
-    pronouns: "HE",
-    governmentId: "HEGG061124MVZRRL02",
-    shirtSize: ShirtSize.M,
-    shirtStyle: "STRAIGHT",
-  };
-
-  const validUserInput3 = {
-    firstName: "Juan 3",
-    lastName: "Sigler Priego",
-    preferredName: "Juanito",
-    birthDate: new Date("2006-11-24").toISOString(),
-    pronouns: "HE",
-    governmentId: "HEGG061124MVZRRL02",
-    shirtSize: ShirtSize.M,
-    shirtStyle: "STRAIGHT",
-  };
-
-  // Upsert the valid user Auth
-  const authUser1 = await prisma.userAuth.upsert({
-    where: { email: dummyEmail1 },
-    update: {},
-    create: { email: dummyEmail1, password: hashPassword("pass") },
+  const venue1 = await createVenue(cleanup, {
+    name: "V1",
+    address: "A1",
+    state: "S1",
   });
-  authUserId1 = authUser1.id;
-
-  // Upsert the valid user Auth
-  const authUser2 = await prisma.userAuth.upsert({
-    where: { email: dummyEmail2 },
-    update: {},
-    create: { email: dummyEmail2, password: hashPassword("pass") },
-  });
-  authUserId2 = authUser2.id;
-
-  const authUser3 = await prisma.userAuth.upsert({
-    where: { email: dummyEmail3 },
-    update: {},
-    create: { email: dummyEmail3, password: hashPassword("pass") },
-  });
-  authUserId3 = authUser3.id;
-
-  const user1 = await prisma.user.upsert({
-    where: { userAuthId: authUser1.id },
-    update: {
-      ...validUserInput1,
-    },
-    create: {
-      ...validUserInput1,
-      UserAuth: { connect: { id: authUser1.id } },
-      MailingAddress: { create: { ...mailingAddressDB } },
-    },
-  });
-  userId1 = user1.id;
-
-  const user2 = await prisma.user.upsert({
-    where: { userAuthId: authUser2.id },
-    update: {
-      ...validUserInput2,
-    },
-    create: {
-      ...validUserInput2,
-      UserAuth: { connect: { id: authUser2.id } },
-      MailingAddress: { create: { ...mailingAddressDB } },
-    },
-  });
-  userId2 = user2.id;
-
-  const user3 = await prisma.user.upsert({
-    where: { userAuthId: authUser3.id },
-    update: {
-      ...validUserInput3,
-    },
-    create: {
-      ...validUserInput3,
-      UserAuth: { connect: { id: authUser3.id } },
-      MailingAddress: { create: { ...mailingAddressDB } },
-    },
-  });
-  userId3 = user3.id;
-
-  const venue1 = await prisma.venue.create({
-    data: { name: "V1", address: "A1", state: "S1" },
+  const venue2 = await createVenue(cleanup, {
+    name: "V2",
+    address: "A2",
+    state: "S2",
   });
 
-  venueId1 = venue1.id;
-
-  const vq1 = await prisma.venueQuota.create({
-    data: { venueId: venue1.id, ofmiId: ofmi.id, capacity: 10, occupied: 1 },
+  const vq1 = await createVenueQuota(cleanup, {
+    venueId: venue1.id,
+    ofmiId: ofmi.id,
+    capacity: 10,
+    occupied: 1,
   });
-
   vq1id = vq1.id;
 
-  const venue2 = await prisma.venue.create({
-    data: { name: "V2", address: "A2", state: "S2" },
-  });
-  venueId2 = venue2.id;
-
-  const vq2 = await prisma.venueQuota.create({
-    data: {
-      venueId: venue2.id,
-      ofmiId: ofmi.id,
-      capacity: 10,
-    },
+  const vq2 = await createVenueQuota(cleanup, {
+    venueId: venue2.id,
+    ofmiId: ofmi.id,
+    capacity: 10,
   });
   vq2id = vq2.id;
 
-  const school = await prisma.school.upsert({
-    where: {
-      name_stage_state_country: {
-        name: "S",
-        stage: "HIGH",
-        state: "S",
-        country: "C",
-      },
-    },
-    update: {},
-    create: { name: "S", stage: "HIGH", state: "S", country: "C" },
+  const school = await createSchool(cleanup, {
+    name: "VenueTestSchool",
+    state: "S",
+    country: "C",
   });
 
-  schoolId = school.id;
+  const users = await Promise.all(
+    [
+      { email: dummyEmail1, firstName: "Juan 1" },
+      { email: dummyEmail2, firstName: "Juan 2" },
+      { email: dummyEmail3, firstName: "Juan 3" },
+    ].map(async ({ email, firstName }) => {
+      const auth = await createUserAuth(cleanup, { email });
+      const user = await createUser(cleanup, {
+        userAuthId: auth.id,
+        overrides: { firstName },
+      });
+      return user;
+    }),
+  );
 
-  const cp1 = await prisma.contestantParticipation.create({
-    data: {
-      schoolId: school.id,
-      schoolGrade: 1,
-      disqualified: false,
-      venueQuotaId: vq1.id,
-    },
+  const cp1 = await createContestantParticipation(cleanup, {
+    schoolId: school.id,
+    venueQuotaId: vq1.id,
   });
   cpId1 = cp1.id;
 
-  const cp2 = await prisma.contestantParticipation.create({
-    data: {
-      schoolId: school.id,
-      schoolGrade: 1,
-      disqualified: false,
-      venueQuotaId: vq2.id,
-    },
+  const cp2 = await createContestantParticipation(cleanup, {
+    schoolId: school.id,
+    venueQuotaId: vq2.id,
   });
   cpId2 = cp2.id;
 
-  const cp3 = await prisma.contestantParticipation.create({
-    data: {
-      schoolId: school.id,
-      schoolGrade: 1,
-      disqualified: false,
-    },
+  const cp3 = await createContestantParticipation(cleanup, {
+    schoolId: school.id,
+    venueQuotaId: null,
   });
-  cpId3 = cp3.id;
 
-  const p1 = await prisma.participation.create({
-    data: {
-      userId: user1.id,
-      ofmiId: ofmi.id,
-      role: ParticipationRole.CONTESTANT,
-      contestantParticipationId: cp1.id,
-    },
+  await createParticipation(cleanup, {
+    userId: users[0].id,
+    ofmiId: ofmi.id,
+    contestantParticipationId: cp1.id,
   });
-  participationId1 = p1.id;
-
-  const p2 = await prisma.participation.create({
-    data: {
-      userId: user2.id,
-      ofmiId: ofmi.id,
-      role: ParticipationRole.CONTESTANT,
-      contestantParticipationId: cp2.id,
-    },
+  await createParticipation(cleanup, {
+    userId: users[1].id,
+    ofmiId: ofmi.id,
+    contestantParticipationId: cp2.id,
   });
-  participationId2 = p2.id;
-
-  const p3 = await prisma.participation.create({
-    data: {
-      userId: user3.id,
-      ofmiId: ofmi.id,
-      role: ParticipationRole.CONTESTANT,
-      contestantParticipationId: cp3.id,
-    },
+  await createParticipation(cleanup, {
+    userId: users[2].id,
+    ofmiId: ofmi.id,
+    contestantParticipationId: cp3.id,
   });
-  participationId3 = p3.id;
 });
 
-afterAll(async () => {
-  await prisma.participation.deleteMany({
-    where: {
-      id: { in: [participationId1, participationId2, participationId3] },
-    },
-  });
-  await prisma.contestantParticipation.deleteMany({
-    where: { id: { in: [cpId1, cpId2, cpId3] } },
-  });
+afterAll(() => cleanup.run());
 
-  await prisma.user.deleteMany({
-    where: { id: { in: [userId1, userId2, userId3] } },
-  });
-  await prisma.userAuth.deleteMany({
-    where: { id: { in: [authUserId1, authUserId2, authUserId3] } },
-  });
-  await prisma.school.delete({ where: { id: schoolId } });
-  await prisma.venueQuota.deleteMany({ where: { ofmiId } });
-  await prisma.venue.deleteMany({
-    where: { id: { in: [venueId1, venueId2] } },
-  });
-  await prisma.ofmi.delete({ where: { edition: testOfmiEdition } });
-});
 describe("venue lib", () => {
   it("findAllVenueQuotas ", async () => {
     const allVenues = await findAllVenueQuotas(ofmiId);
@@ -303,7 +150,6 @@ describe("venue lib", () => {
   });
 
   it("findParticipantsWithoutVenue includes deleted participants with deletedAt", async () => {
-    // Soft-delete cp1: clear venue and set deletedAt
     await prisma.contestantParticipation.update({
       where: { id: cpId1 },
       data: { venueQuotaId: null, deletedAt: new Date() },
@@ -322,7 +168,6 @@ describe("venue lib", () => {
     expect(deleted).toBeDefined();
     expect(deleted?.deletedAt).not.toBeNull();
 
-    // Restore for other tests
     await prisma.contestantParticipation.update({
       where: { id: cpId1 },
       data: { venueQuotaId: vq1id, deletedAt: null },
@@ -330,7 +175,6 @@ describe("venue lib", () => {
   });
 
   it("findAllParticipantsInVenueQuotas excludes deleted participants", async () => {
-    // Soft-delete cp2 but keep venue assigned
     await prisma.contestantParticipation.update({
       where: { id: cpId2 },
       data: { deletedAt: new Date() },
@@ -344,7 +188,6 @@ describe("venue lib", () => {
     expect(participantsInVenue.length).toBe(1);
     expect(participantsInVenue[0].email).toBe(dummyEmail1);
 
-    // Restore
     await prisma.contestantParticipation.update({
       where: { id: cpId2 },
       data: { deletedAt: null },

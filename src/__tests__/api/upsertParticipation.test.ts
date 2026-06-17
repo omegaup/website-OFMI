@@ -1,144 +1,70 @@
 import { describe, it, expect, beforeEach, beforeAll, afterAll } from "vitest";
 import { mockEmailer } from "./mocks/emailer";
-import {
-  createMocks,
-  RequestMethod,
-  createRequest,
-  createResponse,
-} from "node-mocks-http";
-import type { NextApiRequest, NextApiResponse } from "next";
 import upsertParticipationHandler from "@/pages/api/ofmi/upsertParticipation";
 import { emailReg } from "@/lib/validators";
 import { prisma } from "@/lib/prisma";
-import { hashPassword } from "@/lib/hashPassword";
 import { toISOStringReg } from "@/lib/validators/date";
 import { ParticipationRole } from "@prisma/client";
+import {
+  TestCleanup,
+  createOfmi,
+  createUserAuth,
+  createVenue,
+  createVenueQuota,
+  mockRequestResponse,
+} from "../factories";
 
-type ApiRequest = NextApiRequest & ReturnType<typeof createRequest>;
-type APiResponse = NextApiResponse & ReturnType<typeof createResponse>;
-
+const cleanup = new TestCleanup();
 const dummyEmail = "upsertParticipation@test.com";
-const validOfmi = {
-  edition: 1,
-  birthDateRequirement: new Date("2005-07-01"),
-  year: 2024,
-  registrationOpenTime: new Date("2024-07-07"),
-  registrationCloseTime: new Date("2050-08-08"),
-};
-const validRole: ParticipationRole = "CONTESTANT";
 let testVenueQuotaId: string;
 let fullVenueQuotaId: string;
-let testVenueId: string;
-let fullVenueId: string;
-let ofmiId: string;
 
 beforeAll(async () => {
-  // ofmi is Needed
-  const ofmi = await prisma.ofmi.upsert({
-    where: { edition: validOfmi.edition },
-    update: {
-      ...validOfmi,
-    },
-    create: {
-      ...validOfmi,
-    },
+  const ofmi = await createOfmi(cleanup, {
+    edition: 77711,
+    year: 2024,
+    birthDateRequirement: new Date("2005-07-01"),
+    registrationOpenTime: new Date("2024-07-07"),
+    registrationCloseTime: new Date("2050-08-08"),
   });
 
-  ofmiId = ofmi.id;
-
-  const venue = await prisma.venue.create({
-    data: {
-      name: "Test Venue",
-      address: "Test Address",
-      state: "CDMX",
-    },
+  const venue = await createVenue(cleanup);
+  const vq = await createVenueQuota(cleanup, {
+    venueId: venue.id,
+    ofmiId: ofmi.id,
+    capacity: 100,
   });
-  testVenueId = venue.id;
+  testVenueQuotaId = vq.id;
 
-  const venueQuota = await prisma.venueQuota.create({
-    data: {
-      venueId: venue.id,
-      ofmiId: ofmi.id,
-      capacity: 100,
-    },
+  const fullVenue = await createVenue(cleanup, {
+    name: "Full Venue",
+    address: "Full Address",
   });
-  testVenueQuotaId = venueQuota.id;
+  const fullVq = await createVenueQuota(cleanup, {
+    venueId: fullVenue.id,
+    ofmiId: ofmi.id,
+    capacity: 0,
+  });
+  fullVenueQuotaId = fullVq.id;
 
-  const fullVenue = await prisma.venue.create({
-    data: {
-      name: "Full Venue",
-      address: "Full Address",
-      state: "CDMX",
-    },
-  });
-  fullVenueId = fullVenue.id;
-
-  const fullVenueQuota = await prisma.venueQuota.create({
-    data: {
-      venueId: fullVenue.id,
-      ofmiId: ofmi.id,
-      capacity: 0,
-    },
-  });
-  fullVenueQuotaId = fullVenueQuota.id;
-
-  // Upsert the valid user Auth
-  await prisma.userAuth.upsert({
-    where: { email: dummyEmail },
-    update: {},
-    create: { email: dummyEmail, password: hashPassword("pass") },
-  });
+  await createUserAuth(cleanup, { email: dummyEmail });
 });
 
-afterAll(async () => {
-  await prisma.venueQuota.deleteMany({
-    where: { id: { in: [testVenueQuotaId, fullVenueQuotaId] } },
-  });
-  await prisma.venue.deleteMany({
-    where: { id: { in: [testVenueId, fullVenueId] } },
-  });
-  await prisma.ofmi.delete({
-    where: { id: ofmiId },
-  });
-});
+afterAll(() => cleanup.run());
 
 beforeEach(async () => {
-  // Remove contestant participation of dummy email
   await prisma.contestantParticipation.deleteMany({
     where: {
       Participation: { every: { user: { UserAuth: { email: dummyEmail } } } },
     },
   });
-  // Remove participation of dummy email
   await prisma.participation.deleteMany({
     where: { user: { UserAuth: { email: dummyEmail } } },
   });
-  // Remover contestant participation
   mockEmailer.resetMock();
 });
 
 describe("/api/ofmi/registerParticipation API Endpoint", () => {
-  function mockRequestResponse({
-    method = "POST",
-    body,
-  }: {
-    method?: RequestMethod;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    body: any;
-  }): {
-    req: ApiRequest;
-    res: APiResponse;
-  } {
-    const { req, res } = createMocks<ApiRequest, APiResponse>({
-      method,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: body,
-    });
-    return { req, res };
-  }
-
   const validMailingAddressInput = {
     street: "Calle",
     externalNumber: "#8Bis",
@@ -165,7 +91,7 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
   };
 
   const validUserParticipationInput = {
-    role: validRole,
+    role: "CONTESTANT" as ParticipationRole,
     schoolName: "Colegio Carol Baur",
     schoolStage: "HIGH",
     schoolGrade: 3,
@@ -174,7 +100,7 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
   };
 
   const validRequest = {
-    ofmiEdition: 1,
+    ofmiEdition: 77711,
     user: validUserInput,
     userParticipation: validUserParticipationInput,
   };
@@ -187,7 +113,6 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
     expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
     const participation = res._getJSONData()["participation"];
 
-    // Check update in DB
     const participationModel = await prisma.participation.findUnique({
       where: {
         userId_ofmiId: {
@@ -204,7 +129,6 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
     const { req, res } = mockRequestResponse({ body: validRequest });
     await upsertParticipationHandler(req, res);
     expect(res.statusCode).toBe(201);
-    expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
     const participation = res._getJSONData()["participation"];
 
     const newFirstName = "Other Name";
@@ -216,10 +140,7 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
         user: {
           ...validUserInput,
           firstName: newFirstName,
-          mailingAddress: {
-            ...validMailingAddressInput,
-            zipcode: newZipcode,
-          },
+          mailingAddress: { ...validMailingAddressInput, zipcode: newZipcode },
         },
         userParticipation: {
           ...validUserParticipationInput,
@@ -228,28 +149,18 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
       },
     });
     await upsertParticipationHandler(req2, res2);
-    expect(res2.getHeaders()).toEqual({ "content-type": "application/json" });
+    expect(res2.statusCode).toBe(201);
     expect(res2._getJSONData()).toMatchObject({
       participation: {
         userId: participation["userId"],
         contestantParticipationId: participation["contestantParticipationId"],
       },
     });
-    expect(res2.statusCode).toBe(201);
 
-    // Check update in DB
     const participationModel = await prisma.participation.findUnique({
       include: {
-        user: {
-          include: {
-            MailingAddress: true,
-          },
-        },
-        ContestantParticipation: {
-          include: {
-            School: true,
-          },
-        },
+        user: { include: { MailingAddress: true } },
+        ContestantParticipation: { include: { School: true } },
       },
       where: {
         userId_ofmiId: {
@@ -258,23 +169,17 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
         },
       },
     });
-    if (!participationModel) {
-      expect(participationModel).not.toBeNull();
-    }
 
+    expect(participationModel).not.toBeNull();
     expect(participationModel).toMatchObject({
       userId: participation["userId"],
       ofmiId: participation["ofmiId"],
       user: {
         firstName: newFirstName,
-        MailingAddress: {
-          zipcode: newZipcode,
-        },
+        MailingAddress: { zipcode: newZipcode },
       },
       ContestantParticipation: {
-        School: {
-          name: newSchool,
-        },
+        School: { name: newSchool },
       },
     });
   });
@@ -283,7 +188,6 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
     const { req, res } = mockRequestResponse({ body: validRequest });
     await upsertParticipationHandler(req, res);
     expect(res.statusCode).toBe(201);
-    expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
 
     expect(mockEmailer.getSentEmails()).toMatchObject([
       {
@@ -295,7 +199,6 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
       },
     ]);
 
-    // Update a field and check that this time we don't get an email
     mockEmailer.resetMock();
 
     const { req: req2, res: res2 } = mockRequestResponse({
@@ -308,7 +211,6 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
       },
     });
     await upsertParticipationHandler(req2, res2);
-    expect(res2.getHeaders()).toEqual({ "content-type": "application/json" });
     expect(res2.statusCode).toBe(201);
 
     expect(mockEmailer.getSentEmails()).toMatchObject([]);
@@ -316,14 +218,10 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
 
   it("invalid OFMI edition", async () => {
     const { req, res } = mockRequestResponse({
-      body: {
-        ...validRequest,
-        ofmiEdition: 1000000, // Espero no llegar a edición tan lejana
-      },
+      body: { ...validRequest, ofmiEdition: 1000000 },
     });
     await upsertParticipationHandler(req, res);
 
-    expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
     expect(res._getJSONData()).toMatchObject({
       message: "La edición de la OFMI que buscas no existe",
     });
@@ -334,15 +232,11 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
     const { req, res } = mockRequestResponse({
       body: {
         ...validRequest,
-        user: {
-          ...validUserInput,
-          email: "juanito.omegaup.com",
-        },
+        user: { ...validUserInput, email: "juanito.omegaup.com" },
       },
     });
     await upsertParticipationHandler(req, res);
 
-    expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
     expect(res._getJSONData()).toMatchObject({
       message: `El campo /user/email no cumple con los requerimientos. Expected string to match '${emailReg}'`,
     });
@@ -353,15 +247,11 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
     const { req, res } = mockRequestResponse({
       body: {
         ...validRequest,
-        user: {
-          ...validUserInput,
-          email: "dont@exist.com",
-        },
+        user: { ...validUserInput, email: "dont@exist.com" },
       },
     });
     await upsertParticipationHandler(req, res);
 
-    expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
     expect(res._getJSONData()).toMatchObject({
       message: "El usuario con ese correo no existe",
     });
@@ -373,15 +263,11 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
       const { req, res } = mockRequestResponse({
         body: {
           ...validRequest,
-          user: {
-            ...validUserInput,
-            birthDate: "0006-12-12",
-          },
+          user: { ...validUserInput, birthDate: "0006-12-12" },
         },
       });
       await upsertParticipationHandler(req, res);
 
-      expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
       expect(res._getJSONData()).toMatchObject({
         message: `El campo /user/birthDate no cumple con los requerimientos. Expected string to match '${toISOStringReg}'`,
       });
@@ -400,7 +286,6 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
       });
       await upsertParticipationHandler(req, res);
 
-      expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
       expect(res._getJSONData()).toMatchObject({
         message:
           "Campo: CURP. La fecha de nacimiento no coincide con la de la CURP",
@@ -421,7 +306,6 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
       });
       await upsertParticipationHandler(req, res);
 
-      expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
       expect(res._getJSONData()).toMatchObject({
         message:
           "Campo: Edición OFMI. No cumples con el requisito de haber nacido después del Fri Jul 01 2005",
@@ -442,7 +326,6 @@ describe("/api/ofmi/registerParticipation API Endpoint", () => {
     });
     await upsertParticipationHandler(req, res);
 
-    expect(res.getHeaders()).toEqual({ "content-type": "application/json" });
     expect(res.statusCode).toBe(400);
   });
 

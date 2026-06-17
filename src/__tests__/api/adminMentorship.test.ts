@@ -3,166 +3,56 @@ import { createMocks } from "node-mocks-http";
 import mentorshipHandler, {
   MentorResponse,
 } from "@/pages/api/admin/volunteers/mentorship";
-import { prisma } from "@/lib/prisma";
 import { X_USER_AUTH_ID_HEADER, X_USER_AUTH_ROLE_HEADER } from "@/lib/auth";
 import { Role } from "@prisma/client";
-import { findMostRecentOfmi } from "@/lib/ofmi";
+import { prisma } from "@/lib/prisma";
+import {
+  TestCleanup,
+  createOfmi,
+  createUserAuth,
+  createUser,
+  createVolunteerParticipation,
+  createParticipation,
+} from "../factories";
+import { ParticipationRole } from "@prisma/client";
 
 describe("/api/admin/volunteers/mentorship API Endpoint", () => {
-  const testEmail = "admin_mentorship_test@test.com";
-  const testVolunteerEmail = "volunteer_mentorship_test@test.com";
+  const cleanup = new TestCleanup();
   let adminAuthId: string;
-  let volunteerAuthId: string;
   let volunteerParticipationId: string;
 
   beforeAll(async () => {
-    // 1. Safe cleanup
-    const existingAuths = await prisma.userAuth.findMany({
-      where: { email: { in: [testEmail, testVolunteerEmail] } },
-      include: { User: true },
-    });
+    const ofmi = await createOfmi(cleanup, { edition: 88801 });
 
-    for (const auth of existingAuths) {
-      if (auth.User) {
-        const participations = await prisma.participation.findMany({
-          where: { userId: auth.User.id },
-        });
-        const vpIds = participations
-          .map((p) => p.volunteerParticipationId)
-          .filter(Boolean) as string[];
-
-        await prisma.participation.deleteMany({
-          where: { userId: auth.User.id },
-        });
-        await prisma.volunteerParticipation.deleteMany({
-          where: { id: { in: vpIds } },
-        });
-        await prisma.user.delete({ where: { id: auth.User.id } });
-        if (auth.User.mailingAddressId) {
-          await prisma.mailingAddress.delete({
-            where: { id: auth.User.mailingAddressId },
-          });
-        }
-      }
-      await prisma.userAuth.delete({ where: { id: auth.id } });
-    }
-
-    // 2. Sync with current OFMI
-    let ofmi;
-    try {
-      ofmi = await findMostRecentOfmi();
-    } catch (e) {
-      ofmi = await prisma.ofmi.create({
-        data: {
-          edition: 99,
-          year: 2099,
-          registrationOpenTime: new Date(),
-          registrationCloseTime: new Date(),
-        },
-      });
-    }
-
-    // 3. Create Admin
-    const adminAuth = await prisma.userAuth.create({
-      data: {
-        email: testEmail,
-        password: "hashed_password",
-        role: Role.ADMIN,
-      },
+    const adminAuth = await createUserAuth(cleanup, {
+      email: "admin_mentorship_test@test.com",
+      role: Role.ADMIN,
     });
     adminAuthId = adminAuth.id;
 
-    // 4. Create Volunteer
-    const volunteerAuth = await prisma.userAuth.create({
-      data: {
-        email: testVolunteerEmail,
-        password: "hashed_password",
-        role: Role.USER,
-      },
+    const volunteerAuth = await createUserAuth(cleanup, {
+      email: "volunteer_mentorship_test@test.com",
     });
-    volunteerAuthId = volunteerAuth.id;
-
-    const address = await prisma.mailingAddress.create({
-      data: {
-        street: "Calle Falsa",
-        externalNumber: "123",
-        zipcode: "12345",
-        state: "CDMX",
-        country: "Mexico",
-        neighborhood: "Test",
-        county: "Test",
-        name: "Test",
-        phone: "1234567890",
-      },
+    const volunteerUser = await createUser(cleanup, {
+      userAuthId: volunteerAuth.id,
+      overrides: { firstName: "Test", lastName: "Volunteer" },
     });
 
-    const user = await prisma.user.create({
-      data: {
-        userAuthId: volunteerAuthId,
-        firstName: "Test",
-        lastName: "Volunteer",
-        birthDate: new Date("2000-01-01"),
-        governmentId: "ABCD123456",
-        preferredName: "Testy",
-        pronouns: "they/them",
-        shirtSize: "M",
-        shirtStyle: "STRAIGHT",
-        mailingAddressId: address.id,
-      },
-    });
-
-    const vPart = await prisma.volunteerParticipation.create({
-      data: {
-        educationalLinkageOptIn: false,
-        fundraisingOptIn: false,
-        communityOptIn: false,
-        trainerOptIn: false,
-        problemSetterOptIn: false,
-        mentorOptIn: true,
-        mentorshipEnabled: false,
-      },
+    const vPart = await createVolunteerParticipation(cleanup, {
+      mentorOptIn: true,
+      mentorshipEnabled: false,
     });
     volunteerParticipationId = vPart.id;
 
-    await prisma.participation.create({
-      data: {
-        userId: user.id,
-        ofmiId: ofmi.id,
-        role: "VOLUNTEER",
-        volunteerParticipationId: vPart.id,
-      },
+    await createParticipation(cleanup, {
+      userId: volunteerUser.id,
+      ofmiId: ofmi.id,
+      role: ParticipationRole.VOLUNTEER,
+      volunteerParticipationId: vPart.id,
     });
   });
 
-  afterAll(async () => {
-    if (!adminAuthId && !volunteerAuthId) return;
-
-    const authIds = [adminAuthId, volunteerAuthId].filter(Boolean);
-    const users = await prisma.user.findMany({
-      where: { userAuthId: { in: authIds } },
-    });
-    const userIds = users.map((u) => u.id);
-    const addressIds = users.map((u) => u.mailingAddressId).filter(Boolean);
-
-    const participations = await prisma.participation.findMany({
-      where: { userId: { in: userIds } },
-    });
-    const vpIds = participations
-      .map((p) => p.volunteerParticipationId)
-      .filter(Boolean) as string[];
-
-    await prisma.participation.deleteMany({
-      where: { userId: { in: userIds } },
-    });
-    await prisma.volunteerParticipation.deleteMany({
-      where: { id: { in: vpIds } },
-    });
-    await prisma.user.deleteMany({ where: { id: { in: userIds } } });
-    await prisma.mailingAddress.deleteMany({
-      where: { id: { in: addressIds } },
-    });
-    await prisma.userAuth.deleteMany({ where: { id: { in: authIds } } });
-  });
+  afterAll(() => cleanup.run());
 
   it("GET: should return the test mentor in the list", async () => {
     const { req, res } = createMocks({

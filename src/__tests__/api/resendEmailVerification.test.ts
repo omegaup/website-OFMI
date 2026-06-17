@@ -4,17 +4,8 @@ import {
   removeIfExists,
   insertAndCheckSuccessfullyDummyInsertion,
 } from "./authUserCreateUtils";
-import {
-  createMocks,
-  RequestMethod,
-  createRequest,
-  createResponse,
-} from "node-mocks-http";
-import type { NextApiRequest, NextApiResponse } from "next";
 import resendEmailVerificationTokenHandler from "@/pages/api/user/resendEmailVerification";
-
-type ApiRequest = NextApiRequest & ReturnType<typeof createRequest>;
-type APiResponse = NextApiResponse & ReturnType<typeof createResponse>;
+import { mockRequestResponse } from "../factories";
 
 const dummyEmail = "emailVerification@test.com";
 
@@ -24,27 +15,6 @@ beforeEach(async () => {
 });
 
 describe("/api/user/resendEmailVerification API Endpoint", () => {
-  function mockRequestResponse({
-    method = "POST",
-    body,
-  }: {
-    method?: RequestMethod;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    body: any;
-  }): {
-    req: ApiRequest;
-    res: APiResponse;
-  } {
-    const { req, res } = createMocks<ApiRequest, APiResponse>({
-      method,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: body,
-    });
-    return { req, res };
-  }
-
   it("successfully resend email", async () => {
     await insertAndCheckSuccessfullyDummyInsertion(dummyEmail);
     expect(mockEmailer.getSentEmails()).length(1);
