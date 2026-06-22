@@ -163,44 +163,41 @@ async function getOrCreateSheets({
   const existingSheetsResponse = await service.spreadsheets.get({
     spreadsheetId,
   });
-  const existingSheets =
-    existingSheetsResponse.data.sheets?.slice(0, names.length) || [];
+  const existingSheets = existingSheetsResponse.data.sheets || [];
+  const sheetsByName = new Map(
+    existingSheets.map((s) => [s.properties?.title, s.properties?.sheetId]),
+  );
 
-  const { data } = await service.spreadsheets.batchUpdate({
-    spreadsheetId,
-    requestBody: {
-      requests: [
-        // Upsert sheet names
-        ...names.map((title, index) => {
-          const existingSheetProperties = existingSheets.at(index)?.properties;
-          if (!existingSheetProperties) {
-            return {
-              addSheet: {
-                properties: { title, index },
-              },
-            };
-          }
-
-          return {
-            updateSheetProperties: {
-              fields: "*",
-              properties: { ...existingSheetProperties, title },
-            },
-          };
-        }),
-      ],
-    },
-  });
-
-  return names.map((_, index) => {
-    const dataSheetId = data.replies?.at(index)?.addSheet?.properties?.sheetId;
-    const existingSheetId = existingSheets.at(index)?.properties?.sheetId;
-    const sheetId = dataSheetId || existingSheetId;
-    if (sheetId === null || sheetId === undefined) {
-      throw Error("Could not find sheet Id");
+  const requests: google.sheets_v4.Schema$Request[] = [];
+  const resultSheetIds: (number | null)[] = names.map((name) => {
+    const existingId = sheetsByName.get(name);
+    if (existingId !== undefined && existingId !== null) {
+      return existingId;
     }
-    return sheetId;
+    requests.push({ addSheet: { properties: { title: name } } });
+    return null;
   });
+
+  if (requests.length > 0) {
+    const { data } = await service.spreadsheets.batchUpdate({
+      spreadsheetId,
+      requestBody: { requests },
+    });
+    let replyIndex = 0;
+    for (let i = 0; i < resultSheetIds.length; i++) {
+      if (resultSheetIds[i] === null) {
+        const sheetId =
+          data.replies?.at(replyIndex)?.addSheet?.properties?.sheetId;
+        if (sheetId === null || sheetId === undefined) {
+          throw Error("Could not find sheet Id");
+        }
+        resultSheetIds[i] = sheetId;
+        replyIndex++;
+      }
+    }
+  }
+
+  return resultSheetIds as number[];
 }
 
 // Returns the URL of the Drive Folder
