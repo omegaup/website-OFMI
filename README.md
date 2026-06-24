@@ -202,13 +202,6 @@ erDiagram
         DateTime updatedAt
     }
 
-    AppConfig {
-        String id PK
-        String flagName UK
-        String value
-        DateTime updatedAt
-    }
-
     UserAuth ||--o| User : "has"
     UserAuth ||--o{ UserOauth : "has"
     User }o--|| MailingAddress : "lives at"
