@@ -49,6 +49,7 @@ interface VenueSelectionProps {
   subtitle?: string;
   selectedVenueId: string;
   setSelectedVenueId: (venueId: string) => void;
+  disabled?: boolean;
 }
 
 function sortAlphabetically(a: VenueQuota, b: VenueQuota): number {
@@ -63,6 +64,7 @@ export function VenueSelection({
   selectedVenueId,
   subtitle = "Sedes Disponibles",
   setSelectedVenueId,
+  disabled = false,
 }: VenueSelectionProps): JSX.Element {
   const { data, error, isLoading } = useSWR<{ venues: VenueQuota[] }>(
     `/api/ofmi/venues?ofmiEdition=${ofmiEdition}`,
@@ -91,9 +93,24 @@ export function VenueSelection({
 
   return (
     <>
-      {!selectedVenueId ? <RequiredVenue /> : <></>}
+      {!selectedVenueId && !disabled ? <RequiredVenue /> : <></>}
       <div className="border-b border-gray-900/10 pb-12">
         <SectionTitle title="Sede de Participación" />
+
+        {disabled && (
+          <div className="my-4 rounded-md bg-yellow-50 p-4 sm:col-span-6">
+            <h4 className="text-sm font-bold text-yellow-800">
+              El cambio de sede está deshabilitado temporalmente.
+            </h4>
+            <p className="mt-1 text-sm text-yellow-700">
+              Contacta a{" "}
+              <a href="mailto:ofmi@omegaup.com" className="underline">
+                ofmi@omegaup.com
+              </a>{" "}
+              si necesitas cambiar de sede.
+            </p>
+          </div>
+        )}
 
         <input type="hidden" name="venueQuotaId" value={selectedVenueId} />
 
@@ -109,11 +126,11 @@ export function VenueSelection({
               <select
                 id="venue-select"
                 value={selectedVenueId}
+                disabled={disabled}
                 onChange={(e: ChangeEvent<HTMLSelectElement>): void => {
                   setSelectedVenueId(e.target.value);
                 }}
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset
-       focus:ring-blue-600 sm:max-w-md sm:text-sm sm:leading-6"
+                className={`block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-md sm:text-sm sm:leading-6${disabled ? " cursor-not-allowed bg-gray-100 opacity-60" : ""}`}
               >
                 <option value="">-- Selecciona una sede --</option>
                 {sortedVenues.map((v) => (

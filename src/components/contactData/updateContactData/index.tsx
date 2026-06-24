@@ -4,6 +4,7 @@ import { UserMailingAddress } from "../mailingAddress";
 import { ContactData } from "../personalDetails";
 import { fieldIds } from "../constants";
 import { useEffect, useState } from "react";
+import useSWR from "swr";
 import { PronounsOfString } from "@/types/pronouns";
 import { ShirtStyleOfString } from "@/types/shirt";
 import { ShirtSize } from "@prisma/client";
@@ -15,6 +16,11 @@ import {
   type UserRequestInput,
 } from "@/types/user.schema";
 import { VenueSelection } from "../venueSelection";
+
+const fetcher = async <T,>(url: string): Promise<T> => {
+  const res = await fetch(url);
+  return res.json();
+};
 
 export default function UpdateContactData({
   user,
@@ -30,6 +36,12 @@ export default function UpdateContactData({
   const [loading, setLoading] = useState(false);
   const [successfulUpdate, setSuccessfulUpdate] = useState(false);
   const [selectedVenueId, setSelectedVenueId] = useState<string>("");
+
+  const { data: venueUpdateFlag } = useSWR<{
+    flagName: string;
+    value: boolean;
+  }>("/api/appConfig/UPDATE_VENUE_DISABLED?type=boolean", fetcher);
+  const venueUpdateDisabled = venueUpdateFlag?.value === true;
 
   useEffect(() => {
     setSelectedVenueId(venueId ?? "");
@@ -102,7 +114,7 @@ export default function UpdateContactData({
           phone: data.get(fieldIds.mailingPhone)?.toString() ?? "",
         },
       },
-      venueQuotaId: selectedVenueId,
+      venueQuotaId: venueUpdateDisabled ? undefined : selectedVenueId,
     };
 
     setLoading(true);
@@ -143,6 +155,7 @@ export default function UpdateContactData({
           selectedVenueId={selectedVenueId}
           setSelectedVenueId={setSelectedVenueId}
           subtitle="Sede Seleccionada"
+          disabled={venueUpdateDisabled}
         />
 
         {/* Submit form */}
@@ -150,7 +163,9 @@ export default function UpdateContactData({
           <Button
             type="submit"
             className="min-w-full md:w-64 md:min-w-0"
-            disabled={loading || selectedVenueId === ""}
+            disabled={
+              loading || (!venueUpdateDisabled && selectedVenueId === "")
+            }
           >
             {"Guardar cambios"}
           </Button>

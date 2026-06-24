@@ -272,3 +272,12 @@ model VenueQuota {
 
   @@unique([venueId, ofmiId])
 }
+
+model AppConfig {
+  id        String   @id @default(uuid())
+  flagName  String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+
+  @@index([flagName])
+}
