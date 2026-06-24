@@ -1,8 +1,9 @@
-import { beforeAll, afterAll, describe, expect, it } from "vitest";
+import { beforeAll, afterAll, beforeEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/prisma";
 import { ShirtSize } from "@prisma/client";
 import { ShirtStyles } from "@/types/shirt";
 import updateContactDataHandler from "@/pages/api/user/updateContactData";
+import { clearAppConfigCache } from "@/lib/appConfig";
 import {
   TestCleanup,
   createOfmi,
@@ -78,6 +79,7 @@ beforeAll(async () => {
 });
 
 afterAll(() => cleanup.run());
+beforeEach(() => clearAppConfigCache());
 
 describe("/api/user/updateContactData API Endpoint", () => {
   const updatedFields = {

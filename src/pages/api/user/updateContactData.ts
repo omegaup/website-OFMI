@@ -5,6 +5,7 @@ import { Value } from "@sinclair/typebox/value";
 import { BadRequestError } from "@/types/errors";
 import { validateCURP, validateMailingAddressLocation } from "@/lib/validators";
 import { parseValueError } from "@/lib/typebox";
+import { getBooleanFlag } from "@/lib/appConfig";
 import {
   UpdateContactDataRequestSchema,
   UpdateContactDataResponse,
@@ -27,9 +28,12 @@ async function updateContactDataHandler(
     });
   }
 
-  const { user: userInput, venueQuotaId } = body;
+  const { user: userInput } = body;
   const { mailingAddress: mailingAddressInput } = userInput;
   const birthDate = new Date(userInput.birthDate);
+
+  const venueUpdateDisabled = await getBooleanFlag("UPDATE_VENUE_DISABLED");
+  const venueQuotaId = venueUpdateDisabled ? undefined : body.venueQuotaId;
 
   // Check user Auth
   const authUser = await prisma.userAuth.findUnique({
