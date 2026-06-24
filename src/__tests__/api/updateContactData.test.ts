@@ -132,7 +132,7 @@ describe("/api/user/updateContactData API Endpoint", () => {
     expect(updatedUser.shirtStyle).toBe(updatedFields.shirtStyle);
   });
 
-  it("should update venue selection and adjust quotas", async () => {
+  it("should ignore venue selection when venue update is disabled", async () => {
     const { req, res } = mockRequestResponse({
       body: {
         user: { email: dummyEmail, ...updatedFields },
@@ -152,7 +152,7 @@ describe("/api/user/updateContactData API Endpoint", () => {
       include: { ContestantParticipation: true },
     });
     expect(participation.ContestantParticipation?.venueQuotaId).toBe(
-      destVenueQuotaId,
+      sourceVenueQuotaId,
     );
 
     const q1 = await prisma.venueQuota.findUniqueOrThrow({
@@ -162,8 +162,8 @@ describe("/api/user/updateContactData API Endpoint", () => {
       where: { id: destVenueQuotaId },
     });
 
-    expect(q1.occupied).toBe(4);
-    expect(q2.occupied).toBe(1);
+    expect(q1.occupied).toBe(5);
+    expect(q2.occupied).toBe(0);
   });
 
   it("should fail due to invalid address", async () => {
