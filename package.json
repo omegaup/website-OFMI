@@ -41,7 +41,7 @@
     "eslint": "8.48.0",
     "googleapis": "^144.0.0",
     "jsonwebtoken": "^9.0.2",
-    "next": "^14.2.23",
+    "next": "^16.2.9",
     "next-auth": "^4.24.5",
     "nodemailer": "^6.9.7",
     "p-limit": "^6.1.0",
