@@ -160,8 +160,8 @@ describe("/api/appConfig/[flagName] endpoint", () => {
   });
 });
 
-describe("venue update blocked by UPDATE_VENUE_DISABLED flag", () => {
-  it("allows venue change when flag is not set", async () => {
+describe("venue update always disabled (hardcoded)", () => {
+  it("ignores venue change even when flag is not set", async () => {
     clearAppConfigCache();
 
     const { req, res } = mockRequestResponse({
@@ -186,11 +186,11 @@ describe("venue update blocked by UPDATE_VENUE_DISABLED flag", () => {
       include: { ContestantParticipation: true },
     });
     expect(participation.ContestantParticipation?.venueQuotaId).toBe(
-      destVenueQuotaId,
+      sourceVenueQuotaId,
     );
   });
 
-  it("ignores venue change when flag is set to true", async () => {
+  it("ignores venue change when flag is also set to true", async () => {
     await prisma.appConfig.upsert({
       where: { flagName: FLAG_NAME },
       update: { value: "true" },
@@ -201,7 +201,7 @@ describe("venue update blocked by UPDATE_VENUE_DISABLED flag", () => {
     const { req, res } = mockRequestResponse({
       body: {
         user: { email: dummyEmail, ...updatedFields },
-        venueQuotaId: sourceVenueQuotaId,
+        venueQuotaId: destVenueQuotaId,
       },
     });
     await updateContactDataHandler(req, res);
@@ -219,9 +219,8 @@ describe("venue update blocked by UPDATE_VENUE_DISABLED flag", () => {
       },
       include: { ContestantParticipation: true },
     });
-    // Venue should NOT have changed back to source — the flag blocked it
     expect(participation.ContestantParticipation?.venueQuotaId).toBe(
-      destVenueQuotaId,
+      sourceVenueQuotaId,
     );
   });
 });

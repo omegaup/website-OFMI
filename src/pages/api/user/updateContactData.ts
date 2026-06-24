@@ -5,7 +5,6 @@ import { Value } from "@sinclair/typebox/value";
 import { BadRequestError } from "@/types/errors";
 import { validateCURP, validateMailingAddressLocation } from "@/lib/validators";
 import { parseValueError } from "@/lib/typebox";
-import { getBooleanFlag } from "@/lib/appConfig";
 import {
   UpdateContactDataRequestSchema,
   UpdateContactDataResponse,
@@ -32,7 +31,7 @@ async function updateContactDataHandler(
   const { mailingAddress: mailingAddressInput } = userInput;
   const birthDate = new Date(userInput.birthDate);
 
-  const venueUpdateDisabled = await getBooleanFlag("UPDATE_VENUE_DISABLED");
+  const venueUpdateDisabled = true;
   const venueQuotaId = venueUpdateDisabled ? undefined : body.venueQuotaId;
 
   // Check user Auth
