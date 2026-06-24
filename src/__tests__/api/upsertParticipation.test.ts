@@ -53,14 +53,21 @@ beforeAll(async () => {
 afterAll(() => cleanup.run());
 
 beforeEach(async () => {
-  await prisma.contestantParticipation.deleteMany({
-    where: {
-      Participation: { every: { user: { UserAuth: { email: dummyEmail } } } },
-    },
-  });
-  await prisma.participation.deleteMany({
+  const participations = await prisma.participation.findMany({
     where: { user: { UserAuth: { email: dummyEmail } } },
+    select: { id: true, contestantParticipationId: true },
   });
+  const cpIds = participations
+    .map((p) => p.contestantParticipationId)
+    .filter((id): id is string => id != null);
+  await prisma.participation.deleteMany({
+    where: { id: { in: participations.map((p) => p.id) } },
+  });
+  if (cpIds.length > 0) {
+    await prisma.contestantParticipation.deleteMany({
+      where: { id: { in: cpIds } },
+    });
+  }
   mockEmailer.resetMock();
 });
 
