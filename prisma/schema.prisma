@@ -30,15 +30,16 @@ enum OauthProvider {
 }
 
 model UserOauth {
-  id           String        @id @default(uuid())
-  userAuthId   String
-  UserAuth     UserAuth      @relation(fields: [userAuthId], references: [id])
-  provider     OauthProvider
-  accessToken  String
-  expiresAt    DateTime
-  refreshToken String
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id             String        @id @default(uuid())
+  userAuthId     String
+  UserAuth       UserAuth      @relation(fields: [userAuthId], references: [id])
+  provider       OauthProvider
+  accessToken    String
+  expiresAt      DateTime
+  refreshToken   String
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  externalUserId String
 
   @@unique([userAuthId, provider])
 }
